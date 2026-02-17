@@ -65,7 +65,9 @@ class TestMessageRegistry:
 
         assert result is None
 
-    def test_has_command_false_for_unregistered(self, registry: MessageRegistry) -> None:
+    def test_has_command_false_for_unregistered(
+        self, registry: MessageRegistry
+    ) -> None:
         """has_command returns False for unregistered command."""
         assert not registry.has_command("NonexistentCommand")
 

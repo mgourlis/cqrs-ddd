@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import ClassVar
 
 import pytest
 
@@ -82,10 +81,7 @@ class TestSagaBuilderBasics:
     def test_with_max_retries(self) -> None:
         """with_max_retries() is applied to saga instances."""
         MySaga = (
-            SagaBuilder("MySaga")
-            .with_max_retries(10)
-            .on(EventA, complete=True)
-            .build()
+            SagaBuilder("MySaga").with_max_retries(10).on(EventA, complete=True).build()
         )
 
         state = SagaState(id="saga-1")
@@ -335,9 +331,7 @@ class TestSagaBuilderTCC:
 
     def test_tcc_begin_without_steps_raises_error(self) -> None:
         """on_tcc_begin() without TCC steps raises configuration error."""
-        with pytest.raises(
-            SagaConfigurationError, match="no TCC steps are registered"
-        ):
+        with pytest.raises(SagaConfigurationError, match="no TCC steps are registered"):
             SagaBuilder("MySaga").on_tcc_begin(EventA).build()
 
     def test_tcc_tried_unknown_step_raises_error(self) -> None:
@@ -364,6 +358,7 @@ class TestSagaBuilderValidation:
 
     def test_handler_mutually_exclusive_with_actions(self) -> None:
         """handler is mutually exclusive with other action parameters."""
+
         async def handler(e: DomainEvent) -> None:
             pass
 

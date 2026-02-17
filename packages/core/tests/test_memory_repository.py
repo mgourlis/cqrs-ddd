@@ -112,7 +112,9 @@ class TestInMemoryRepository:
         assert "e3" in ids
         assert "e2" not in ids
 
-    async def test_list_all_with_nonexistent_ids(self, repo: InMemoryRepository) -> None:
+    async def test_list_all_with_nonexistent_ids(
+        self, repo: InMemoryRepository
+    ) -> None:
         """list_all with nonexistent IDs returns empty list."""
         entity1 = DummyAggregate(id="e1", name="Alice", age=25)
         await repo.add(entity1)
@@ -121,7 +123,9 @@ class TestInMemoryRepository:
 
         assert result == []
 
-    async def test_search_with_matching_specification(self, repo: InMemoryRepository) -> None:
+    async def test_search_with_matching_specification(
+        self, repo: InMemoryRepository
+    ) -> None:
         """search returns entities matching specification."""
         entity1 = DummyAggregate(id="e1", name="Alice", age=25)  # Matches (>18)
         entity2 = DummyAggregate(id="e2", name="Bob", age=15)  # Does not match
@@ -177,7 +181,9 @@ class TestInMemoryRepository:
         ids = [e.id for e in results]
         assert set(ids) == {"e1", "e2", "e3"}
 
-    async def test_search_stream_with_batch_size(self, repo: InMemoryRepository) -> None:
+    async def test_search_stream_with_batch_size(
+        self, repo: InMemoryRepository
+    ) -> None:
         """search.stream(batch_size) processes in batches."""
         for i in range(10):
             entity = DummyAggregate(id=f"e{i}", name=f"Person{i}", age=20 + i)

@@ -68,7 +68,9 @@ class TestInMemoryEventStore:
         """get_events filters by aggregate_id."""
         event1 = OrderCreated(aggregate_id="order-123", order_id="order-123")
         event2 = OrderCreated(aggregate_id="order-456", order_id="order-456")
-        event3 = PaymentReceived(aggregate_id="order-123", order_id="order-123", transaction_id="tx-1")
+        event3 = PaymentReceived(
+            aggregate_id="order-123", order_id="order-123", transaction_id="tx-1"
+        )
 
         await store.append(event1)
         await store.append(event2)
@@ -79,11 +81,23 @@ class TestInMemoryEventStore:
         assert len(events) == 2
         assert all(e.aggregate_id == "order-123" for e in events)
 
-    async def test_get_events_with_version_filter(self, store: InMemoryEventStore) -> None:
+    async def test_get_events_with_version_filter(
+        self, store: InMemoryEventStore
+    ) -> None:
         """get_events filters by version when specified."""
         event1 = OrderCreated(aggregate_id="order-123", order_id="order-123", version=1)
-        event2 = PaymentReceived(aggregate_id="order-123", order_id="order-123", transaction_id="tx-1", version=2)
-        event3 = PaymentReceived(aggregate_id="order-123", order_id="order-123", transaction_id="tx-2", version=3)
+        event2 = PaymentReceived(
+            aggregate_id="order-123",
+            order_id="order-123",
+            transaction_id="tx-1",
+            version=2,
+        )
+        event3 = PaymentReceived(
+            aggregate_id="order-123",
+            order_id="order-123",
+            transaction_id="tx-2",
+            version=3,
+        )
 
         await store.append(event1)
         await store.append(event2)
@@ -96,7 +110,9 @@ class TestInMemoryEventStore:
         assert events[0].version == 2
         assert events[1].version == 3
 
-    async def test_get_events_nonexistent_aggregate(self, store: InMemoryEventStore) -> None:
+    async def test_get_events_nonexistent_aggregate(
+        self, store: InMemoryEventStore
+    ) -> None:
         """get_events returns empty list for nonexistent aggregate."""
         events = await store.get_events("nonexistent")
 
@@ -105,7 +121,9 @@ class TestInMemoryEventStore:
     async def test_get_by_aggregate_all_events(self, store: InMemoryEventStore) -> None:
         """get_by_aggregate returns all events for aggregate."""
         event1 = OrderCreated(aggregate_id="order-123", order_id="order-123")
-        event2 = PaymentReceived(aggregate_id="order-123", order_id="order-123", transaction_id="tx-1")
+        event2 = PaymentReceived(
+            aggregate_id="order-123", order_id="order-123", transaction_id="tx-1"
+        )
 
         await store.append(event1)
         await store.append(event2)
@@ -114,12 +132,23 @@ class TestInMemoryEventStore:
 
         assert len(events) == 2
 
-    async def test_get_by_aggregate_with_type_filter(self, store: InMemoryEventStore) -> None:
+    async def test_get_by_aggregate_with_type_filter(
+        self, store: InMemoryEventStore
+    ) -> None:
         """get_by_aggregate filters by aggregate_type when specified."""
         # Create events with aggregate_type set during construction
-        event1 = OrderCreated(aggregate_id="order-123", order_id="order-123", aggregate_type="Order")
-        event2 = PaymentReceived(aggregate_id="payment-456", order_id="order-123", transaction_id="tx-1", aggregate_type="Payment")
-        event3 = OrderCreated(aggregate_id="order-789", order_id="order-789", aggregate_type="Order")
+        event1 = OrderCreated(
+            aggregate_id="order-123", order_id="order-123", aggregate_type="Order"
+        )
+        event2 = PaymentReceived(
+            aggregate_id="payment-456",
+            order_id="order-123",
+            transaction_id="tx-1",
+            aggregate_type="Payment",
+        )
+        event3 = OrderCreated(
+            aggregate_id="order-789", order_id="order-789", aggregate_type="Order"
+        )
 
         await store.append(event1)
         await store.append(event2)
@@ -131,9 +160,13 @@ class TestInMemoryEventStore:
         assert len(events) == 1
         assert events[0].aggregate_id == "order-123"
 
-    async def test_get_by_aggregate_nonexistent_type(self, store: InMemoryEventStore) -> None:
+    async def test_get_by_aggregate_nonexistent_type(
+        self, store: InMemoryEventStore
+    ) -> None:
         """get_by_aggregate returns empty list for nonexistent type."""
-        event1 = OrderCreated(aggregate_id="order-123", order_id="order-123", aggregate_type="Order")
+        event1 = OrderCreated(
+            aggregate_id="order-123", order_id="order-123", aggregate_type="Order"
+        )
 
         await store.append(event1)
 
@@ -159,7 +192,9 @@ class TestInMemoryEventStore:
             assert event.amount == float(i * 100)
             assert event.version == i + 1
 
-    async def test_multiple_aggregates_isolation(self, store: InMemoryEventStore) -> None:
+    async def test_multiple_aggregates_isolation(
+        self, store: InMemoryEventStore
+    ) -> None:
         """Events for different aggregates are isolated."""
         event1 = OrderCreated(aggregate_id="order-123", order_id="order-123")
         event2 = OrderCreated(aggregate_id="order-456", order_id="order-456")

@@ -107,7 +107,9 @@ class TestUpcasterChain:
         chain = UpcasterChain([upcaster])
 
         data = {"order_id": "123", "amount": 100.0}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         assert result_data["currency"] == "USD"
         assert result_version == 2
@@ -119,7 +121,9 @@ class TestUpcasterChain:
         chain = UpcasterChain([upcaster1, upcaster2])
 
         data = {"order_id": "123", "amount": 100.0}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         # Both upcasters should have been applied
         assert result_data["currency"] == "USD"
@@ -134,7 +138,9 @@ class TestUpcasterChain:
 
         # Start from version 2 -> should only apply V2ToV3
         data = {"order_id": "123", "amount": 100.0, "currency": "EUR"}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=2)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=2
+        )
 
         assert result_data["currency"] == "EUR"  # Not overwritten
         assert result_data["tax_rate"] == 0.1  # Added by V2ToV3
@@ -147,7 +153,9 @@ class TestUpcasterChain:
         chain = UpcasterChain([order_upcaster, payment_upcaster])
 
         data = {"order_id": "123", "amount": 100.0}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         # Only order upcaster should be applied
         assert result_data["currency"] == "USD"
@@ -159,7 +167,9 @@ class TestUpcasterChain:
         chain = UpcasterChain([])
 
         data = {"order_id": "123"}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         assert result_data == data
         assert result_version == 1
@@ -187,7 +197,9 @@ class TestUpcasterChain:
 
         # Should still apply in correct order (v1->v2 then v2->v3)
         data = {"order_id": "123", "amount": 100.0}
-        result_data, result_version = chain.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = chain.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         assert result_data["currency"] == "USD"
         assert result_data["tax_rate"] == 0.1
@@ -268,7 +280,9 @@ class TestUpcasterRegistry:
         registry.register(upcaster)
 
         data = {"order_id": "123", "amount": 100.0}
-        result_data, result_version = registry.upcast("OrderCreated", data, stored_version=1)
+        result_data, result_version = registry.upcast(
+            "OrderCreated", data, stored_version=1
+        )
 
         assert result_data["currency"] == "USD"
         assert result_version == 2
@@ -328,6 +342,8 @@ class TestUpcasterRegistry:
 
         # Upcast payment event
         payment_data = {"transaction_id": "tx-456"}
-        payment_result, _ = registry.upcast("PaymentProcessed", payment_data, stored_version=1)
+        payment_result, _ = registry.upcast(
+            "PaymentProcessed", payment_data, stored_version=1
+        )
         assert "status" in payment_result
         assert "currency" not in payment_result

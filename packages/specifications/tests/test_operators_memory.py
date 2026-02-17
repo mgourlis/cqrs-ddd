@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 import pytest
@@ -463,7 +462,10 @@ class TestGeometryOperators:
     def test_intersects_operator_with_none(self) -> None:
         """INTERSECTS returns False for None values."""
         op = IntersectsOperator()
-        polygon = {"type": "Polygon", "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]]}
+        polygon = {
+            "type": "Polygon",
+            "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]],
+        }
         assert op.evaluate(None, polygon) is False
 
     def test_within_operator(
@@ -494,21 +496,33 @@ class TestGeometryOperators:
         op = TouchesOperator()
         # Point on polygon edge
         edge_point = {"type": "Point", "coordinates": [1, 0]}
-        polygon = {"type": "Polygon", "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]]}
+        polygon = {
+            "type": "Polygon",
+            "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]],
+        }
         assert op.evaluate(edge_point, polygon) is True
 
     def test_crosses_operator(self) -> None:
         """CROSSES checks if geometries cross."""
         op = CrossesOperator()
         line = {"type": "LineString", "coordinates": [[-2, 0], [2, 0]]}
-        polygon = {"type": "Polygon", "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]]}
+        polygon = {
+            "type": "Polygon",
+            "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]],
+        }
         assert op.evaluate(line, polygon) is True
 
     def test_overlaps_operator(self) -> None:
         """OVERLAPS checks if geometries overlap."""
         op = OverlapsOperator()
-        poly1 = {"type": "Polygon", "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]]}
-        poly2 = {"type": "Polygon", "coordinates": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]]}
+        poly1 = {
+            "type": "Polygon",
+            "coordinates": [[[-1, -1], [1, -1], [1, 1], [-1, 1], [-1, -1]]],
+        }
+        poly2 = {
+            "type": "Polygon",
+            "coordinates": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]],
+        }
         assert op.evaluate(poly1, poly2) is True
 
     def test_disjoint_operator(self) -> None:
@@ -555,7 +569,9 @@ class TestGeometryOperators:
         outside_point = {"type": "Point", "coordinates": [10, 10]}
         assert op.evaluate(outside_point, bbox) is False
 
-    def test_geometry_operator_with_shapely_object(self, point_geojson: dict[str, Any]) -> None:
+    def test_geometry_operator_with_shapely_object(
+        self, point_geojson: dict[str, Any]
+    ) -> None:
         """Geometry operators accept Shapely geometry objects directly."""
         from shapely.geometry import Point
 
