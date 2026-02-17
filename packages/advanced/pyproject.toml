@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-advanced-core"
+version = "0.1.0"
+description = "Advanced patterns (Distributed Sagas, Snapshotting) for the CQRS/DDD Toolkit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_advanced_core*"]

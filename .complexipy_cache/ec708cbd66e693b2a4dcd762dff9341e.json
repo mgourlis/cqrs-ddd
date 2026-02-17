@@ -1,0 +1,79 @@
+{
+  "functions": [
+    {
+      "complexity": 0,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::__init__",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::_make_key",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::_store_lock_metadata",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::_prune_expired_metadata",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::_acquire_new_lock",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::close",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::get_active_locks",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::_handle_reentrant_lock",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::health_check",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::release",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::acquire",
+      "path": "redlock_locking.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::extend",
+      "path": "redlock_locking.py"
+    }
+  ],
+  "targets": [
+    "/home/mgourlis/Development/cqrs-ddd/packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+  ]
+}

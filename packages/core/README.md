@@ -60,11 +60,11 @@ Aggregates enforce consistency boundaries. They hold state and produce events.
             user_id = uuid.uuid4()
             # Initialize aggregate
             user = cls(id=user_id, username=username, email=email)
-            
+
             # Record the event (staged for persistence)
             user.add_event(UserRegistered(
-                user_id=user_id, 
-                email=email, 
+                user_id=user_id,
+                email=email,
                 username=username
             ))
             return user
@@ -74,7 +74,7 @@ Your domain should depend on *contracts*, not implementations.
 
     from cqrs_ddd_core.ports.repository import IRepository
 
-    # This is just a Protocol. 
+    # This is just a Protocol.
     # The actual implementation (SQLAlchemy/Mongo) lives in a separate package.
     class IUserRepository(IRepository[User]):
         pass
@@ -96,22 +96,22 @@ Commands represent intent. They are immutable and validated before execution.
 You don't need to spin up Docker or install Postgres to test your domain logic. Use the `InMemory` fakes provided by the core.
 
     import pytest
-    from cqrs_ddd_core.testing.memory_repo import InMemoryRepository
+    from cqrs_ddd_core.adapters.memory.repository import InMemoryRepository
     from my_app.domain.user import User
 
     @pytest.mark.asyncio
     async def test_user_persistence():
         # 1. Setup Fake Infrastructure
         repo = InMemoryRepository[User]()
-        
+
         # 2. Execute Domain Logic
         user = User.register("alice", "alice@example.com")
         await repo.add(user)
-        
+
         # 3. Assert
         fetched_user = await repo.get(user.id)
         assert fetched_user.username == "alice"
-        
+
         # Check if events were generated
         events = user.collect_events()
         assert len(events) == 1

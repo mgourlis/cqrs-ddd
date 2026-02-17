@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-persistence-sqlalchemy"
+version = "0.1.0"
+description = "SQLAlchemy/PostgreSQL persistence adapter for the CQRS/DDD Toolkit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+    "cqrs-ddd-specifications",
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+]
+
+
+[project.optional-dependencies]
+sqlite = ["aiosqlite>=0.19.0"]
+advanced = ["cqrs-ddd-advanced-core"]
+geo = ["geoalchemy2>=0.14.0", "shapely>=2.0", "pyproj>=3.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_persistence_sqlalchemy*"]

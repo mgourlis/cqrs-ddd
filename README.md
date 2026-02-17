@@ -3,6 +3,11 @@
 # Core Philosophy
 This framework is a composable ecosystem for building Enterprise-grade, Domain-Driven Design (DDD) applications.
 
+# 🚀 Technology Stack
+- **Python**: 3.10, 3.11, 3.12 (Supported & Tested)
+- **Domain Modeling**: Pydantic v2
+- **Persistence**: SQLAlchemy 2.0 (Async) / PostgreSQL
+
 Rule #1: Strict Isolation. cqrs-ddd-core must never depend on extensions (Identity, Multitenancy, etc.).
 
 Rule #2: Intent-Based Packaging. We do not have a generic "utils" package. We have messaging, caching, notifications.

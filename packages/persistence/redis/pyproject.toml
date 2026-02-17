@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-redis"
+version = "0.1.0"
+description = "Redis integration for CQRS/DDD toolkit - distributed locking, caching, and pub/sub"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+    "redlock-ng>=1.0.1",
+    "redis>=5.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_redis*"]

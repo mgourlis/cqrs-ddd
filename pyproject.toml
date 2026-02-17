@@ -1,0 +1,206 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-toolkit"
+version = "0.1.0"
+description = "A modular, enterprise-grade CQRS/DDD toolkit for Python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = [
+    "pydantic>=2.5.0",
+    "typing-extensions>=4.12.0",
+]
+
+[project.optional-dependencies]
+# Group 1: The Foundation
+core = []
+persistence-sqlalchemy = ["sqlalchemy[asyncio]>=2.0.0", "asyncpg>=0.29.0"]
+advanced-core = []
+
+# Group 2: Data & Scale
+persistence-mongo = ["motor>=3.3.0"]
+persistence-redis = ["redlock-ng>=1.0.1", "redis>=5.0.0"]
+projections = []
+
+# Group 3: Security & Isolation
+identity = ["python-jose[cryptography]>=3.3.0"]
+access-control = []
+multitenancy = []
+
+# Group 4: Infrastructure Abstractions
+file-storage-s3 = ["boto3>=1.34.0"]
+file-storage-azure = ["azure-storage-blob>=12.19.0"]
+messaging-rabbitmq = ["aio-pika>=9.3.0"]
+messaging-kafka = ["aiokafka>=0.10.0"]
+observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0"]
+
+# Development
+dev = [
+    "ruff>=0.1.11",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.26.0",
+    "polyfactory>=2.14.0",
+    "dirty-equals>=0.7.1",
+    "hypothesis>=6.92.0",
+    "pytest-archon>=0.0.6",
+    "complexipy>=0.5.0",
+    "vulture>=2.10",
+    "nox>=2023.4.22",
+    "pytest-mock>=3.12.0",
+    "aiosqlite>=0.19.0",
+    "types-redis>=4.0.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/persistence/redis/src", "packages/advanced/src", "packages/specifications/src"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations
+    "TCH", # flake8-type-checking
+    "PT",  # flake8-pytest-style
+    "N",   # pep8-naming
+    "S",   # flake8-bandit (security)
+    "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
+    "A",   # flake8-builtins
+    "COM", # flake8-commas
+    "DTZ", # flake8-datetimez
+    "PIE", # flake8-pie
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "ERA", # eradicate (dead code)
+]
+ignore = [
+    "ANN401", # Dynamically typed expressions (typing.Any) are allowed
+    "COM812", # Missing trailing comma (handled by formatter)
+    "FBT001", # Boolean-typed positional argument in function definition
+    "FBT003", # Boolean positional value in function call
+    "S101",   # Use of assert (standard in pytest)
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in classmethod
+    "A003",   # Class attribute shadowing builtin (e.g. id)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["ANN", "ARG", "S101", "ERA001", "A002", "N806", "E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cqrs_ddd_core", "cqrs_ddd_persistence_sqlalchemy", "cqrs_ddd_redis", "cqrs_ddd_advanced_core", "cqrs_ddd_specifications"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+plugins = ["pydantic.mypy"]
+explicit_package_bases = false
+namespace_packages = false
+exclude = ["(?x)(^|/)tests/"]
+mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/persistence/redis/src:packages/specifications/src"
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "noxfile"
+disallow_untyped_decorators = false
+
+[tool.pyright]
+include = [
+    "packages/core/src",
+    "packages/persistence/sqlalchemy/src",
+    "packages/persistence/redis/src",
+    "packages/advanced/src",
+    "packages/specifications/src",
+    "tests"
+]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    ".venv",
+    ".nox"
+]
+reportMissingImports = true
+reportMissingTypeStubs = false
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = [
+    "packages/core/tests",
+    "packages/persistence/sqlalchemy/tests",
+    "packages/persistence/redis/tests",
+    "packages/advanced/tests",
+    "packages/specifications/tests",
+    "tests",
+]
+python_files = ["test_*.py"]
+addopts = "--strict-markers --cov=. --cov-report=term-missing"
+
+[tool.coverage.run]
+source = [
+    "packages/core/src/cqrs_ddd_core",
+    "packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy",
+    "packages/persistence/redis/src/cqrs_ddd_redis",
+    "packages/advanced/src/cqrs_ddd_advanced_core",
+    "packages/specifications/src/cqrs_ddd_specifications",
+]
+omit = ["**/tests/*", "**/__init__.py", "noxfile.py", "setup.py", "noxfile.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\(Protocol\\):",
+]
+show_missing = true
+fail_under = 80

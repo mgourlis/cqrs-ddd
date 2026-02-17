@@ -131,3 +131,5 @@ dmypy.json
 *.db
 *.sqlite
 .env.*.local
+
+docs/

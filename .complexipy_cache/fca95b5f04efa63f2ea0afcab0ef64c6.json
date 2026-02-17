@@ -1,0 +1,91 @@
+{
+  "functions": [
+    {
+      "complexity": 0,
+      "file_name": "ast.py",
+      "function_name": "AttributeSpecification::is_satisfied_by",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ast.py",
+      "function_name": "AttributeSpecification::to_dict",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::from_dict",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::validate",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "ast.py",
+      "function_name": "AttributeSpecification::__init__",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::from_json",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_collect_errors",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_collect_leaf_errors",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_validate_leaf_node",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_validate_node",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "ast.py",
+      "function_name": "AttributeSpecification::_resolve_field",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_build",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_collect_logical_errors",
+      "path": "ast.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "ast.py",
+      "function_name": "SpecificationFactory::_validate_logical_node",
+      "path": "ast.py"
+    }
+  ],
+  "targets": [
+    "/home/mgourlis/Development/cqrs-ddd/packages/specifications/src/cqrs_ddd_specifications/ast.py"
+  ]
+}

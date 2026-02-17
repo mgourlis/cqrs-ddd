@@ -1,0 +1,85 @@
+{
+  "functions": [
+    {
+      "complexity": 0,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::__init__",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_fetch_and_cache_missing",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_key",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::search",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_get_cached_values",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::add",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::delete",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::list",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_update_cache",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_execute_read_through",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_prepare_cache_entries",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::_collect_missing_ids",
+      "path": "caching_repository.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "caching_repository.py",
+      "function_name": "CachingRepository::get",
+      "path": "caching_repository.py"
+    }
+  ],
+  "targets": [
+    "/home/mgourlis/Development/cqrs-ddd/packages/core/src/cqrs_ddd_core/adapters/decorators/caching_repository.py"
+  ]
+}
