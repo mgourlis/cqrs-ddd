@@ -118,9 +118,11 @@ class RedisCacheService(ICacheService):
         """Caution: This is expensive (SCAN)."""
         try:
             cursor: int = 0
-            while cursor:
+            while True:
                 cursor, keys = await self._redis.scan(cursor, match=f"{prefix}*")
                 if keys:
                     await self._redis.delete(*keys)
+                if cursor == 0:
+                    break
         except Exception as e:  # noqa: BLE001
             logger.warning("Redis clear_namespace failed: %s", e)

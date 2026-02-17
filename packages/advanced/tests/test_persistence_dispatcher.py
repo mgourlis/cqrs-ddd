@@ -179,3 +179,166 @@ async def test_dispatcher_fetch_query_with_specification() -> None:
 
     assert len(results) == 1
     assert results[0].name == "From Spec"
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_apply_with_explicit_uow() -> None:
+    """apply() can use an explicit UoW instead of creating one."""
+    registry = PersistenceRegistry()
+    registry.register_operation(MockEntity, MockOperationPersistence)
+
+    explicit_uow = MockUoW()
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    entity = MockEntity(id=uuid4(), name="Test")
+    modification = Modification(entity)
+
+    result = await dispatcher.apply(modification, uow=explicit_uow)
+
+    assert result == entity.id
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_apply_missing_handler_raises_error() -> None:
+    """apply() raises HandlerNotRegisteredError when no handler found."""
+    from cqrs_ddd_advanced_core.exceptions import HandlerNotRegisteredError
+
+    registry = PersistenceRegistry()
+    # Don't register any handler
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    entity = MockEntity(id=uuid4(), name="Test")
+    modification = Modification(entity)
+
+    with pytest.raises(HandlerNotRegisteredError):
+        await dispatcher.apply(modification)
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_fetch_domain_missing_handler_raises_error() -> None:
+    """fetch_domain() raises HandlerNotRegisteredError when no handler found."""
+    from cqrs_ddd_advanced_core.exceptions import HandlerNotRegisteredError
+
+    registry = PersistenceRegistry()
+    # Don't register any handler
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    with pytest.raises(HandlerNotRegisteredError):
+        await dispatcher.fetch_domain(MockEntity, [uuid4()])
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_missing_source_raises_error() -> None:
+    """Dispatcher raises SourceNotRegisteredError for unknown source."""
+    from cqrs_ddd_advanced_core.exceptions import SourceNotRegisteredError
+
+    registry = PersistenceRegistry()
+    registry.register_retrieval(MockEntity, MockRetrievalPersistence, source="unknown")
+
+    # Don't register 'unknown' source in uow_factories
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    with pytest.raises(SourceNotRegisteredError):
+        await dispatcher.fetch_domain(MockEntity, [uuid4()])
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_fetch_id_based_streaming() -> None:
+    """fetch() with IDs supports streaming with batch_size."""
+    registry = PersistenceRegistry()
+    registry.register_query(MockResult, MockQueryPersistence)
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    ids = [uuid4(), uuid4(), uuid4()]
+    search_result = await dispatcher.fetch(MockResult, ids)
+
+    # Test streaming
+    results = []
+    async for item in search_result.stream(batch_size=2):
+        results.append(item)
+
+    assert len(results) == 3
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_fetch_spec_build_search_result() -> None:
+    """fetch() with specification builds SearchResult with list and stream."""
+    registry = PersistenceRegistry()
+    registry.register_query_spec(MockResult, MockQuerySpecPersistence)
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    class MySpec(ISpecification):
+        def is_satisfied_by(self, candidate: Any) -> bool:
+            return True
+
+        def to_dict(self) -> dict:
+            return {}
+
+    search_result = await dispatcher.fetch(MockResult, MySpec())
+
+    # Test list mode
+    results_list = await search_result
+    assert len(results_list) == 1
+
+    # Note: stream mode requires explicit UoW, so we skip testing it here
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_fetch_query_missing_handler_raises_error() -> None:
+    """fetch() raises HandlerNotRegisteredError when no query handler found."""
+    from cqrs_ddd_advanced_core.exceptions import HandlerNotRegisteredError
+
+    registry = PersistenceRegistry()
+    # Don't register query handler
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    # Need to await the SearchResult to trigger the error
+    result = await dispatcher.fetch(MockResult, [uuid4()])
+    with pytest.raises(HandlerNotRegisteredError):
+        await result
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_apply_uses_highest_priority_handler() -> None:
+    """apply() uses the highest priority handler when multiple are registered."""
+    registry = PersistenceRegistry()
+
+    # Register two handlers with different priorities
+    registry.register_operation(MockEntity, MockOperationPersistence, priority=1)
+
+    class HighPriorityHandler:
+        async def persist(self, modification: Modification, uow: Any) -> Any:
+            return "high_priority"
+
+    registry.register_operation(MockEntity, HighPriorityHandler, priority=10)
+
+    dispatcher = PersistenceDispatcher(
+        uow_factories={"default": lambda: MockUoW()}, registry=registry
+    )
+
+    entity = MockEntity(id=uuid4(), name="Test")
+    modification = Modification(entity)
+
+    result = await dispatcher.apply(modification)
+
+    # Should use high priority handler
+    assert result == "high_priority"

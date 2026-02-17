@@ -513,3 +513,251 @@ class DummyUnitOfWork:
 
     async def rollback(self) -> None:
         pass
+
+
+# ============================================================================
+# BackgroundJobService additional tests
+# ============================================================================
+
+
+class TestBackgroundJobServiceExtended:
+    """Extended tests for BackgroundJobService methods."""
+
+    @pytest.mark.asyncio
+    async def test_cancel_existing_job(self) -> None:
+        """cancel() should cancel an existing job."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create and schedule a pending job
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+
+        # Cancel the job
+        result = await service.cancel(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.CANCELLED
+        assert result.id == job.id
+
+    @pytest.mark.asyncio
+    async def test_cancel_nonexistent_job(self) -> None:
+        """cancel() should return None for nonexistent job."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        result = await service.cancel("nonexistent-id")
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_retry_failed_job(self) -> None:
+        """retry() should retry a failed job."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create a job, start it, then fail it
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+        job.start_processing()
+        job.fail("Initial failure")
+        await persistence.add(job)
+
+        # Retry the job
+        result = await service.retry(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.RUNNING
+        assert result.retry_count == 1
+
+    @pytest.mark.asyncio
+    async def test_retry_nonexistent_job(self) -> None:
+        """retry() should return None for nonexistent job."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        result = await service.retry("nonexistent-id")
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_mark_running_transitions_state(self) -> None:
+        """mark_running() should transition PENDING job to RUNNING."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create a pending job
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+
+        # Mark as running
+        result = await service.mark_running(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.RUNNING
+        assert result.id == job.id
+
+    @pytest.mark.asyncio
+    async def test_mark_running_triggers_sweeper(self) -> None:
+        """mark_running() should trigger sweeper callback if set."""
+        persistence = InMemoryBackgroundJobRepository()
+        sweeper_triggered = False
+
+        def sweeper_trigger():
+            nonlocal sweeper_triggered
+            sweeper_triggered = True
+
+        service = BackgroundJobService(persistence, sweeper_trigger=sweeper_trigger)
+
+        # Create and schedule a job
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+
+        # Mark as running
+        await service.mark_running(job.id)
+
+        assert sweeper_triggered
+
+    @pytest.mark.asyncio
+    async def test_mark_running_handles_sweeper_failure(self) -> None:
+        """mark_running() should handle sweeper trigger failures gracefully."""
+        persistence = InMemoryBackgroundJobRepository()
+
+        def failing_sweeper():
+            raise Exception("Sweeper error")
+
+        service = BackgroundJobService(persistence, sweeper_trigger=failing_sweeper)
+
+        # Create and schedule a job
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+
+        # Mark as running - should not raise despite sweeper failure
+        result = await service.mark_running(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.RUNNING
+
+    @pytest.mark.asyncio
+    async def test_mark_running_nonexistent_job(self) -> None:
+        """mark_running() should return None for nonexistent job."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        result = await service.mark_running("nonexistent-id")
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_process_stale_jobs_marks_as_failed(self) -> None:
+        """process_stale_jobs() should mark stale jobs as failed."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create running jobs that are stale
+        job1 = BaseBackgroundJob.create(job_type="Task", timeout_seconds=60)
+        job1.status = BackgroundJobStatus.RUNNING
+        job1.updated_at = datetime.now(timezone.utc) - timedelta(
+            seconds=120
+        )  # 2 minutes old
+        await persistence.add(job1)
+
+        job2 = BaseBackgroundJob.create(job_type="Task", timeout_seconds=60)
+        job2.status = BackgroundJobStatus.RUNNING
+        job2.updated_at = datetime.now(timezone.utc) - timedelta(
+            seconds=90
+        )  # 1.5 minutes old
+        await persistence.add(job2)
+
+        # Process stale jobs with 60 second timeout
+        swept_count = await service.process_stale_jobs(timeout_seconds=60)
+
+        assert swept_count == 2
+
+        # Verify jobs are marked as failed
+        job1_after = await persistence.get(job1.id)
+        job2_after = await persistence.get(job2.id)
+        assert job1_after.status == BackgroundJobStatus.FAILED
+        assert job2_after.status == BackgroundJobStatus.FAILED
+        assert "timed out" in job1_after.error_message.lower()
+
+    @pytest.mark.asyncio
+    async def test_process_stale_jobs_no_stale_jobs(self) -> None:
+        """process_stale_jobs() should return 0 when no stale jobs."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create a recent running job
+        job = BaseBackgroundJob.create(job_type="Task")
+        job.status = BackgroundJobStatus.RUNNING
+        job.updated_at = datetime.now(timezone.utc)  # Fresh
+        await persistence.add(job)
+
+        swept_count = await service.process_stale_jobs(timeout_seconds=60)
+
+        assert swept_count == 0
+
+        # Verify job is still running
+        job_after = await persistence.get(job.id)
+        assert job_after.status == BackgroundJobStatus.RUNNING
+
+    @pytest.mark.asyncio
+    async def test_process_stale_jobs_handles_sweep_failure(self) -> None:
+        """process_stale_jobs() should handle individual job sweep failures."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Create two stale jobs
+        job1 = BaseBackgroundJob.create(job_type="Task1")
+        job1.start_processing()
+        job1.updated_at = datetime.now(timezone.utc) - timedelta(seconds=120)
+        await persistence.add(job1)
+
+        job2 = BaseBackgroundJob.create(job_type="Task2")
+        job2.start_processing()
+        job2.updated_at = datetime.now(timezone.utc) - timedelta(seconds=120)
+        await persistence.add(job2)
+
+        # Mock persistence to fail on the second sweep attempt
+        original_add = persistence.add
+        add_calls = [0]
+
+        async def failing_add(job_arg):
+            add_calls[0] += 1
+            if add_calls[0] == 2:  # Fail on second sweep attempt
+                raise Exception("Persistence error during sweep")
+            return await original_add(job_arg)
+
+        persistence.add = failing_add
+
+        # Process should handle the error gracefully
+        swept_count = await service.process_stale_jobs(timeout_seconds=60)
+
+        # First job succeeds (swept=1), second job fails (exception caught, swept stays 1)
+        assert swept_count == 1
+        assert add_calls[0] == 2  # Both jobs attempted persistence
+
+    @pytest.mark.asyncio
+    async def test_set_sweeper_trigger(self) -> None:
+        """set_sweeper_trigger() should update the sweeper callback."""
+        persistence = InMemoryBackgroundJobRepository()
+        service = BackgroundJobService(persistence)
+
+        # Initially no sweeper
+        assert service._sweeper_trigger is None
+
+        # Set sweeper
+        triggered = False
+
+        def sweeper():
+            nonlocal triggered
+            triggered = True
+
+        service.set_sweeper_trigger(sweeper)
+
+        # Create and mark running to trigger sweeper
+        job = BaseBackgroundJob.create(job_type="Task")
+        await service.schedule(job)
+        await service.mark_running(job.id)
+
+        assert triggered

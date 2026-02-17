@@ -122,32 +122,38 @@ def _build_handler_actions(  # noqa: C901
         actions, config.get("resume", False), lambda: _create_resume_action(saga)
     )
     _maybe_add_action(
-        actions, "step" in config, lambda: _create_step_action(saga, config["step"])
-    )
-    _maybe_add_action(
-        actions, "send" in config, lambda: _create_send_action(saga, config["send"])
+        actions,
+        config.get("step") is not None,
+        lambda: _create_step_action(saga, config["step"]),
     )
     _maybe_add_action(
         actions,
-        "send_all" in config,
+        config.get("send") is not None,
+        lambda: _create_send_action(saga, config["send"]),
+    )
+    _maybe_add_action(
+        actions,
+        config.get("send_all") is not None,
         lambda: _create_send_all_action(saga, config["send_all"]),
     )
     _maybe_add_action(
         actions,
-        "compensate" in config,
+        config.get("compensate") is not None,
         lambda: _create_compensate_action(
             saga, config["compensate"], config.get("compensate_description", "")
         ),
     )
     _maybe_add_action(
         actions,
-        "suspend" in config,
+        config.get("suspend") is not None,
         lambda: _create_suspend_action(
             saga, config["suspend"], config.get("suspend_timeout")
         ),
     )
     _maybe_add_action(
-        actions, "fail" in config, lambda: _create_fail_action(saga, config["fail"])
+        actions,
+        config.get("fail") is not None,
+        lambda: _create_fail_action(saga, config["fail"]),
     )
     _maybe_add_action(
         actions, config.get("complete", False), lambda: _create_complete_action(saga)
