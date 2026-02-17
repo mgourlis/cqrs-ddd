@@ -132,7 +132,7 @@ show_error_codes = true
 plugins = ["pydantic.mypy"]
 explicit_package_bases = false
 namespace_packages = false
-exclude = ["(?x)(^|/)tests/"]
+exclude = ["(?x)(^|/)tests/", "(^|/)build/"]
 mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/persistence/redis/src:packages/specifications/src"
 
 [tool.pydantic-mypy]

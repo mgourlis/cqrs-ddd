@@ -11,7 +11,7 @@ from cqrs_ddd_redis import FifoRedisLockStrategy
 from cqrs_ddd_redis.exceptions import RedisLockError
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_redis() -> MagicMock:
     redis = MagicMock()
     redis.eval = AsyncMock(return_value=1)
@@ -21,12 +21,12 @@ def mock_redis() -> MagicMock:
     return redis
 
 
-@pytest.fixture
+@pytest.fixture()
 def strategy(mock_redis: MagicMock) -> FifoRedisLockStrategy:
     return FifoRedisLockStrategy(mock_redis)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestFifoRedisLockStrategy:
     """Test FifoRedisLockStrategy with mocks."""
 

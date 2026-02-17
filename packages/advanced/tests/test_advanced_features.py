@@ -65,7 +65,7 @@ def test_upcaster_registry_sorting() -> None:
     assert version == 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_saga_event_already_processed() -> None:
     class MyStateV1(SagaState):
         def __init__(self) -> None:
@@ -95,7 +95,7 @@ async def test_saga_event_already_processed() -> None:
     assert len(saga.collect_commands()) == 0
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_saga_logic_happy_path() -> None:
     class MyStateV2(SagaState):
         def __init__(self) -> None:

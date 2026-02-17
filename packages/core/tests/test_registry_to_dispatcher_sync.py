@@ -34,7 +34,7 @@ class BackgroundHandler:
         self.called = True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_registry_to_dispatcher_mapping():
     # Setup
     registry = HandlerRegistry()
@@ -68,7 +68,7 @@ async def test_registry_to_dispatcher_mapping():
     assert b_handler in dispatcher._handlers[MockEvent]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_mediator_dispatches_only_sync_from_consolidated_registry():
     # Setup
     registry = HandlerRegistry()

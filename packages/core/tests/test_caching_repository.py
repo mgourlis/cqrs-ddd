@@ -8,17 +8,17 @@ from cqrs_ddd_core.adapters.decorators.caching_repository import CachingReposito
 from cqrs_ddd_core.ports.repository import IRepository
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestCachingRepository:
-    @pytest.fixture
+    @pytest.fixture()
     def inner_repo(self):
         return AsyncMock(spec=IRepository)
 
-    @pytest.fixture
+    @pytest.fixture()
     def cache_service(self):
         return AsyncMock()
 
-    @pytest.fixture
+    @pytest.fixture()
     def caching_repo(self, inner_repo, cache_service):
         return CachingRepository(inner_repo, cache_service, "TestEntity")
 

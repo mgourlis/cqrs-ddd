@@ -12,17 +12,17 @@ class MockEntity(AggregateRoot):
     pass
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestCachingPersistenceDispatcher:
-    @pytest.fixture
+    @pytest.fixture()
     def inner_dispatcher(self):
         return AsyncMock(spec=IPersistenceDispatcher)
 
-    @pytest.fixture
+    @pytest.fixture()
     def cache_service(self):
         return AsyncMock(spec=ICacheService)
 
-    @pytest.fixture
+    @pytest.fixture()
     def caching_dispatcher(self, inner_dispatcher, cache_service):
         return CachingPersistenceDispatcher(inner_dispatcher, cache_service)
 

@@ -16,7 +16,7 @@ class MockAggregate(AggregateRoot[UUID]):
     status: str
 
 
-@pytest.fixture
+@pytest.fixture()
 def candidate() -> MockAggregate:
     return MockAggregate(id=uuid4(), name="John Doe", age=30, status="active")
 

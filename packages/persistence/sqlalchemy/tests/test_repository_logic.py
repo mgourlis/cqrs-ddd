@@ -58,7 +58,7 @@ else:
         name: Mapped[str] = mapped_column(String)
 
 
-@pytest.fixture
+@pytest.fixture()
 async def session() -> AsyncGenerator[AsyncSession, None]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with engine.begin() as conn:
@@ -70,7 +70,7 @@ async def session() -> AsyncGenerator[AsyncSession, None]:
     await engine.dispose()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_repository_get_delete_list(session: AsyncSession) -> None:
     from cqrs_ddd_persistence_sqlalchemy import SQLAlchemyUnitOfWork
 
@@ -105,7 +105,7 @@ async def test_repository_get_delete_list(session: AsyncSession) -> None:
     assert len(products) == 1
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_repository_not_found(session: AsyncSession) -> None:
     from cqrs_ddd_persistence_sqlalchemy import SQLAlchemyUnitOfWork
 

@@ -9,7 +9,7 @@ import pytest_asyncio
 from cqrs_ddd_redis.cache import RedisCacheService
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 class TestRedisCacheService:
     @pytest_asyncio.fixture
     async def redis_client(self):

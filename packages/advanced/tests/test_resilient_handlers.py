@@ -114,7 +114,7 @@ class CustomComposedHandler(
 # --- Tests ---
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_retry_on_general_failure() -> None:
     dispatcher = MagicMock(spec=PersistenceDispatcher)
     handler = FailingRetryHandler(dispatcher)
@@ -125,7 +125,7 @@ async def test_retry_on_general_failure() -> None:
     assert handler.attempts == 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_resilient_handler_handles_both() -> None:
     dispatcher = MagicMock(spec=PersistenceDispatcher)
     handler = FullResilientHandler(dispatcher)
@@ -137,7 +137,7 @@ async def test_resilient_handler_handles_both() -> None:
     assert handler.attempts == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_manual_mixin_composition() -> None:
     dispatcher = MagicMock(spec=PersistenceDispatcher)
     handler = CustomComposedHandler(dispatcher)
@@ -153,7 +153,7 @@ async def test_manual_mixin_composition() -> None:
     assert handler.attempts == 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_explicit_strategy_selection() -> None:
     """Verify that strategy_name explicitly selects a strategy from the registry."""
     dispatcher = MagicMock(spec=PersistenceDispatcher)
@@ -198,7 +198,7 @@ async def test_explicit_strategy_selection() -> None:
     assert handler.attempts == 2
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_manual_strategy_injection() -> None:
     """Verify that injecting a strategy instance on the handler overrides everything else."""
     dispatcher = MagicMock(spec=PersistenceDispatcher)
@@ -239,7 +239,7 @@ async def test_manual_strategy_injection() -> None:
     mock_strategy.merge.assert_called_once()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_exponential_backoff_calculation() -> None:
     policy = ExponentialBackoffPolicy(initial_delay_ms=100, multiplier=2.0)
     assert policy.calculate_delay(0) == 100

@@ -172,7 +172,7 @@ class TestBaseBackgroundJobEntity:
 class TestBackgroundJobService:
     """Test the BackgroundJobService."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_schedule_persists_job(self) -> None:
         """schedule() should persist the new job."""
         persistence = InMemoryBackgroundJobRepository()
@@ -185,7 +185,7 @@ class TestBackgroundJobService:
         stored = await persistence.get(job.id)
         assert stored.id == job.id
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_retrieves_job(self) -> None:
         """get() should retrieve the job."""
         persistence = InMemoryBackgroundJobRepository()
@@ -198,7 +198,7 @@ class TestBackgroundJobService:
         assert result is not None
         assert result.id == job.id
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_nonexistent_returns_none(self) -> None:
         """get() for missing job returns None."""
         persistence = InMemoryBackgroundJobRepository()
@@ -208,7 +208,7 @@ class TestBackgroundJobService:
 
         assert result is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_cancel_transitions_to_cancelled(self) -> None:
         """cancel() transitions job to CANCELLED."""
         persistence = InMemoryBackgroundJobRepository()
@@ -221,7 +221,7 @@ class TestBackgroundJobService:
         assert result is not None
         assert result.status == BackgroundJobStatus.CANCELLED
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_retry_transitions_to_running(self) -> None:
         """retry() transitions FAILED to RUNNING."""
         persistence = InMemoryBackgroundJobRepository()
@@ -235,7 +235,7 @@ class TestBackgroundJobService:
         assert result is not None
         assert result.status == BackgroundJobStatus.RUNNING
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_process_stale_jobs_marks_timed_out_as_failed(self) -> None:
         """process_stale_jobs() should mark RUNNING jobs past timeout as FAILED."""
         persistence = InMemoryBackgroundJobRepository()
@@ -256,7 +256,7 @@ class TestBackgroundJobService:
         assert stored.status == BackgroundJobStatus.FAILED
         assert "timed out" in stored.error_message.lower()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_process_stale_jobs_skips_completed(self) -> None:
         """process_stale_jobs() should skip COMPLETED jobs."""
         persistence = InMemoryBackgroundJobRepository()
@@ -282,7 +282,7 @@ class TestBackgroundJobService:
 class TestJobSweeperWorker:
     """Test the JobSweeperWorker background process."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_worker_initializes_and_stops(self) -> None:
         """Worker should start and stop cleanly."""
         persistence = InMemoryBackgroundJobRepository()
@@ -295,7 +295,7 @@ class TestJobSweeperWorker:
         await worker.stop()
         assert not worker._running
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_worker_run_once_sweeps_stale(self) -> None:
         """run_once() should perform a single sweep."""
         persistence = InMemoryBackgroundJobRepository()
@@ -332,7 +332,7 @@ class DummyJobEventHandler(BackgroundJobEventHandler[DomainEvent]):
 class TestBackgroundJobEventHandler:
     """Test the BackgroundJobEventHandler base."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_handler_loads_job_and_processes(self) -> None:
         """Handler should load job, process, and mark complete."""
         persistence = InMemoryBackgroundJobRepository()
@@ -353,7 +353,7 @@ class TestBackgroundJobEventHandler:
         assert stored.status == BackgroundJobStatus.COMPLETED
         assert stored.result_data == {"processed": True}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_handler_missing_correlation_id_logs_warning(
         self, caplog: Any
     ) -> None:
@@ -368,7 +368,7 @@ class TestBackgroundJobEventHandler:
 
         assert "correlation_id" in caplog.text.lower()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_handler_missing_job_logs_warning(self, caplog: Any) -> None:
         """Handler should warn if job not found."""
         persistence = InMemoryBackgroundJobRepository()
@@ -383,7 +383,7 @@ class TestBackgroundJobEventHandler:
 
         assert "not found" in caplog.text.lower()
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_handler_failure_calls_on_failure_hook(self) -> None:
         """Handler should call on_failure hook if execute raises."""
 
@@ -431,7 +431,7 @@ class TestBackgroundJobEventHandler:
 class TestInMemoryBackgroundJobRepository:
     """Test the in-memory repository implementation."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_add_and_get(self) -> None:
         """add() and get() should round-trip."""
         persistence = InMemoryBackgroundJobRepository()
@@ -443,7 +443,7 @@ class TestInMemoryBackgroundJobRepository:
         assert stored is not None
         assert stored.id == job.id
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_nonexistent_returns_none(self) -> None:
         """get() should return None for missing job."""
         persistence = InMemoryBackgroundJobRepository()
@@ -452,7 +452,7 @@ class TestInMemoryBackgroundJobRepository:
 
         assert result is None
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_list_all_jobs(self) -> None:
         """list() should return all stored jobs."""
         persistence = InMemoryBackgroundJobRepository()
@@ -467,7 +467,7 @@ class TestInMemoryBackgroundJobRepository:
         ids = {j.id for j in result}
         assert ids == {job1.id, job2.id}
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_get_stale_jobs_detects_timeout(self) -> None:
         """get_stale_jobs() should detect jobs past timeout."""
         persistence = InMemoryBackgroundJobRepository()
@@ -481,7 +481,7 @@ class TestInMemoryBackgroundJobRepository:
         assert len(stale) == 1
         assert stale[0].id == job.id
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_delete_removes_job(self) -> None:
         """delete() should remove a job."""
         persistence = InMemoryBackgroundJobRepository()

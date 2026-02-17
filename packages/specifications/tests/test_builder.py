@@ -23,17 +23,17 @@ class MockAggregate(AggregateRoot[UUID]):
     status: str
 
 
-@pytest.fixture
+@pytest.fixture()
 def builder() -> SpecificationBuilder:
     return SpecificationBuilder()
 
 
-@pytest.fixture
+@pytest.fixture()
 def alice() -> MockAggregate:
     return MockAggregate(id=uuid4(), name="Alice", age=28, status="active")
 
 
-@pytest.fixture
+@pytest.fixture()
 def bob() -> MockAggregate:
     return MockAggregate(id=uuid4(), name="Bob", age=45, status="inactive")
 

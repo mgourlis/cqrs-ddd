@@ -58,7 +58,8 @@ class JsonHasKeyOperator(SQLAlchemyOperator):
         return SpecificationOperator.JSON_HAS_KEY
 
     def apply(self, column: Any, value: Any) -> ColumnElement[bool]:
-        return cast("ColumnElement[bool]", column.has_key(str(value)))  # noqa: W601
+        # SQLAlchemy JSONB has_key operator (not dict.has_key)
+        return cast("ColumnElement[bool]", column.has_key(str(value)))
 
 
 class JsonHasAnyOperator(SQLAlchemyOperator):

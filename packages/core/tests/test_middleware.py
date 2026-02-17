@@ -29,7 +29,7 @@ class MyEvent:
 # --- LoggingMiddleware Tests ---
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_logging_middleware_logs_execution(caplog) -> None:
     caplog.set_level(logging.INFO)
     middleware = LoggingMiddleware()
@@ -42,7 +42,7 @@ async def test_logging_middleware_logs_execution(caplog) -> None:
     assert "MyCommand completed in" in caplog.text
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_logging_middleware_logs_exception(caplog) -> None:
     caplog.set_level(logging.INFO)
     middleware = LoggingMiddleware()
@@ -59,7 +59,7 @@ async def test_logging_middleware_logs_exception(caplog) -> None:
 # --- ValidatorMiddleware Tests ---
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validator_middleware_success() -> None:
     validator = AsyncMock(spec=IValidator)
     validator.validate.return_value = MagicMock(is_valid=True)
@@ -74,7 +74,7 @@ async def test_validator_middleware_success() -> None:
     next_fn.assert_called_once_with(command)
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_validator_middleware_failure() -> None:
     validator = AsyncMock(spec=IValidator)
     validation_result = MagicMock(is_valid=False)
@@ -94,7 +94,7 @@ async def test_validator_middleware_failure() -> None:
 # --- EventStorePersistenceMiddleware Tests ---
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_persistence_middleware_saves_events() -> None:
     event_store = AsyncMock(spec=IEventStore)
     middleware = EventStorePersistenceMiddleware(event_store)
@@ -113,7 +113,7 @@ async def test_persistence_middleware_saves_events() -> None:
     assert saved_events[0].payload == {"foo": "bar"}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_persistence_middleware_no_events() -> None:
     event_store = AsyncMock(spec=IEventStore)
     middleware = EventStorePersistenceMiddleware(event_store)

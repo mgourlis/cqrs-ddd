@@ -82,7 +82,7 @@ class MockUoW(UnitOfWork):
 # --- Tests ---
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dispatcher_apply_modification() -> None:
     registry = PersistenceRegistry()
     registry.register_operation(MockEntity, MockOperationPersistence)
@@ -98,7 +98,7 @@ async def test_dispatcher_apply_modification() -> None:
     assert result == entity.id
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dispatcher_multi_source_routing() -> None:
     uow_default = MagicMock(spec=MockUoW)
     uow_olap = MagicMock(spec=MockUoW)
@@ -125,7 +125,7 @@ async def test_dispatcher_multi_source_routing() -> None:
     uow_default.__aenter__.assert_not_called()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dispatcher_fetch_domain() -> None:
     registry = PersistenceRegistry()
     registry.register_retrieval(MockEntity, MockRetrievalPersistence)
@@ -141,7 +141,7 @@ async def test_dispatcher_fetch_domain() -> None:
     assert results[0].id == entity_id
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dispatcher_fetch_query_with_ids() -> None:
     registry = PersistenceRegistry()
     registry.register_query(MockResult, MockQueryPersistence)
@@ -158,7 +158,7 @@ async def test_dispatcher_fetch_query_with_ids() -> None:
     assert results[0].id == ids[0]
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_dispatcher_fetch_query_with_specification() -> None:
     registry = PersistenceRegistry()
     registry.register_query_spec(MockResult, MockQuerySpecPersistence)

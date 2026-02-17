@@ -85,7 +85,7 @@ class TestResourceIdentifier:
 class TestInMemoryLockStrategy:
     """Test InMemoryLockStrategy implementation."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def strategy(self) -> InMemoryLockStrategy:
         return InMemoryLockStrategy()
 
@@ -175,7 +175,7 @@ class TestInMemoryLockStrategy:
 class TestCriticalSection:
     """Test CriticalSection multi-resource locking."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def strategy(self) -> InMemoryLockStrategy:
         return InMemoryLockStrategy()
 
@@ -230,11 +230,11 @@ class TestCriticalSection:
 class TestConcurrencyGuardMiddleware:
     """Test automatic locking middleware."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def strategy(self) -> InMemoryLockStrategy:
         return InMemoryLockStrategy()
 
-    @pytest.fixture
+    @pytest.fixture()
     def middleware(self, strategy: ILockStrategy) -> ConcurrencyGuardMiddleware:
         return ConcurrencyGuardMiddleware(strategy, timeout=1.0, ttl=5.0)
 

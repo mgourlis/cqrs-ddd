@@ -57,7 +57,7 @@ class MockAggregate:
         return {"id": self.id, "name": self.name, "version": self._version}
 
 
-@pytest.fixture
+@pytest.fixture()
 async def session_factory():
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
@@ -71,7 +71,7 @@ async def session_factory():
     await engine.dispose()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_occ_mismatch_raises_error(session_factory):
     repo = SQLAlchemyRepository(VersionedModel)
 
@@ -108,7 +108,7 @@ async def test_occ_mismatch_raises_error(session_factory):
         await _user_b_operation()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_occ_multi_increment_success(session_factory):
     repo = SQLAlchemyRepository(VersionedModel)
 
@@ -141,7 +141,7 @@ async def test_occ_multi_increment_success(session_factory):
         assert agg_final.original_version == 3
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_occ_multi_increment_conflict(session_factory):
     repo = SQLAlchemyRepository(VersionedModel)
 
