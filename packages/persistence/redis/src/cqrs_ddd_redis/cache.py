@@ -20,7 +20,7 @@ class RedisCacheService(ICacheService):
     Uses generic JSON serialization.
     """
 
-    def __init__(self, redis_client: Redis) -> None:  # type: ignore[type-arg]
+    def __init__(self, redis_client: Redis[bytes]) -> None:
         self._redis = redis_client
 
     async def get(self, key: str, cls: type[Any] | None = None) -> Any | None:

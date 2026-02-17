@@ -102,5 +102,4 @@ class ResolutionHook(Protocol):
     default resolution is skipped and ``result.value`` is used.
     """
 
-    def __call__(self, ctx: ResolutionContext) -> HookResult[Any]:
-        ...
+    def __call__(self, ctx: ResolutionContext) -> HookResult[Any]: ...

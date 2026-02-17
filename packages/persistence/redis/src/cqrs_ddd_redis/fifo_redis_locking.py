@@ -40,7 +40,7 @@ class FifoRedisLockStrategy:
 
     def __init__(
         self,
-        redis: Redis,  # type: ignore[type-arg]
+        redis: Redis[bytes],
         prefix: str = "lock",
         retry_interval: float = 0.1,
     ) -> None:
@@ -261,7 +261,9 @@ class FifoRedisLockStrategy:
         """
 
         try:
-            result_raw = self._redis.eval(release_script, 2, lock_key, queue_key, token)  # type: ignore[no-untyped-call]
+            result_raw = self._redis.eval(  # type: ignore[no-untyped-call]
+                release_script, 2, lock_key, queue_key, token
+            )
             if hasattr(result_raw, "__await__"):
                 await result_raw
             self._lock_metadata.pop(lock_key, None)

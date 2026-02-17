@@ -64,9 +64,9 @@ class PipelinedCommandHandler(CommandHandler[TResult], Generic[TResult]):
         Build the execution pipeline.
         Wraps the core ``process`` method with all registered behaviors.
         """
-        pipeline: Callable[
-            [Command[TResult]], Awaitable[CommandResponse[TResult]]
-        ] = self.process
+        pipeline: Callable[[Command[TResult]], Awaitable[CommandResponse[TResult]]] = (
+            self.process
+        )
         # Apply behaviors in reverse order (last added is outermost)
         for behavior in reversed(self._behaviors):
             pipeline = behavior(pipeline)

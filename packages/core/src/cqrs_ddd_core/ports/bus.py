@@ -17,8 +17,7 @@ class ICommandBus(Protocol):
     Interface for dispatching commands to their respective handlers.
     """
 
-    async def send(self, command: Command[TResult]) -> CommandResponse[TResult]:
-        ...
+    async def send(self, command: Command[TResult]) -> CommandResponse[TResult]: ...
 
 
 class IQueryBus(Protocol):
@@ -26,5 +25,4 @@ class IQueryBus(Protocol):
     Interface for dispatching queries to their respective handlers.
     """
 
-    async def query(self, query: Query[TResult]) -> QueryResponse[TResult]:
-        ...
+    async def query(self, query: Query[TResult]) -> QueryResponse[TResult]: ...

@@ -27,13 +27,11 @@ class EventHandlerProtocol(Protocol[E_contra]):
     a subtype is expected.
     """
 
-    def handle(self, event: E_contra) -> Awaitable[None] | None:
-        ...
+    def handle(self, event: E_contra) -> Awaitable[None] | None: ...
 
 
 class EventHandlerCallable(Protocol[E_contra]):
-    def __call__(self, event: E_contra) -> Awaitable[None] | None:
-        ...
+    def __call__(self, event: E_contra) -> Awaitable[None] | None: ...
 
 
 EventHandler: TypeAlias = EventHandlerCallable[E] | EventHandlerProtocol[E]

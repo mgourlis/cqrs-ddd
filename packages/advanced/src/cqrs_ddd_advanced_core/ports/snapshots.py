@@ -73,5 +73,4 @@ class ISnapshotStrategy(Protocol):
     Interface for deciding when an aggregate should be snapshotted.
     """
 
-    def should_snapshot(self, aggregate: AggregateRoot[Any]) -> bool:
-        ...
+    def should_snapshot(self, aggregate: AggregateRoot[Any]) -> bool: ...

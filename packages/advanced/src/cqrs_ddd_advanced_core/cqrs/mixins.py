@@ -58,9 +58,9 @@ class ConflictConfig(BaseModel):
     exclude_fields: set[str] | None = None  # For FieldLevelMerge
 
     append_lists: bool = False  # For DeepMerge
-    list_identity_key: str | Callable[
-        [Any], Any
-    ] | None = "id"  # For DeepMerge / UnionListMerge
+    list_identity_key: str | Callable[[Any], Any] | None = (
+        "id"  # For DeepMerge / UnionListMerge
+    )
 
     timestamp_field: str | Callable[[Any], Any] = "modified_at"  # For TimestampLastWins
     fallback_to_incoming: bool = True  # For TimestampLastWins
