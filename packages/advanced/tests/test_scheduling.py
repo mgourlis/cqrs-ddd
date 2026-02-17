@@ -15,7 +15,7 @@ class MockCommand(Command[None]):
     pass
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_scheduler_service_executes_due_commands() -> None:
     scheduler = InMemoryCommandScheduler()
     send_fn = AsyncMock()
@@ -34,7 +34,7 @@ async def test_scheduler_service_executes_due_commands() -> None:
     assert scheduler.scheduled_count == 0
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_scheduler_service_skips_future_commands() -> None:
     scheduler = InMemoryCommandScheduler()
     send_fn = AsyncMock()
@@ -53,7 +53,7 @@ async def test_scheduler_service_skips_future_commands() -> None:
     assert scheduler.scheduled_count == 1
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_scheduler_service_handles_execution_failure() -> None:
     scheduler = InMemoryCommandScheduler()
     send_fn = AsyncMock(side_effect=Exception("Execution failed"))
@@ -75,7 +75,7 @@ async def test_scheduler_service_handles_execution_failure() -> None:
     assert scheduler.scheduled_count == 1
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_scheduler_worker_run_once() -> None:
     from cqrs_ddd_advanced_core.scheduling.worker import CommandSchedulerWorker
 
@@ -97,7 +97,7 @@ async def test_scheduler_worker_run_once() -> None:
     assert scheduler.scheduled_count == 0
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_scheduler_worker_lifecycle() -> None:
     from cqrs_ddd_advanced_core.scheduling.worker import CommandSchedulerWorker
 

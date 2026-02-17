@@ -83,7 +83,7 @@ class DummyEventDispatcher(IEventDispatcher):
 class TestBaseEventConsumer:
     """Test the BaseEventConsumer."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_subscribes_to_topics(self) -> None:
         """Consumer should subscribe to configured topics."""
         broker = DummyMessageConsumer()
@@ -104,7 +104,7 @@ class TestBaseEventConsumer:
         assert "order-events" in topics
         assert "user-events" in topics
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_hydrates_and_dispatches_event(self) -> None:
         """Consumer should hydrate payload and dispatch event."""
         broker = DummyMessageConsumer()
@@ -140,7 +140,7 @@ class TestBaseEventConsumer:
         assert event.order_id == "ord-123"
         assert event.amount == 250.0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_warns_on_unregistered_event(self, caplog: Any) -> None:
         """Consumer should warn if event type is not registered."""
         broker = DummyMessageConsumer()
@@ -166,7 +166,7 @@ class TestBaseEventConsumer:
         assert "failed to hydrate" in caplog.text.lower()
         assert "OrderCreated" in caplog.text
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_warns_on_missing_event_type(self, caplog: Any) -> None:
         """Consumer should warn if payload lacks 'event_type'."""
         broker = DummyMessageConsumer()
@@ -187,7 +187,7 @@ class TestBaseEventConsumer:
 
         assert "event_type" in caplog.text.lower()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_warns_on_non_dict_payload(self, caplog: Any) -> None:
         """Consumer should warn if payload is not a dict."""
         broker = DummyMessageConsumer()
@@ -208,7 +208,7 @@ class TestBaseEventConsumer:
 
         assert "non-dict" in caplog.text.lower()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_respects_queue_name(self) -> None:
         """Consumer should pass queue_name to broker."""
         broker = DummyMessageConsumer()
@@ -227,7 +227,7 @@ class TestBaseEventConsumer:
 
         assert broker.subscriptions[0][2] == "my-queue"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_stop_changes_running_state(self) -> None:
         """Consumer should stop when stop() is called."""
         broker = DummyMessageConsumer()
@@ -247,7 +247,7 @@ class TestBaseEventConsumer:
         await consumer.stop()
         assert not consumer._running
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_consumer_multiple_events(self) -> None:
         """Consumer should handle multiple different events."""
         broker = DummyMessageConsumer()

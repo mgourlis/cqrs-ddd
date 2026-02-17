@@ -23,7 +23,7 @@ class MyQuery(Query[str]):
 # --- Tests ---
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_mediator_send_command_calls_uow_and_handler() -> None:
     # Setup
     uow = AsyncMock(spec=UnitOfWork)
@@ -59,7 +59,7 @@ async def test_mediator_send_command_calls_uow_and_handler() -> None:
     assert actual_cmd.correlation_id is not None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_mediator_query_calls_handler() -> None:
     # Setup
     registry = MagicMock(spec=HandlerRegistry)

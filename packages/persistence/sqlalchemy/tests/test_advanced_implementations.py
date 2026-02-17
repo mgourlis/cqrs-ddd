@@ -53,7 +53,7 @@ except ImportError:
         pass
 
 
-@pytest.fixture()
+@pytest.fixture
 async def session_factory() -> AsyncIterator[async_sessionmaker[AsyncSession]]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with engine.begin() as conn:
@@ -64,7 +64,7 @@ async def session_factory() -> AsyncIterator[async_sessionmaker[AsyncSession]]:
     await engine.dispose()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(
     not HAS_ADVANCED_CORE, reason="cqrs-ddd-advanced-core not installed"
 )
@@ -129,7 +129,7 @@ async def test_saga_repository(session_factory):
         assert stalled[0].id == saga_id
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(
     not HAS_ADVANCED_CORE, reason="cqrs-ddd-advanced-core not installed"
 )
@@ -188,7 +188,7 @@ async def test_job_repository(session_factory):
         assert loaded_again.version == 1  # Verify version incremented
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(
     not HAS_ADVANCED_CORE, reason="cqrs-ddd-advanced-core not installed"
 )
@@ -237,7 +237,7 @@ async def test_command_scheduler(session_factory):
         assert len(due_again) == 0
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.skipif(
     not HAS_ADVANCED_CORE, reason="cqrs-ddd-advanced-core not installed"
 )

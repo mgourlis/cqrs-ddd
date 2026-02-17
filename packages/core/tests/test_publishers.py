@@ -70,7 +70,7 @@ class FailingPublisher(IMessagePublisher):
 class TestPublishingEventHandler:
     """Test the PublishingEventHandler."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_event_uses_class_name_as_topic(self) -> None:
         """Handler should use event class name as topic."""
         publisher = DummyPublisher()
@@ -83,7 +83,7 @@ class TestPublishingEventHandler:
         assert publisher.published[0][0] == "DummyEvent"
         assert publisher.published[0][1] is event
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_event_reraises_on_failure(self) -> None:
         """Handler should re-raise exceptions from publisher."""
         publisher = FailingPublisher()
@@ -102,7 +102,7 @@ class TestPublishingEventHandler:
 class TestTopicRoutingPublisher:
     """Test the TopicRoutingPublisher routing logic."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_route_direct_topic_match(self) -> None:
         """Router should use explicit topic route."""
         pub1 = DummyPublisher()
@@ -115,7 +115,7 @@ class TestTopicRoutingPublisher:
         assert len(pub1.published) == 1
         assert len(pub2.published) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_route_to_destination_key(self) -> None:
         """Router should resolve @route_to destination keys."""
         fast_pub = DummyPublisher()
@@ -131,7 +131,7 @@ class TestTopicRoutingPublisher:
         assert len(fast_pub.published) == 1
         assert len(slow_pub.published) == 1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_explicit_route_overrides_destination(self) -> None:
         """Explicit topic route should override @route_to destination."""
         fast_pub = DummyPublisher()
@@ -148,7 +148,7 @@ class TestTopicRoutingPublisher:
         assert len(override_pub.published) == 1
         assert len(fast_pub.published) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fallback_to_default(self) -> None:
         """Router should fall back to default if no route found."""
         default_pub = DummyPublisher()
@@ -158,7 +158,7 @@ class TestTopicRoutingPublisher:
 
         assert len(default_pub.published) == 1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_no_publisher_raises_error(self) -> None:
         """Router should raise PublisherNotFoundError if no publisher found (no default)."""
         router = TopicRoutingPublisher()
@@ -166,7 +166,7 @@ class TestTopicRoutingPublisher:
         with pytest.raises(PublisherNotFoundError, match="No publisher configured"):
             await router.publish("UnknownEvent", DummyEvent())
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_register_route_at_runtime(self) -> None:
         """register_route() should add routes dynamically."""
         pub = DummyPublisher()

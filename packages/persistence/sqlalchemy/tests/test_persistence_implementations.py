@@ -19,7 +19,7 @@ from cqrs_ddd_persistence_sqlalchemy import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 async def session_factory() -> AsyncIterator[async_sessionmaker[AsyncSession]]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with engine.begin() as conn:
@@ -30,7 +30,7 @@ async def session_factory() -> AsyncIterator[async_sessionmaker[AsyncSession]]:
     await engine.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture
 async def session(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> AsyncIterator[AsyncSession]:
@@ -38,7 +38,7 @@ async def session(
         yield session
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_auto_commit(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
@@ -67,7 +67,7 @@ async def test_uow_auto_commit(
         assert result.scalar_one() is not None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_auto_rollback(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
@@ -99,7 +99,7 @@ async def test_uow_auto_rollback(
         assert result.scalar_one_or_none() is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_outbox_storage(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:
@@ -146,7 +146,7 @@ async def test_outbox_storage(
         assert model.retry_count == 1
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_event_store(
     session_factory: async_sessionmaker[AsyncSession],
 ) -> None:

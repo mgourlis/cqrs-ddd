@@ -17,7 +17,7 @@ from cqrs_ddd_persistence_sqlalchemy import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 async def async_session() -> AsyncGenerator[AsyncSession, None]:
     engine = create_async_engine("sqlite+aiosqlite:///:memory:")
 
@@ -112,7 +112,7 @@ class SomethingHappened(DomainEvent):
 
 
 # --- Test ---
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_polymorphic_id_outbox_insertion(async_session: AsyncSession) -> None:
     """
     Verifies that the repository can handle both Integer and UUID primary keys,

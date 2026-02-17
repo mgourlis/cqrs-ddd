@@ -150,7 +150,7 @@ class TestUndoExecutorRegistry:
 class TestUndoService:
     """Test the UndoService."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_undo_event_with_executor(self) -> None:
         """Service should undo event when executor is registered."""
         registry = UndoExecutorRegistry()
@@ -166,7 +166,7 @@ class TestUndoService:
         assert isinstance(undo_events[0], OrderCancelled)
         assert undo_events[0].order_id == "ord-123"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_undo_respects_business_rules(self) -> None:
         """Service should respect can_undo() check."""
         registry = UndoExecutorRegistry()
@@ -181,7 +181,7 @@ class TestUndoService:
 
         assert undo_events == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_undo_unregistered_event_raises(self) -> None:
         """Service should raise if executor not registered."""
         registry = UndoExecutorRegistry()
@@ -192,7 +192,7 @@ class TestUndoService:
         with pytest.raises(ValueError, match="No UndoExecutor"):
             await service.undo(event)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_undo_executor_failure_raises(self) -> None:
         """Service should re-raise executor exceptions."""
         registry = UndoExecutorRegistry()
@@ -210,7 +210,7 @@ class TestUndoService:
         with pytest.raises(RuntimeError, match="Intentional failure"):
             await service.undo(event)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_redo_event_with_executor(self) -> None:
         """Service should redo event when executor is registered."""
         registry = UndoExecutorRegistry()
@@ -226,7 +226,7 @@ class TestUndoService:
         assert len(redo_events) == 1
         assert redo_events[0] is event
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_redo_unregistered_event_raises(self) -> None:
         """Service should raise if executor not registered for redo."""
         registry = UndoExecutorRegistry()
@@ -238,7 +238,7 @@ class TestUndoService:
         with pytest.raises(ValueError, match="No UndoExecutor"):
             await service.redo(event, undo_event)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_redo_executor_failure_raises(self) -> None:
         """Service should re-raise executor exceptions during redo."""
         registry = UndoExecutorRegistry()
