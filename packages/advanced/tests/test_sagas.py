@@ -157,7 +157,7 @@ class TestSagaState:
 
 
 class TestSaga:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_event_dispatches_commands(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -172,7 +172,7 @@ class TestSaga:
         assert state.current_step == "awaiting_payment"
         assert state.status == SagaStatus.RUNNING
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_idempotent_event_handling(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -185,7 +185,7 @@ class TestSaga:
         await saga.handle(event)  # duplicate
         assert len(saga.collect_commands()) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_complete_lifecycle(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -199,7 +199,7 @@ class TestSaga:
         assert state.completed_at is not None
         assert state.items_reserved is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_terminal_state_ignores_events(self) -> None:
         state = OrderSagaState(id="saga-1", status=SagaStatus.COMPLETED)
         registry = MessageRegistry()
@@ -207,7 +207,7 @@ class TestSaga:
         await saga.handle(OrderCreated(order_id="ord-1"))
         assert len(saga.collect_commands()) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fail(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -239,7 +239,7 @@ class TestSaga:
         saga.resume()  # should not crash
         assert state.status == SagaStatus.RUNNING
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_add_compensation(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -249,7 +249,7 @@ class TestSaga:
         assert state.compensation_stack[0].command_type == "CancelOrder"
         assert state.compensation_stack[0].description == "Cancel order on failure"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_compensations(self) -> None:
         state = OrderSagaState(id="saga-1")
         registry = MessageRegistry()
@@ -267,7 +267,7 @@ class TestSaga:
         assert isinstance(compensating_cmds[0], CancelOrder)
         assert state.compensation_stack == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_on_timeout_default_fails_saga(self) -> None:
         state = OrderSagaState(
             id="saga-1",
@@ -337,7 +337,7 @@ class TestSagaRegistry:
 
 
 class TestInMemorySagaRepository:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_save_and_load(self) -> None:
         repo = InMemorySagaRepository()
         state = SagaState(id="s1", saga_type="OrderSaga")
@@ -348,7 +348,7 @@ class TestInMemorySagaRepository:
         assert loaded.id == "s1"
         assert loaded.version == 1  # incremented on save
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_find_by_correlation_id(self) -> None:
         repo = InMemorySagaRepository()
         state = SagaState(id="s1", saga_type="OrderSaga", correlation_id="corr-1")
@@ -362,7 +362,7 @@ class TestInMemorySagaRepository:
         not_found = await repo.find_by_correlation_id("corr-1", "OtherSaga")
         assert not_found is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_find_stalled_sagas(self) -> None:
         repo = InMemorySagaRepository()
         stalled = SagaState(
@@ -378,7 +378,7 @@ class TestInMemorySagaRepository:
         assert len(result) == 1
         assert result[0].id == "s1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_find_expired_suspended_sagas(self) -> None:
         repo = InMemorySagaRepository()
         expired = SagaState(
@@ -400,7 +400,7 @@ class TestInMemorySagaRepository:
         assert len(result) == 1
         assert result[0].id == "s1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_find_suspended_sagas(self) -> None:
         repo = InMemorySagaRepository()
         suspended = SagaState(id="s1", status=SagaStatus.SUSPENDED)
@@ -412,7 +412,7 @@ class TestInMemorySagaRepository:
         assert len(result) == 1
         assert result[0].id == "s1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_find_running_sagas_with_tcc_steps(self) -> None:
         repo = InMemorySagaRepository()
         with_tcc = SagaState(
@@ -454,7 +454,7 @@ class TestSagaManager:
         )
         return manager, repo, command_bus
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_creates_saga(self) -> None:
         manager, repo, command_bus = self._make_manager()
 
@@ -467,7 +467,7 @@ class TestSagaManager:
         assert sagas[0].correlation_id == "corr-1"
         command_bus.send.assert_called_once()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_continues_existing_saga(self) -> None:
         manager, repo, command_bus = self._make_manager()
 
@@ -478,7 +478,7 @@ class TestSagaManager:
         assert saga_state is not None
         assert saga_state.status == SagaStatus.COMPLETED
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_no_correlation_id_warns(self) -> None:
         manager, repo, _ = self._make_manager()
         event = OrderCreated(order_id="ord-1")  # no correlation_id
@@ -486,7 +486,7 @@ class TestSagaManager:
         # Should not create any saga.
         assert len(repo.all_sagas()) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_unregistered_event_is_noop(self) -> None:
         manager, repo, _ = self._make_manager()
 
@@ -503,7 +503,7 @@ class TestSagaManager:
 
 
 class TestSagaManagerStartSaga:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_start_saga(self) -> None:
         repo = InMemorySagaRepository()
         registry = SagaRegistry()
@@ -552,7 +552,7 @@ class TestSagaManagerRecovery:
         )
         return manager, repo, command_bus
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_recover_pending_sagas(self) -> None:
         manager, repo, command_bus = self._make_manager()
 
@@ -578,7 +578,7 @@ class TestSagaManagerRecovery:
         assert loaded is not None
         assert loaded.pending_commands == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_recover_skips_already_dispatched_commands(self) -> None:
         """Recovery re-dispatches only commands with dispatched=False (or missing)."""
         manager, repo, command_bus = self._make_manager()
@@ -616,7 +616,7 @@ class TestSagaManagerRecovery:
         assert loaded is not None
         assert loaded.pending_commands == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_recover_backward_compat_missing_dispatched_key(self) -> None:
         """Legacy pending_commands without 'dispatched' are treated as undispatched."""
         manager, repo, command_bus = self._make_manager()
@@ -645,7 +645,7 @@ class TestSagaManagerRecovery:
         assert loaded is not None
         assert loaded.pending_commands == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_recover_respects_max_retries(self) -> None:
         """When retry_count >= max_retries, saga is failed and recovery is not attempted."""
         manager, repo, command_bus = self._make_manager()
@@ -698,7 +698,7 @@ class TestSagaManagerRecovery:
         # No dispatch was attempted (saga was failed instead)
         command_bus.send.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_recover_resets_retry_count_on_success(self) -> None:
         """On successful recovery, retry_count is reset to 0."""
         manager, repo, command_bus = self._make_manager()
@@ -727,7 +727,7 @@ class TestSagaManagerRecovery:
         assert loaded.retry_count == 0
         assert loaded.pending_commands == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_timeouts(self) -> None:
         manager, repo, command_bus = self._make_manager()
 
@@ -747,7 +747,7 @@ class TestSagaManagerRecovery:
         assert loaded.status == SagaStatus.FAILED
         assert "timed out" in (loaded.error or "")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_tcc_timeouts(self) -> None:
         """process_tcc_timeouts cancels expired TIME_BASED TCC steps."""
         repo = InMemorySagaRepository()
@@ -797,7 +797,7 @@ class TestSagaManagerRecovery:
 
 
 class TestSagaRecoveryWorker:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_run_once(self) -> None:
         repo = InMemorySagaRepository()
         registry = SagaRegistry()
@@ -834,7 +834,7 @@ class TestSagaRecoveryWorker:
         assert loaded is not None
         assert loaded.pending_commands == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_start_and_stop(self) -> None:
         manager = AsyncMock()
         manager.process_timeouts = AsyncMock()
@@ -887,7 +887,7 @@ class DeclarativeSaga(Saga[SagaState]):
 
 
 class TestOnCommandMapper:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_send_dispatches_command(self) -> None:
         state = SagaState(id="saga-1")
         saga = DeclarativeSaga(state, MessageRegistry())
@@ -898,14 +898,14 @@ class TestOnCommandMapper:
         assert isinstance(cmds[0], ShipOrder)
         assert cmds[0].order_id == "ord-1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_step_sets_current_step(self) -> None:
         state = SagaState(id="saga-1")
         saga = DeclarativeSaga(state, MessageRegistry())
         await saga.handle(OrderCreated(order_id="ord-1"))
         assert state.current_step == "shipping"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_compensate_adds_to_stack(self) -> None:
         state = SagaState(id="saga-1")
         saga = DeclarativeSaga(state, MessageRegistry())
@@ -914,7 +914,7 @@ class TestOnCommandMapper:
         assert state.compensation_stack[0].command_type == "CancelOrder"
         assert state.compensation_stack[0].description == "Cancel order on failure"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_complete_flag_completes_saga(self) -> None:
         state = SagaState(id="saga-1")
         saga = DeclarativeSaga(state, MessageRegistry())
@@ -923,7 +923,7 @@ class TestOnCommandMapper:
         await saga.handle(PaymentReceived(order_id="ord-1"))
         assert state.status == SagaStatus.COMPLETED
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handler_style_backward_compat(self) -> None:
         """on(EventType, handler=fn) still works."""
 
@@ -1103,7 +1103,7 @@ class TestTCCIntegrated:
         with pytest.raises(SagaStateError, match="TCC already started"):
             saga.begin_tcc()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_mark_step_tried_partial(self) -> None:
         saga, state, _ = self._make_saga()
         saga.start()
@@ -1115,7 +1115,7 @@ class TestTCCIntegrated:
         assert saga.get_tcc_step_phase("hold_payment") == TCCPhase.TRYING
         assert state.status == SagaStatus.RUNNING
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_all_tried_dispatches_confirms(self) -> None:
         saga, state, _ = self._make_saga()
         saga.start()
@@ -1131,7 +1131,7 @@ class TestTCCIntegrated:
         assert isinstance(cmds[1], CapturePayment)
         assert state.current_step == "confirming"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_all_confirmed_completes_saga(self) -> None:
         saga, state, _ = self._make_saga()
         saga.start()
@@ -1150,7 +1150,7 @@ class TestTCCIntegrated:
             rec.phase == TCCPhase.CONFIRMED for rec in saga.get_tcc_step_records()
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_step_failure_dispatches_cancels(self) -> None:
         saga, state, _ = self._make_saga()
         saga.start()
@@ -1169,7 +1169,7 @@ class TestTCCIntegrated:
         # Inventory was TRIED -> gets ReleaseInventory cancel
         assert "ReleaseInventory" in cancel_types
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_mark_step_cancelled_terminal_state(self) -> None:
         saga, state, _ = self._make_saga()
         saga.start()
@@ -1423,7 +1423,7 @@ class TestListenedEvents:
 
         assert ManualSaga.listened_events() == [OrderCreated]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_saga_works_without_message_registry(self) -> None:
         """Saga can be constructed without message_registry (optional)."""
         state = OrderSagaState(id="s-1")
@@ -1514,7 +1514,7 @@ class TestBindTo:
         assert PaymentReceived in handlers
         assert ShipmentConfirmed in handlers
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_bind_to_events_route_to_saga(self) -> None:
         """Events dispatched through EventDispatcher reach the saga."""
         manager, dispatcher, repo, command_bus = self._make_setup()
@@ -1535,7 +1535,7 @@ class TestBindTo:
 
 
 class TestSagaManagerHandleRouting:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_routes_via_registry(self) -> None:
         """handle() routes events via SagaRegistry."""
         repo = InMemorySagaRepository()
@@ -1558,7 +1558,7 @@ class TestSagaManagerHandleRouting:
         assert len(sagas) == 1
         assert sagas[0].saga_type == "DeclarativeOrderSaga"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_unregistered_event_is_noop(self) -> None:
         """handle() ignores events with no registered saga."""
         repo = InMemorySagaRepository()
@@ -1576,7 +1576,7 @@ class TestSagaManagerHandleRouting:
         await manager.handle(event)
         assert len(repo.all_sagas()) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_bind_to_event_dispatcher(self) -> None:
         """Manager can bind_to EventDispatcher."""
         repo = InMemorySagaRepository()
@@ -1684,7 +1684,7 @@ class TestBootstrapSagas:
             OrderCreated
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_bootstrap_end_to_end(self) -> None:
         """Full bootstrap → dispatch event → saga processes it."""
         repo = InMemorySagaRepository()

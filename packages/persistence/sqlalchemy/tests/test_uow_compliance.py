@@ -9,7 +9,7 @@ from cqrs_ddd_persistence_sqlalchemy.core.uow import (
 )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_initializes_base():
     """Test that SQLAlchemyUnitOfWork initializes base UnitOfWork (hooks)."""
     session = AsyncMock(spec=AsyncSession)
@@ -22,7 +22,7 @@ async def test_uow_initializes_base():
     assert uow._on_commit_hooks is not None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_commit_hooks_execution():
     """Test that hooks are executed after commit."""
     session = AsyncMock(spec=AsyncSession)
@@ -45,7 +45,7 @@ async def test_uow_commit_hooks_execution():
     assert hook_called is True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_rollback_on_exception():
     """Test that rollback happens on exception and hooks are NOT called."""
     session = AsyncMock(spec=AsyncSession)
@@ -71,7 +71,7 @@ async def test_uow_rollback_on_exception():
     assert hook_called is False
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_auto_rollback_on_commit_failure():
     """Test that explicit commit failure triggers rollback."""
     session = AsyncMock(spec=AsyncSession)
@@ -86,7 +86,7 @@ async def test_uow_auto_rollback_on_commit_failure():
     session.rollback.assert_awaited_once()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_session_management():
     """Test self-managed session lifecycle."""
     session = AsyncMock(spec=AsyncSession)

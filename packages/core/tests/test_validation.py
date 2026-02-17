@@ -19,7 +19,7 @@ class NonPydanticCommand(Command):
 # --- Tests ---
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_validation_success() -> None:
     validator = PydanticValidator()
     cmd = ValidatableCommand(name="Alice", age=30)
@@ -30,7 +30,7 @@ async def test_validation_success() -> None:
     assert result.errors == {}
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_validation_failure() -> None:
     validator = PydanticValidator()
 
@@ -44,7 +44,7 @@ async def test_validation_failure() -> None:
     assert "age" in str(result.errors) or "age" in result.errors
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_validation_skips_non_pydantic() -> None:
     validator = PydanticValidator()
     cmd = NonPydanticCommand(name="test")

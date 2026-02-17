@@ -5,7 +5,7 @@ import pytest
 from cqrs_ddd_core.adapters.memory.unit_of_work import InMemoryUnitOfWork
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_context_manager_commit() -> None:
     uow = InMemoryUnitOfWork()
 
@@ -17,7 +17,7 @@ async def test_uow_context_manager_commit() -> None:
     assert not uow.rolled_back
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_context_manager_rollback_on_error() -> NoReturn:
     uow = InMemoryUnitOfWork()
 
@@ -30,7 +30,7 @@ async def test_uow_context_manager_rollback_on_error() -> NoReturn:
     assert uow.rollback_count == 1
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_manual_rollback() -> None:
     uow = InMemoryUnitOfWork()
 

@@ -123,7 +123,7 @@ class SimpleSpec:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 async def engine():
     eng = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with eng.begin() as conn:
@@ -132,14 +132,14 @@ async def engine():
     await eng.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture
 async def session(engine) -> AsyncGenerator[AsyncSession, None]:
     factory = async_sessionmaker(engine, expire_on_commit=False)
     async with factory() as sess:
         yield sess
 
 
-@pytest.fixture()
+@pytest.fixture
 async def uow(session) -> AsyncGenerator[SQLAlchemyUnitOfWork, None]:
     async with SQLAlchemyUnitOfWork(session=session) as unit:
         yield unit
@@ -168,7 +168,7 @@ class ConcreteOperationPersistence(SQLAlchemyOperationPersistence[Order, str]):
     db_model_cls = OrderModel
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_operation_persistence_add(session, uow):
     handler = ConcreteOperationPersistence()
     entity = Order(id="op1", customer="Alice", total=500, status="new")
@@ -193,7 +193,7 @@ class ConcreteRetrievalPersistence(SQLAlchemyRetrievalPersistence[Order, str]):
     db_model_cls = OrderModel
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_retrieval_persistence(session, uow):
     _seed_orders(session)
     await session.commit()
@@ -222,7 +222,7 @@ class ConcreteQueryPersistence(SQLAlchemyQueryPersistence[OrderDTO, str]):
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_query_persistence_by_ids(session, uow):
     _seed_orders(session)
     await session.commit()
@@ -250,7 +250,7 @@ class ConcreteQuerySpecPersistence(SQLAlchemyQuerySpecificationPersistence[Order
         )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_query_spec_persistence_fetch(session, uow):
     _seed_orders(session)
     await session.commit()
@@ -263,7 +263,7 @@ async def test_query_spec_persistence_fetch(session, uow):
     assert all(r.status == "active" for r in results)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_query_spec_persistence_stream(session, uow):
     _seed_orders(session)
     await session.commit()
@@ -280,7 +280,7 @@ async def test_query_spec_persistence_stream(session, uow):
     assert all(isinstance(d, OrderDTO) for d in collected)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_query_spec_with_options(session, uow):
     from cqrs_ddd_specifications import QueryOptions
 
@@ -296,7 +296,7 @@ async def test_query_spec_with_options(session, uow):
     assert results[0].total >= results[1].total
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_uow_type_check():
     """Passing non-SQLAlchemy UoW raises TypeError."""
     handler = ConcreteQuerySpecPersistence()

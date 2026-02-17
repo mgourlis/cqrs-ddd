@@ -48,7 +48,7 @@ def _make_message(
 
 
 class TestOutboxService:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_batch_publishes_pending(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -70,7 +70,7 @@ class TestOutboxService:
         pending = await storage.get_pending()
         assert len(pending) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_batch_empty(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -81,7 +81,7 @@ class TestOutboxService:
         assert count == 0
         publisher.publish.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_batch_handles_publish_failure(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -101,7 +101,7 @@ class TestOutboxService:
         assert pending[0].error == "broker down"
         assert pending[0].retry_count == 1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_process_batch_partial_success(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -130,7 +130,7 @@ class TestOutboxService:
         assert len(pending) == 1
         assert pending[0].event_type == "EventB"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_retry_failed(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -150,7 +150,7 @@ class TestOutboxService:
         assert count == 1
         publisher.publish.assert_called_once()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_retry_skips_exhausted(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -169,7 +169,7 @@ class TestOutboxService:
         assert count == 0
         publisher.publish.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_metadata_correlation_id_forwarded(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -195,7 +195,7 @@ class TestOutboxService:
 
 
 class TestOutboxPublisher:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_dict(self) -> None:
         storage = InMemoryOutboxStorage()
         broker = _make_publisher()
@@ -209,7 +209,7 @@ class TestOutboxPublisher:
         assert pending[0].event_type == "OrderCreated"
         assert pending[0].payload == {"order_id": "1"}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_pydantic_model(self) -> None:
         from pydantic import BaseModel
 
@@ -227,7 +227,7 @@ class TestOutboxPublisher:
         assert len(pending) == 1
         assert pending[0].payload == {"order_id": "ord-1"}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_plain_object(self) -> None:
         class Payload:
             def __init__(self) -> None:
@@ -244,7 +244,7 @@ class TestOutboxPublisher:
         assert len(pending) == 1
         assert pending[0].payload["order_id"] == "ord-1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_with_metadata_kwargs(self) -> None:
         storage = InMemoryOutboxStorage()
         broker = _make_publisher()
@@ -262,7 +262,7 @@ class TestOutboxPublisher:
         assert pending[0].metadata["correlation_id"] == "corr-1"
         assert pending[0].metadata["causation_id"] == "cause-1"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_publish_string_fallback(self) -> None:
         storage = InMemoryOutboxStorage()
         broker = _make_publisher()
@@ -281,7 +281,7 @@ class TestOutboxPublisher:
 
 
 class TestOutboxWorker:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_run_once(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -296,7 +296,7 @@ class TestOutboxWorker:
         count = await worker._service.process_batch(worker.batch_size)
         assert count == 1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_start_and_stop(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -314,7 +314,7 @@ class TestOutboxWorker:
 
         assert not worker._running
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_inject_service_directly(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()
@@ -334,7 +334,7 @@ class TestOutboxWorker:
                 storage=InMemoryOutboxStorage(),
             )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_worker_handles_errors_gracefully(self) -> None:
         storage = InMemoryOutboxStorage()
         publisher = _make_publisher()

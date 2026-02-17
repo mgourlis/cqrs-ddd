@@ -13,7 +13,7 @@ from cqrs_ddd_redis import RedlockLockStrategy
 from cqrs_ddd_redis.exceptions import RedisLockError
 
 
-@pytest.fixture()
+@pytest.fixture
 def redis_urls() -> list[str]:
     return [
         "redis://localhost:6379",
@@ -22,7 +22,7 @@ def redis_urls() -> list[str]:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_lock() -> MagicMock:
     lock = MagicMock()
     lock.valid = True
@@ -30,7 +30,7 @@ def mock_lock() -> MagicMock:
     return lock
 
 
-@pytest.fixture()
+@pytest.fixture
 async def strategy(redis_urls: list[str], mock_lock: MagicMock) -> RedlockLockStrategy:
     with patch("cqrs_ddd_redis.redlock_locking.AsyncRedlock") as mock_redlock_cls:
         # Mock AsyncRedlock
@@ -51,7 +51,7 @@ async def strategy(redis_urls: list[str], mock_lock: MagicMock) -> RedlockLockSt
         await strategy.close()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestRedlockLockStrategy:
     """Test RedlockLockStrategy implementation with mocks."""
 

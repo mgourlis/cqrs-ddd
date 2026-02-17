@@ -17,7 +17,7 @@ from cqrs_ddd_advanced_core.exceptions import MergeStrategyRegistryMissingError
 
 
 class TestConflictResolutionMixinUnit:
-    @pytest.fixture()
+    @pytest.fixture
     def mixin(self):
         return ConflictResolutionMixin()
 
@@ -85,11 +85,11 @@ class TestConflictResolutionMixinUnit:
 
 
 class TestRetryBehaviorMixinUnit:
-    @pytest.fixture()
+    @pytest.fixture
     def mixin(self):
         return RetryBehaviorMixin()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @patch("asyncio.sleep", new_callable=AsyncMock)
     async def test_handle_retry_attempt_success(self, mock_sleep, mixin):
         """Should increment attempt, sleep, and return new attempt count."""
@@ -101,7 +101,7 @@ class TestRetryBehaviorMixinUnit:
         assert next_attempt == 1
         mock_sleep.assert_called_once_with(0.1)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_handle_retry_attempt_exceeded(self, mixin):
         """Should raise the exception if max retries exceeded."""
         policy = FixedRetryPolicy(delay_ms=100, max_retries=3)
@@ -110,7 +110,7 @@ class TestRetryBehaviorMixinUnit:
         with pytest.raises(ValueError, match="fatal"):
             await mixin._handle_retry_attempt(3, policy, exception)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     @patch("asyncio.sleep", new_callable=AsyncMock)
     @patch("random.random", return_value=0.5)  # Make jitter deterministic
     async def test_handle_retry_attempt_with_jitter(

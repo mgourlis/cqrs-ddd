@@ -148,7 +148,7 @@ class AlwaysTrueSpec:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 async def engine():
     eng = create_async_engine("sqlite+aiosqlite:///:memory:")
     async with eng.begin() as conn:
@@ -157,14 +157,14 @@ async def engine():
     await eng.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture
 async def session(engine) -> AsyncGenerator[AsyncSession, None]:
     factory = async_sessionmaker(engine, expire_on_commit=False)
     async with factory() as sess:
         yield sess
 
 
-@pytest.fixture()
+@pytest.fixture
 def uow_factory(session):
     return lambda: SQLAlchemyUnitOfWork(session=session)
 
@@ -188,7 +188,7 @@ def _seed_items(session: AsyncSession):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_two_class_to_model_from_model(session, uow_factory):
     """to_model creates DB model; from_model creates domain entity."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -206,7 +206,7 @@ async def test_two_class_to_model_from_model(session, uow_factory):
     assert domain.name == "Widget"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_two_class_crud(session, uow_factory):
     """Full CRUD cycle with separate entity/DB model."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -239,7 +239,7 @@ async def test_two_class_crud(session, uow_factory):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_single_model_mode(session, uow_factory):
     """Single-class mode works when entity_cls is also the DB model."""
     repo = SQLAlchemyRepository(LegacyProduct, uow_factory=uow_factory)
@@ -265,7 +265,7 @@ def test_db_model_cls_defaults_to_entity_cls():
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_search_with_spec(session, uow_factory):
     """search() uses build_sqla_filter to compile specification AST."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -281,7 +281,7 @@ async def test_search_with_spec(session, uow_factory):
     assert all(r.status == "active" for r in results)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_search_empty_spec(session, uow_factory):
     """Empty specification dict returns all items."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -298,7 +298,7 @@ async def test_search_empty_spec(session, uow_factory):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_search_query_options_pagination(session, uow_factory):
     """QueryOptions limit/offset via unified search()."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -311,7 +311,7 @@ async def test_search_query_options_pagination(session, uow_factory):
     assert len(results) == 2
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_search_query_options_ordering(session, uow_factory):
     """QueryOptions order_by via unified search()."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -325,7 +325,7 @@ async def test_search_query_options_ordering(session, uow_factory):
     assert prices == sorted(prices, reverse=True)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_search_query_options_spec_and_pagination(session, uow_factory):
     """Combine specification filter with pagination via unified search()."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -345,7 +345,7 @@ async def test_search_query_options_spec_and_pagination(session, uow_factory):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_stream_returns_async_iterator(session, uow_factory):
     """search(...).stream() yields entities matching the specification."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -363,7 +363,7 @@ async def test_stream_returns_async_iterator(session, uow_factory):
     assert all(e.status == "archived" for e in collected)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_stream_all(session, uow_factory):
     """search(...).stream() with AlwaysTrueSpec returns all."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -377,7 +377,7 @@ async def test_stream_all(session, uow_factory):
     assert count == 5
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_stream_with_query_options(session, uow_factory):
     """search(QueryOptions).stream() applies options and streams."""
     repo = SQLAlchemyRepository(Item, ItemModel, uow_factory=uow_factory)
@@ -400,7 +400,7 @@ async def test_stream_with_query_options(session, uow_factory):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_hooks_intercept_field_resolution(session, uow_factory):
     """A hook can override field resolution during spec compilation."""
 
@@ -433,7 +433,7 @@ async def test_hooks_intercept_field_resolution(session, uow_factory):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_no_uow_raises():
     """Operations without UoW raise ValueError."""
     repo = SQLAlchemyRepository(Item, ItemModel)

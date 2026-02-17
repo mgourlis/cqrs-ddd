@@ -12,7 +12,7 @@ class Cmd:
     pass
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_composite_validator_success() -> None:
     v1 = AsyncMock(spec=IValidator)
     v1.validate.return_value = ValidationResult.success()
@@ -29,7 +29,7 @@ async def test_composite_validator_success() -> None:
     v2.validate.assert_called()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_composite_validator_merges_failures() -> None:
     v1 = AsyncMock(spec=IValidator)
     v1.validate.return_value = ValidationResult.failure({"field1": ["error1"]})
