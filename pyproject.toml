@@ -48,6 +48,13 @@ messaging-rabbitmq = ["aio-pika>=9.3.0"]
 messaging-kafka = ["aiokafka>=0.10.0"]
 observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0"]
 
+# Geometry support (for in-memory and SQLAlchemy operators)
+geometry = [
+    "shapely>=2.0",
+    "geoalchemy2>=0.14.0",
+    "pyproj>=3.0"
+]
+
 # Development
 dev = [
     "ruff>=0.1.11",

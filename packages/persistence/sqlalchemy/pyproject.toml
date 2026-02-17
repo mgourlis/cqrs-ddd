@@ -23,7 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 sqlite = ["aiosqlite>=0.19.0"]
 advanced = ["cqrs-ddd-advanced-core"]
-geo = ["geoalchemy2>=0.14.0", "shapely>=2.0", "pyproj>=3.0"]
+geometry = ["geoalchemy2>=0.14.0", "shapely>=2.0", "pyproj>=3.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

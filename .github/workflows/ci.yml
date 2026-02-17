@@ -25,9 +25,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ./packages/core
-          pip install -e ./packages/specifications
+          pip install -e "./packages/specifications[geometry]"
           pip install -e ./packages/advanced
-          pip install -e ./packages/persistence/sqlalchemy
+          pip install -e "./packages/persistence/sqlalchemy[geometry]"
           pip install -e ./packages/persistence/redis
           pip install .[dev]
 
