@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.orm.exc import StaleDataError
 
 from cqrs_ddd_advanced_core.ports.persistence import (
     IOperationPersistence,
@@ -34,6 +35,7 @@ from cqrs_ddd_core.ports.search_result import SearchResult
 
 from ..core.model_mapper import ModelMapper
 from ..core.uow import SQLAlchemyUnitOfWork
+from ..exceptions import OptimisticConcurrencyError
 from ..specifications.compiler import apply_query_options, build_sqla_filter
 
 if TYPE_CHECKING:
@@ -109,18 +111,36 @@ class SQLAlchemyOperationPersistence(
         model = self.to_model(entity)  # type: ignore[arg-type]
 
         if entity.version == 0:
+            if (
+                hasattr(model, "__table__")
+                and hasattr(model.__table__, "c")
+                and "version" in model.__table__.c
+            ):
+                model.version = 1
+            elif hasattr(model, "_version"):
+                object.__setattr__(model, "_version", 1)
             session.add(model)
             if entity.id is None:
                 await session.flush()
                 if hasattr(model, "id"):
                     object.__setattr__(entity, "id", model.id)
+            object.__setattr__(entity, "_version", 1)
         else:
-            if hasattr(model, "version"):
-                model.version = entity.original_version
-            merged = await session.merge(model)
-            if hasattr(merged, "version"):
-                merged.version = entity.version
-            model = merged
+            try:
+                merged = await session.merge(model)
+                if (
+                    hasattr(merged, "__table__")
+                    and hasattr(merged.__table__, "c")
+                    and "version" in merged.__table__.c
+                ):
+                    merged.version = entity.version + 1
+                object.__setattr__(entity, "_version", entity.version + 1)
+                model = merged
+            except StaleDataError as e:
+                raise OptimisticConcurrencyError(
+                    f"Aggregate {entity.id} version conflict. "
+                    f"Expected version {entity.version} but was modified concurrently."
+                ) from e
 
         return model.id  # type: ignore[no-any-return]
 

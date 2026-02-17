@@ -5,11 +5,19 @@ from typing import Any
 from sqlalchemy import BigInteger, DateTime, Enum, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from ..mixins import VersionMixin
 from .types.json import JSONType
 
 
-class Base(DeclarativeBase):
-    pass
+class Base(VersionMixin, DeclarativeBase):
+    """
+    Declarative base for all SQLAlchemy models in this package.
+
+    Includes :class:`~cqrs_ddd_persistence_sqlalchemy.mixins.VersionMixin` so that
+    models used with
+    :class:`~cqrs_ddd_persistence_sqlalchemy.core.repository.SQLAlchemyRepository`
+    get optimistic concurrency (version column + version_id_col) by default.
+    """
 
 
 class OutboxStatus(str, enum.Enum):

@@ -37,17 +37,12 @@ class AggregateMixin:
     def __init__(self, **kwargs: Any) -> None:
         self._domain_events: list[Any] = []
         self._version = kwargs.pop("_version", 0)
-        self._original_version = kwargs.pop("_original_version", self._version)
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     @property
     def version(self) -> int:
         return self._version
-
-    @property
-    def original_version(self) -> int:
-        return self._original_version
 
     @classmethod
     def model_validate(cls, obj: Any, *, from_attributes: bool = False) -> Any:

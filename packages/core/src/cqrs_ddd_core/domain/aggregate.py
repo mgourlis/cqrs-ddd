@@ -38,7 +38,6 @@ class AggregateRoot(BaseModel, Generic[ID]):
 
     id: ID
     _version: int = PrivateAttr(default=0)
-    _original_version: int = PrivateAttr(default=0)
     _domain_events: list[DomainEvent] = PrivateAttr(
         default_factory=lambda: cast("list[DomainEvent]", [])
     )
@@ -82,7 +81,6 @@ class AggregateRoot(BaseModel, Generic[ID]):
         object.__setattr__(self, "_domain_events", [])
         version = data.get("_version", 0)
         object.__setattr__(self, "_version", version)
-        object.__setattr__(self, "_original_version", version)
         object.__setattr__(self, "_id_generator", id_generator)
 
     def add_event(self, event: DomainEvent) -> None:
@@ -97,17 +95,8 @@ class AggregateRoot(BaseModel, Generic[ID]):
 
     @property
     def version(self) -> int:
-        """Current aggregate version (optimistic concurrency)."""
+        """Read-only version, managed by the persistence layer."""
         return self._version
-
-    @property
-    def original_version(self) -> int:
-        """Aggregate version at load time (base for OCC check)."""
-        return self._original_version
-
-    def increment_version(self) -> None:
-        """Increment the version counter."""
-        object.__setattr__(self, "_version", self._version + 1)
 
 
 class Modification(Generic[ID]):

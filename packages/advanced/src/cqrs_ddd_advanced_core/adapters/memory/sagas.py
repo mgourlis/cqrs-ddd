@@ -35,7 +35,7 @@ class InMemorySagaRepository(ISagaRepository):
     async def add(self, entity: SagaState, _uow: UnitOfWork | None = None) -> str:
         """Persist a new or updated saga state."""
         # Simulate database version increment
-        entity.increment_version()
+        object.__setattr__(entity, "_version", entity.version + 1)
         self._sagas[entity.id] = entity
         return entity.id
 

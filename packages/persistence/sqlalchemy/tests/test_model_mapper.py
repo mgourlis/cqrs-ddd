@@ -52,12 +52,10 @@ class SimpleEntity(BaseModel):
     name: str
     status: StatusEnum = StatusEnum.ACTIVE
     _version: int = PrivateAttr(default=0)
-    _original_version: int = PrivateAttr(default=0)
 
     def __init__(self, **data: Any) -> None:
         super().__init__(**data)
         object.__setattr__(self, "_version", data.get("_version", 0))
-        object.__setattr__(self, "_original_version", data.get("_original_version", 0))
 
 
 class EntityWithPrivateAttrs(BaseModel):

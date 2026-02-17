@@ -159,9 +159,9 @@ class TestBaseBackgroundJobEntity:
         v0 = job.version
 
         job.start_processing()
-        v1 = job.version
 
-        assert v1 > v0
+        # Version is persistence-managed; domain transitions do not change it until save
+        assert job.version == v0
 
 
 # ============================================================================

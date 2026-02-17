@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from ..core.models import Base
 from ..core.types.json import JSONType
+from ..mixins import AuditableModelMixin
 
 
 class SagaStatus(str, enum.Enum):
@@ -24,7 +25,7 @@ class SagaStatus(str, enum.Enum):
     COMPENSATING = "COMPENSATING"
 
 
-class SagaStateModel(Base):
+class SagaStateModel(AuditableModelMixin, Base):
     """
     Persists the state of a Saga.
     """
@@ -38,22 +39,7 @@ class SagaStateModel(Base):
     state: Mapped[dict[str, Any]] = mapped_column(JSONType)
     events: Mapped[list[dict[str, Any]]] = mapped_column(JSONType)
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-        index=True,
-    )
     timeout_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    version: Mapped[int] = mapped_column(Integer, default=0)
-
-    __mapper_args__ = {
-        "version_id_col": version,
-        "version_id_generator": False,
-    }
 
 
 class JobStatus(str, enum.Enum):
@@ -64,7 +50,7 @@ class JobStatus(str, enum.Enum):
     CANCELLED = "CANCELLED"
 
 
-class BackgroundJobModel(Base):
+class BackgroundJobModel(AuditableModelMixin, Base):
     """
     Persists Background Jobs.
     Maps to BaseBackgroundJob aggregate root.
@@ -85,22 +71,6 @@ class BackgroundJobModel(Base):
 
     retry_count: Mapped[int] = mapped_column(Integer, default=0)
     max_retries: Mapped[int] = mapped_column(Integer, default=3)
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-        index=True,
-    )
-    version: Mapped[int] = mapped_column(Integer, default=0)
-
-    __mapper_args__ = {
-        "version_id_col": version,
-        "version_id_generator": False,
-    }
 
     job_metadata: Mapped[dict[str, Any]] = mapped_column(JSONType)
     correlation_id: Mapped[str | None] = mapped_column(

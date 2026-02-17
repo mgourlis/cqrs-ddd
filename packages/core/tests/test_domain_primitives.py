@@ -40,12 +40,9 @@ def test_aggregate_root_event_collection() -> None:
 
 
 def test_aggregate_root_versioning() -> None:
-    """Verifies that version is incremented correctly."""
+    """Verifies that version is read-only and defaults to 0."""
     user = UserAccount(id="user-1", username="alice")
     assert user.version == 0
-
-    user.increment_version()
-    assert user.version == 1
 
 
 def test_aggregate_root_init_with_version() -> None:
@@ -64,15 +61,14 @@ def test_aggregate_root_reconstruction() -> None:
 
 
 def test_aggregate_root_event_persistence() -> None:
-    """Verifies that events are not cleared during version increments."""
+    """Verifies that events are collected and not cleared."""
     user = UserAccount(id="user-1", username="alice")
     user.add_event(SomethingHappened(message="1"))
-    user.increment_version()
     user.add_event(SomethingHappened(message="2"))
 
     events = user.collect_events()
     assert len(events) == 2
-    assert user.version == 1
+    assert user.version == 0
 
 
 def test_domain_event_serialization_fields() -> None:

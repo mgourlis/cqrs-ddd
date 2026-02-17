@@ -107,31 +107,38 @@ class SQLAlchemyRepository(IRepository[T, ID], Generic[T, ID]):
 
     async def add(self, entity: T, uow: UnitOfWork | None = None) -> ID:
         active_uow = self._require_uow(uow)
-
         model = self.to_model(entity)
 
         if entity.version == 0:
+            if (
+                hasattr(model, "__table__")
+                and hasattr(model.__table__, "c")
+                and "version" in model.__table__.c
+            ):
+                model.version = 1
+            elif hasattr(model, "_version"):
+                object.__setattr__(model, "_version", 1)
             active_uow.session.add(model)
             if entity.id is None:
                 await active_uow.session.flush()
                 if hasattr(entity, "id") and hasattr(model, "id"):
                     object.__setattr__(entity, "id", model.id)
+            object.__setattr__(entity, "_version", 1)
         else:
             try:
-                if hasattr(model, "version"):
-                    model.version = entity.original_version
-
                 merged = await active_uow.session.merge(model)
-
-                if hasattr(merged, "version"):
-                    merged.version = entity.version
-
+                if (
+                    hasattr(merged, "__table__")
+                    and hasattr(merged.__table__, "c")
+                    and "version" in merged.__table__.c
+                ):
+                    merged.version = entity.version + 1
+                object.__setattr__(entity, "_version", entity.version + 1)
                 model = merged
             except StaleDataError as e:
                 raise OptimisticConcurrencyError(
-                    f"Aggregate {entity.id} version mismatch. "
-                    f"Current domain version: {entity.version} "
-                    f"(original: {entity.original_version}). Error: {e}"
+                    f"Aggregate {entity.id} version conflict. "
+                    f"Expected version {entity.version} but was modified concurrently."
                 ) from e
 
         return model.id  # type: ignore[no-any-return]

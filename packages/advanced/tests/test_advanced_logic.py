@@ -33,9 +33,8 @@ def test_snapshot_strategy() -> None:
 
     assert strategy.should_snapshot(agg) is False
 
-    agg.increment_version()  # v1
-    agg.increment_version()  # v2
-    agg.increment_version()  # v3
+    # Simulate persistence-managed version (e.g. after 3 saves)
+    object.__setattr__(agg, "_version", 3)
     assert strategy.should_snapshot(agg) is True
 
 

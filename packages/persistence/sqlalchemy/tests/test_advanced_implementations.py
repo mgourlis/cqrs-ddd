@@ -176,7 +176,7 @@ async def test_job_repository(session_factory):
         job.status = BackgroundJobStatus.RUNNING
         # Simulate business logic touching the aggregate (which increments version)
         # We manually increment here if the test object doesn't use the real base logic fully
-        # BaseBackgroundJob._touch() does object.__setattr__(self, "_version", self.version + 1)
+        # Version is persistence-managed; repo increments on save
         # Let's assume start_processing or similar method is called, or we manually simulate it
         job._touch()
 
@@ -185,7 +185,7 @@ async def test_job_repository(session_factory):
 
         loaded_again = await repo.get(job.id)
         assert loaded_again.status == BackgroundJobStatus.RUNNING
-        assert loaded_again.version == 1  # Verify version incremented
+        assert loaded_again.version == 2  # First add -> 1, second add (update) -> 2
 
 
 @pytest.mark.asyncio

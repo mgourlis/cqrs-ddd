@@ -205,11 +205,6 @@ class SagaState(AuditableMixin, AggregateRoot[str]):
         )
         self.touch()
 
-    def touch(self) -> None:
-        """Bump ``updated_at`` and version (extends AuditableMixin)."""
-        super().touch()
-        self.increment_version()
-
     @property
     def is_terminal(self) -> bool:
         """Return *True* if the saga has reached a final state."""

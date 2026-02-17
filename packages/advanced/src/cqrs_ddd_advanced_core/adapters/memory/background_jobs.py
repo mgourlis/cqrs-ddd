@@ -31,7 +31,7 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
     ) -> str:
         """Store or update a job."""
         # Simulate database version increment
-        entity.increment_version()
+        object.__setattr__(entity, "_version", entity.version + 1)
         self._jobs[entity.id] = entity
         return entity.id
 

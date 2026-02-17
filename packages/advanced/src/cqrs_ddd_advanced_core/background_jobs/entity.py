@@ -68,9 +68,8 @@ class BaseBackgroundJob(AggregateRoot[str]):
     # -- helpers ----------------------------------------------------------
 
     def _touch(self) -> None:
-        """Bump updated_at and version."""
+        """Bump updated_at."""
         self.updated_at = datetime.now(timezone.utc)
-        object.__setattr__(self, "_version", self.version + 1)
 
     def _emit(self, event: DomainEvent) -> None:
         """Emit event with aggregate context automatically populated."""
