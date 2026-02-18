@@ -359,10 +359,35 @@ class TestModelMapperGeometryIntegration:
 
         Note: Uses sync SQLAlchemy and loads SpatiaLite extension for
         spatial queries. The geometry coercion logic is identical in sync/async.
+        Skipped when mod_spatialite is not available
+        (e.g. CI without libsqlite3-mod-spatialite).
         """
+        from sqlalchemy import create_engine, event, text
+        from sqlalchemy.exc import OperationalError
+
+        import cqrs_ddd_persistence_sqlalchemy.types.spatialite  # noqa: F401
+        from cqrs_ddd_persistence_sqlalchemy.types.spatialite import (
+            register_spatialite_mappings,
+        )
+
+        register_spatialite_mappings()
+        engine = create_engine("sqlite:///:memory:")
+
+        @event.listens_for(engine, "connect")
+        def load_spatialite(dbapi_conn, connection_record):
+            dbapi_conn.enable_load_extension(True)
+            dbapi_conn.load_extension("mod_spatialite")
+            dbapi_conn.execute("SELECT InitSpatialMetaData(1)")
+
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+        except OperationalError as e:
+            pytest.skip(f"mod_spatialite not available: {e}")
+
         from geojson_pydantic import Point
         from pydantic import BaseModel
-        from sqlalchemy import Integer, String, create_engine, event
+        from sqlalchemy import Integer, String
         from sqlalchemy.orm import DeclarativeBase, Session, mapped_column
 
         from cqrs_ddd_persistence_sqlalchemy.core.model_mapper import ModelMapper
@@ -395,24 +420,6 @@ class TestModelMapperGeometryIntegration:
             type_coercers=coercers,
             reverse_type_coercers=reverse_coercers,
         )
-
-        # Create in-memory SQLite database
-        engine = create_engine("sqlite:///:memory:")
-
-        # Register SpatiaLite function mappings for SQLite
-        import cqrs_ddd_persistence_sqlalchemy.types.spatialite  # noqa: F401
-        from cqrs_ddd_persistence_sqlalchemy.types.spatialite import (
-            register_spatialite_mappings,
-        )
-
-        register_spatialite_mappings()
-
-        # Load SpatiaLite on connect (for in-memory SQLite)
-        @event.listens_for(engine, "connect")
-        def load_spatialite(dbapi_conn, connection_record):
-            dbapi_conn.enable_load_extension(True)
-            dbapi_conn.load_extension("mod_spatialite")
-            dbapi_conn.execute("SELECT InitSpatialMetaData(1)")
 
         # Create tables with SpatiaLite loaded
         Base.metadata.create_all(engine)

@@ -31,6 +31,9 @@ jobs:
           pip install -e ./packages/persistence/redis
           pip install ".[dev, geometry]"
 
+      - name: Install SpatiaLite (for geometry persistence tests)
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-mod-spatialite
+
       - name: Run Lint and Type Checks (only once)
         if: matrix.python-version == '3.12'
         run: |
