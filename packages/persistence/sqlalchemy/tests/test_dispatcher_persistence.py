@@ -89,12 +89,6 @@ else:
 
 
 @dataclass
-class Modification:
-    entity: Any
-    events: list[Any]
-
-
-@dataclass
 class OrderDTO:
     id: str
     customer: str
@@ -167,8 +161,7 @@ class ConcreteOperationPersistence(SQLAlchemyOperationPersistence[Order, str]):
 async def test_operation_persistence_add(session, uow):
     handler = ConcreteOperationPersistence()
     entity = Order(id="op1", customer="Alice", total=500, status="new")
-    mod = Modification(entity=entity, events=[])
-    result_id = await handler.persist(mod, uow)
+    result_id = await handler.persist(entity, uow)
     await uow.commit()
     assert result_id == "op1"
 

@@ -42,7 +42,6 @@ from .domain import (
     AuditableMixin,
     DomainEvent,
     EventTypeRegistry,
-    Modification,
     ValueObject,
     enrich_event_metadata,
 )
@@ -109,7 +108,6 @@ __all__: list[str] = [
     "DomainEvent",
     "EventTypeRegistry",
     "HAS_GEO",
-    "Modification",
     "ValueObject",
     "enrich_event_metadata",
     # CQRS

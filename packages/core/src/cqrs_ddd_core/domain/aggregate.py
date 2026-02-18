@@ -12,7 +12,6 @@ from .mixins import AggregateRootMixin
 
 if TYPE_CHECKING:
     from ..primitives.id_generator import IIDGenerator
-    from .events import DomainEvent
 
 ID = TypeVar("ID", str, int, UUID)
 
@@ -80,20 +79,3 @@ class AggregateRoot(AggregateRootMixin, BaseModel, Generic[ID]):
         version = data.get("_version", 0)
         object.__setattr__(self, "_version", version)
         object.__setattr__(self, "_id_generator", id_generator)
-
-
-class Modification(Generic[ID]):
-    """DTO bundling an entity with its collected domain events.
-
-    Returned by command handlers to carry both the mutated aggregate
-    and the events it produced.
-    """
-
-    entity: AggregateRoot[ID]
-    events: list[DomainEvent]
-
-    def __init__(
-        self, entity: AggregateRoot[ID], events: list[DomainEvent] | None = None
-    ) -> None:
-        self.entity = entity
-        self.events = events if events is not None else entity.collect_events()

@@ -67,6 +67,7 @@ class StoredEventModel(Base):
     aggregate_id: Mapped[str] = mapped_column(String, index=True)
     aggregate_type: Mapped[str] = mapped_column(String, index=True)
     version: Mapped[int] = mapped_column(Integer)
+    schema_version: Mapped[int] = mapped_column(Integer, default=1)
     payload: Mapped[dict[str, Any]] = mapped_column(JSONType)
     metadata_: Mapped[dict[str, Any]] = mapped_column("metadata", JSONType)
     occurred_at: Mapped[datetime] = mapped_column(DateTime, index=True)

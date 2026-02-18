@@ -30,7 +30,7 @@ from cqrs_ddd_advanced_core.ports.persistence import (
     IQuerySpecificationPersistence,
     IRetrievalPersistence,
 )
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.ports.search_result import SearchResult
 
 from ..core.model_mapper import ModelMapper
@@ -104,11 +104,15 @@ class SQLAlchemyOperationPersistence(
         """Convert SQLAlchemy model → domain aggregate."""
         return self._mapper.from_model(model)
 
-    async def persist(self, modification: Modification[T_ID], uow: UnitOfWork) -> T_ID:
-        """Persist the aggregate and its domain events."""
+    async def persist(
+        self,
+        entity: T_Entity,
+        uow: UnitOfWork,
+        events: Any = None,  # noqa: ARG002
+    ) -> T_ID:
+        """Persist the aggregate (events flow via middleware)."""
         session = _session_from(uow)
-        entity = modification.entity
-        model = self.to_model(entity)  # type: ignore[arg-type]
+        model = self.to_model(entity)
 
         if entity.version == 0:
             if (

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, TypeVar, runtime_checkable
 
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from cqrs_ddd_advanced_core.ports import T_ID, T_Criteria
+    from cqrs_ddd_core.domain.events import DomainEvent
     from cqrs_ddd_core.ports.search_result import SearchResult
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
@@ -33,9 +34,12 @@ class IPersistenceDispatcher(Protocol):
     """
 
     async def apply(
-        self, modification: Modification[T_ID], uow: UnitOfWork | None = None
+        self,
+        entity: AggregateRoot[T_ID],
+        uow: UnitOfWork | None = None,
+        events: list[DomainEvent] | None = None,
     ) -> T_ID:
-        """Apply a modification (Write)."""
+        """Apply a write (persist entity, optionally with events)."""
         ...
 
     async def fetch_domain(

@@ -15,7 +15,7 @@ from cqrs_ddd_advanced_core.ports import (
     IQuerySpecificationPersistence,
     IRetrievalPersistence,
 )
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.events import DomainEvent
 from cqrs_ddd_core.domain.specification import ISpecification
 from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
@@ -41,8 +41,13 @@ class MockResult:
 
 
 class MockOperationPersistence(IOperationPersistence[MockEntity, Any]):
-    async def persist(self, modification: Modification[Any], uow: UnitOfWork) -> Any:
-        return modification.entity.id
+    async def persist(
+        self,
+        entity: MockEntity,
+        uow: UnitOfWork,
+        events: list[Any] | None = None,
+    ) -> Any:
+        return entity.id
 
 
 class MockRetrievalPersistence(IRetrievalPersistence[MockEntity, Any]):
@@ -92,9 +97,8 @@ async def test_dispatcher_apply_modification() -> None:
     )
 
     entity = MockEntity(id=uuid4(), name="Test")
-    modification = Modification(entity)
 
-    result = await dispatcher.apply(modification)
+    result = await dispatcher.apply(entity)
     assert result == entity.id
 
 
@@ -193,9 +197,8 @@ async def test_dispatcher_apply_with_explicit_uow() -> None:
     )
 
     entity = MockEntity(id=uuid4(), name="Test")
-    modification = Modification(entity)
 
-    result = await dispatcher.apply(modification, uow=explicit_uow)
+    result = await dispatcher.apply(entity, uow=explicit_uow)
 
     assert result == entity.id
 
@@ -213,10 +216,9 @@ async def test_dispatcher_apply_missing_handler_raises_error() -> None:
     )
 
     entity = MockEntity(id=uuid4(), name="Test")
-    modification = Modification(entity)
 
     with pytest.raises(HandlerNotRegisteredError):
-        await dispatcher.apply(modification)
+        await dispatcher.apply(entity)
 
 
 @pytest.mark.asyncio
@@ -326,7 +328,12 @@ async def test_dispatcher_apply_uses_highest_priority_handler() -> None:
     registry.register_operation(MockEntity, MockOperationPersistence, priority=1)
 
     class HighPriorityHandler:
-        async def persist(self, modification: Modification, uow: Any) -> Any:
+        async def persist(
+            self,
+            entity: Any,
+            uow: Any,
+            events: list[Any] | None = None,
+        ) -> Any:
             return "high_priority"
 
     registry.register_operation(MockEntity, HighPriorityHandler, priority=10)
@@ -336,9 +343,8 @@ async def test_dispatcher_apply_uses_highest_priority_handler() -> None:
     )
 
     entity = MockEntity(id=uuid4(), name="Test")
-    modification = Modification(entity)
 
-    result = await dispatcher.apply(modification)
+    result = await dispatcher.apply(entity)
 
     # Should use high priority handler
     assert result == "high_priority"

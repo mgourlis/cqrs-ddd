@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .aggregate import AggregateRoot, Modification
+from .aggregate import AggregateRoot
 from .event_registry import EventTypeRegistry
 from .events import DomainEvent, enrich_event_metadata
 from .mixins import (
@@ -21,7 +21,6 @@ __all__: list[str] = [
     "DomainEvent",
     "EventTypeRegistry",
     "HAS_GEO",
-    "Modification",
     "ValueObject",
     "enrich_event_metadata",
 ]

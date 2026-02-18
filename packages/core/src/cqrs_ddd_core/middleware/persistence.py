@@ -36,15 +36,23 @@ class EventStorePersistenceMiddleware(IMiddleware):
         if events:
             from ..ports.event_store import StoredEvent
 
+            # Aggregate event sequence number: derive from entity.version if available
+            result_payload = getattr(result, "result", None)
+            entity = getattr(result_payload, "entity", None) if result_payload else None
+            base_version = (
+                getattr(entity, "version", 0) - len(events) if entity else 0
+            )
+
             stored: list[StoredEvent] = []
-            for event in events:
+            for i, event in enumerate(events):
                 stored.append(
                     StoredEvent(
                         event_id=getattr(event, "event_id", ""),
                         event_type=type(event).__name__,
                         aggregate_id=str(getattr(event, "aggregate_id", "")),
                         aggregate_type=getattr(event, "aggregate_type", ""),
-                        version=getattr(event, "version", 0),
+                        version=base_version + i + 1,
+                        schema_version=getattr(event, "version", 1),
                         payload=event.model_dump(),
                         metadata=getattr(event, "metadata", {}),
                         occurred_at=getattr(event, "occurred_at", None)

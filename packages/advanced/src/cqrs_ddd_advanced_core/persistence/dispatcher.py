@@ -1,7 +1,6 @@
 """
-Refined Persistence Dispatcher with explicit Registry, Modification DTOs,
-and ID_contra type safety. Removes global state and provides injectable
-configuration.
+Refined Persistence Dispatcher with explicit Registry and ID_contra type safety.
+Removes global state and provides injectable configuration.
 """
 
 import logging
@@ -25,7 +24,7 @@ from cqrs_ddd_advanced_core.ports import (
     T_Criteria,
 )
 from cqrs_ddd_advanced_core.ports.dispatcher import IPersistenceDispatcher
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.specification import ISpecification
 from cqrs_ddd_core.ports.search_result import SearchResult
 from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
@@ -149,13 +148,16 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         return factory
 
     async def apply(
-        self, modification: Modification[T_ID], uow: UnitOfWork | None = None
+        self,
+        entity: AggregateRoot[T_ID],
+        uow: UnitOfWork | None = None,
+        events: list[Any] | None = None,
     ) -> T_ID:
         """
-        Apply a modification (Write).
-        The handler is resolved based on the type of modification.entity.
+        Apply a write (persist entity, optionally with events).
+        The handler is resolved based on the type of entity.
         """
-        entity_type = type(modification.entity)
+        entity_type = type(entity)
         entries = self._registry.get_operation_entries(entity_type)
         if not entries:
             raise HandlerNotRegisteredError(
@@ -170,10 +172,10 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         )
 
         if uow:
-            return await handler.persist(modification, uow)
+            return await handler.persist(entity, uow, events=events)
 
         async with self._get_uow_factory(entry.source)() as new_uow:
-            return await handler.persist(modification, new_uow)
+            return await handler.persist(entity, new_uow, events=events)
 
     async def fetch_domain(
         self,

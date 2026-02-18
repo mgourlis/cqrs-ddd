@@ -15,7 +15,7 @@ from cqrs_ddd_advanced_core.ports import (
     T_Criteria,
 )
 from cqrs_ddd_advanced_core.ports.dispatcher import IPersistenceDispatcher
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.specification import ISpecification
 from cqrs_ddd_core.ports.cache import ICacheService
 from cqrs_ddd_core.ports.search_result import SearchResult
@@ -43,15 +43,18 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         self._default_ttl = default_ttl
 
     async def apply(
-        self, modification: Modification[T_ID], uow: UnitOfWork | None = None
+        self,
+        entity: AggregateRoot[T_ID],
+        uow: UnitOfWork | None = None,
+        events: list[Any] | None = None,
     ) -> T_ID:
-        """Apply modification and invalidate cache."""
+        """Apply write and invalidate cache."""
         # 1. Delegate to inner
-        result = await self._inner.apply(modification, uow)
+        result = await self._inner.apply(entity, uow, events=events)
 
         # 2. Invalidate Cache
         try:
-            await self._invalidate_cache(modification, result)
+            await self._invalidate_cache(entity, result)
         except Exception as e:  # noqa: BLE001
             logger.warning("Cache invalidation failed: %s", e)
 
@@ -144,9 +147,9 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
     # --- Helpers ---
 
     async def _invalidate_cache(
-        self, modification: Modification[Any], result: Any | list[Any]
+        self, entity: AggregateRoot[Any], result: Any | list[Any]
     ) -> None:
-        entity_name = type(modification.entity).__name__
+        entity_name = type(entity).__name__
         ids = result if isinstance(result, list) else [result]
         keys = []
 

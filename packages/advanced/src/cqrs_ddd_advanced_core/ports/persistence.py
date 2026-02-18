@@ -5,10 +5,11 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from uuid import UUID
 
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.specification import ISpecification
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.events import DomainEvent
     from cqrs_ddd_core.ports.search_result import SearchResult
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
@@ -28,9 +29,14 @@ class IOperationPersistence(ABC, Generic[T_Entity, T_ID]):
     """
 
     @abstractmethod
-    async def persist(self, modification: Modification[T_ID], uow: UnitOfWork) -> T_ID:
+    async def persist(
+        self,
+        entity: T_Entity,
+        uow: UnitOfWork,
+        events: list[DomainEvent] | None = None,
+    ) -> T_ID:
         """
-        Persist the modification (entity changes + events).
+        Persist the entity (and optionally its events for event-sourced stores).
         Returns the result of the operation (usually the entity ID).
         """
         ...

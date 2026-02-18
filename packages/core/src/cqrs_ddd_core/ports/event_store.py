@@ -12,13 +12,18 @@ from ..utils import default_dict_factory
 
 @dataclass(frozen=True)
 class StoredEvent:
-    """Persistent representation of a domain event."""
+    """Persistent representation of a domain event.
+
+    - ``version``: aggregate event sequence number (1st, 2nd, 3rd event...).
+    - ``schema_version``: event payload schema version for upcasting (v1, v2, v3...).
+    """
 
     event_id: str = field(default_factory=lambda: str(uuid4()))
     event_type: str = ""
     aggregate_id: str = ""
     aggregate_type: str = ""
     version: int = 0
+    schema_version: int = 1
     payload: dict[str, object] = field(default_factory=default_dict_factory)
     metadata: dict[str, object] = field(default_factory=default_dict_factory)
     occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

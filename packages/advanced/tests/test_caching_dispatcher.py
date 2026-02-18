@@ -4,7 +4,7 @@ import pytest
 
 from cqrs_ddd_advanced_core.persistence.caching import CachingPersistenceDispatcher
 from cqrs_ddd_advanced_core.ports.dispatcher import IPersistenceDispatcher
-from cqrs_ddd_core.domain.aggregate import AggregateRoot, Modification
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.ports.cache import ICacheService
 
 
@@ -29,14 +29,12 @@ class TestCachingPersistenceDispatcher:
     async def test_apply_invalidates_cache(
         self, caching_dispatcher, inner_dispatcher, cache_service
     ):
-        modification = MagicMock(spec=Modification)
         entity = MockEntity(id="id1")
-        modification.entity = entity
         inner_dispatcher.apply.return_value = "id1"
 
-        await caching_dispatcher.apply(modification)
+        await caching_dispatcher.apply(entity)
 
-        inner_dispatcher.apply.assert_called_once()
+        inner_dispatcher.apply.assert_called_once_with(entity, None, events=None)
         cache_service.delete_batch.assert_called()
         # Check keys
         keys = cache_service.delete_batch.call_args[0][0]
@@ -71,12 +69,10 @@ class TestCachingPersistenceDispatcher:
         self, caching_dispatcher, inner_dispatcher, cache_service
     ):
         """apply() with list result invalidates all IDs."""
-        modification = MagicMock(spec=Modification)
         entity = MockEntity(id="id1")
-        modification.entity = entity
         inner_dispatcher.apply.return_value = ["id1", "id2", "id3"]
 
-        await caching_dispatcher.apply(modification)
+        await caching_dispatcher.apply(entity)
 
         # Should invalidate all returned IDs
         keys = cache_service.delete_batch.call_args[0][0]
@@ -88,14 +84,12 @@ class TestCachingPersistenceDispatcher:
         self, caching_dispatcher, inner_dispatcher, cache_service
     ):
         """apply() continues even if cache invalidation fails."""
-        modification = MagicMock(spec=Modification)
         entity = MockEntity(id="id1")
-        modification.entity = entity
         inner_dispatcher.apply.return_value = "id1"
         cache_service.delete_batch.side_effect = Exception("Cache error")
 
         # Should not raise
-        result = await caching_dispatcher.apply(modification)
+        result = await caching_dispatcher.apply(entity)
 
         assert result == "id1"
         inner_dispatcher.apply.assert_called_once()

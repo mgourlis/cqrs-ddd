@@ -18,6 +18,7 @@ from .adapters.memory import (
     InMemoryBackgroundJobRepository,
     InMemoryCommandScheduler,
     InMemorySagaRepository,
+    InMemorySnapshotStore,
 )
 from .background_jobs import (
     BackgroundJobService,
@@ -59,6 +60,12 @@ from .cqrs.mixins import (
     Retryable,
     RetryPolicy,
 )
+from .event_sourcing import (
+    DefaultEventApplicator,
+    EventSourcedLoader,
+    EventSourcedRepository,
+    UpcastingEventReader,
+)
 
 # Persistence
 from .persistence import PersistenceDispatcher, PersistenceRegistry
@@ -67,6 +74,7 @@ from .persistence import PersistenceDispatcher, PersistenceRegistry
 from .ports import (
     IBackgroundJobRepository,
     ICommandScheduler,
+    IEventApplicator,
     IEventUpcaster,
     IMergeStrategy,
     IOperationPersistence,
@@ -95,13 +103,13 @@ from .sagas import (
 from .scheduling import CommandSchedulerService, CommandSchedulerWorker
 
 # Snapshots
-from .snapshots import EveryNEventsStrategy
+from .snapshots import EveryNEventsStrategy, SnapshotStrategyRegistry
 
 # Undo/Redo
 from .undo import UndoExecutorRegistry, UndoService
 
 # Upcasting
-from .upcasting import UpcasterChain
+from .upcasting import EventUpcaster, UpcasterChain, UpcasterRegistry
 
 __all__ = [
     # Sagas
@@ -113,8 +121,15 @@ __all__ = [
     "SagaState",
     "SagaStatus",
     "InMemorySagaRepository",
+    "InMemorySnapshotStore",
+    # Event sourcing
+    "DefaultEventApplicator",
+    "EventSourcedLoader",
+    "EventSourcedRepository",
+    "UpcastingEventReader",
     # Ports
     "ISagaRepository",
+    "IEventApplicator",
     "IBackgroundJobRepository",
     "IUndoExecutor",
     "IUndoExecutorRegistry",
@@ -145,13 +160,16 @@ __all__ = [
     "ISnapshotStore",
     "ISnapshotStrategy",
     "EveryNEventsStrategy",
+    "SnapshotStrategyRegistry",
     # Scheduling
     "ICommandScheduler",
     "CommandSchedulerService",
     "CommandSchedulerWorker",
     # Upcasting
     "IEventUpcaster",
+    "EventUpcaster",
     "UpcasterChain",
+    "UpcasterRegistry",
     # Conflict Resolution
     "ConflictResolutionPolicy",
     "ConflictResolver",

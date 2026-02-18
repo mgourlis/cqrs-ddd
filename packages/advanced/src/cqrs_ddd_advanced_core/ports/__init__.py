@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .background_jobs import IBackgroundJobRepository
 from .conflict import IMergeStrategy
+from .event_applicator import IEventApplicator
 from .persistence import (
     T_ID,
     IOperationPersistence,
@@ -19,6 +20,8 @@ from .undo import IUndoExecutor, IUndoExecutorRegistry
 from .upcasting import IEventUpcaster
 
 __all__ = [
+    # Event sourcing
+    "IEventApplicator",
     # Sagas
     "ISagaRepository",
     # Background
