@@ -376,6 +376,7 @@ class TestEventSourcedRepository:
             get_event_store=lambda _: event_store,
             event_registry=event_registry,
         )
+
         # Pass a minimal UoW-like object (repository only needs get_event_store(None))
         class FakeUoW:
             pass
