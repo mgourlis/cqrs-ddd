@@ -29,7 +29,7 @@ jobs:
           pip install -e ./packages/advanced
           pip install -e "./packages/persistence/sqlalchemy[geometry]"
           pip install -e ./packages/persistence/redis
-          pip install .[dev, geometry]
+          pip install ".[dev, geometry]"
 
       - name: Run Lint and Type Checks (only once)
         if: matrix.python-version == '3.12'
