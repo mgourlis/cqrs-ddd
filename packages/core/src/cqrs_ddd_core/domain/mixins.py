@@ -3,10 +3,26 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any, cast
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from ..primitives.exceptions import InvariantViolationError
+
+if TYPE_CHECKING:
+    from geojson_pydantic.geometries import Geometry as GeoJSONGeometryType
+
+    from .events import DomainEvent
+
+GeoJSONGeometry: type[GeoJSONGeometryType] | None = None
+try:
+    from geojson_pydantic.geometries import Geometry as _GeoJSONGeometry
+
+    GeoJSONGeometry = cast("Any", _GeoJSONGeometry)
+    HAS_GEO = True
+except ImportError:
+    HAS_GEO = False
+    GeoJSONGeometry = None
 
 
 class AuditableMixin(BaseModel):
@@ -54,3 +70,49 @@ class ArchivableMixin(BaseModel):
             raise InvariantViolationError("Not archived")
         object.__setattr__(self, "archived_at", None)
         object.__setattr__(self, "archived_by", None)
+
+
+if HAS_GEO and GeoJSONGeometry is not None:
+
+    class SpatialMixin(BaseModel):
+        """Mixin for aggregates (or entities) that have a geographic location.
+
+        Stores location as a GeoJSON geometry (validated by geojson-pydantic).
+        The persistence layer (e.g. SQLAlchemy + GeoAlchemy2) can map this to a
+        geom column.
+        """
+
+        geom: GeoJSONGeometryType | None = Field(
+            default=None,
+            description="GeoJSON geometry (validated by geojson-pydantic)",
+        )
+else:
+    SpatialMixin = None  # type: ignore[misc, assignment]
+
+
+class AggregateRootMixin(BaseModel):
+    """Mixin that provides event collection and versioning for aggregate roots.
+
+    Use together with :class:`AggregateRoot` or as the base for custom aggregate-like
+    entities that need to record domain events and track a persistence-managed version.
+    """
+
+    _version: int = PrivateAttr(default=0)
+    _domain_events: list[DomainEvent] = PrivateAttr(
+        default_factory=lambda: cast("list[DomainEvent]", [])
+    )
+
+    def add_event(self, event: DomainEvent) -> None:
+        """Record a domain event to be dispatched later."""
+        self._domain_events.append(event)
+
+    def collect_events(self) -> list[DomainEvent]:
+        """Return all recorded events and clear the internal list."""
+        events = list(self._domain_events)
+        self._domain_events.clear()
+        return events
+
+    @property
+    def version(self) -> int:
+        """Read-only version, managed by the persistence layer."""
+        return self._version

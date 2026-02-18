@@ -308,6 +308,68 @@ def test_custom_coercer_applied():
     assert model.created_at == "2024-01-01T12:00:00+00:00"
 
 
+def test_isinstance_coercer_fallback():
+    """Test that coercer is applied via isinstance when exact type is not registered."""
+
+    class BaseGeo:
+        def __init__(self, value: str) -> None:
+            self.value = value
+
+    class PointGeo(BaseGeo):
+        pass
+
+    class EntityWithGeo(BaseModel):
+        id: str
+        geo: Any
+
+    class ModelWithStr(Base):
+        __tablename__ = "model_with_str"
+        id: Mapped[str] = mapped_column(String, primary_key=True)
+        geo: Mapped[str] = mapped_column(String, default="")
+
+    # Register coercer for base class only; pass subclass instance
+    mapper = ModelMapper(
+        EntityWithGeo,
+        ModelWithStr,
+        type_coercers={BaseGeo: lambda g: g.value},
+    )
+
+    entity = EntityWithGeo(id="e1", geo=PointGeo("POINT(0 0)"))
+    model = mapper.to_model(entity)
+    assert model.geo == "POINT(0 0)"
+
+
+def test_reverse_type_coercers():
+    """Test that reverse_type_coercers are applied during from_model."""
+
+    class Wrapper:
+        """Simulates e.g. WKBElement from DB."""
+
+        def __init__(self, value: str) -> None:
+            self.value = value
+
+    class EntityWithPayload(BaseModel):
+        id: str
+        payload: str
+
+    class ModelWithPayload(Base):
+        __tablename__ = "model_with_payload"
+        id: Mapped[str] = mapped_column(String, primary_key=True)
+        payload: Mapped[str] = mapped_column(String, default="")
+
+    mapper = ModelMapper(
+        EntityWithPayload,
+        ModelWithPayload,
+        reverse_type_coercers={Wrapper: lambda w: w.value},
+    )
+
+    model = ModelWithPayload(id="e1", payload="hello")
+    # Simulate DB returning Wrapper instead of str for payload
+    model.payload = Wrapper("from_db")  # type: ignore[assignment]
+    entity = mapper.from_model(model)
+    assert entity.payload == "from_db"
+
+
 # ---------------------------------------------------------------------------
 # Tests: Batch operations
 # ---------------------------------------------------------------------------

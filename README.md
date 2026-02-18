@@ -39,6 +39,34 @@ Scope: PostgreSQL/SQLite implementation of Event Store, Outbox, and Repositories
 
 Why: ACID transactional safety for the "Write Side".
 
+### GeoPackage / SpatiaLite support (optional)
+
+Install the geometry extra for spatial queries and GeoPackage file support:
+
+```bash
+pip install cqrs-ddd-persistence-sqlalchemy[geometry]
+```
+
+For domain models with a geometry field, install the core geo extra (validated GeoJSON via geojson-pydantic):
+
+```bash
+pip install cqrs-ddd-core[geometry]
+```
+
+At application startup, call once:
+
+```python
+from cqrs_ddd_persistence_sqlalchemy import init_geopackage
+
+init_geopackage(engine)  # registers SpatiaLite mappings + event listener
+```
+
+- **Safe** (work after mapping registration): ST_Intersects, ST_Within, ST_Contains, ST_Overlaps, ST_Crosses, ST_Touches, ST_Disjoint, ST_Equals, ST_Distance.
+- **Danger** (require `register_spatialite_mappings()`): ST_Transform, ST_Length, ST_Buffer, etc. — names differ in SpatiaLite; mappings translate them.
+- **Missing in SpatiaLite**: ST_DWithin, ST_MakeEnvelope — the package provides `@compiles` overrides that rewrite to ST_Distance and BuildMbr for SQLite/SpatiaLite.
+
+Domain aggregates can use `SpatialMixin` from core (field `geometry: Geometry | None` from geojson-pydantic; only available when `cqrs-ddd-core[geometry]` is installed). Persistence models use `SpatialModelMixin` (column `geom`). Use `ModelMapper` with `field_map={"geometry": "geom"}`, `type_coercers=geometry_type_coercers()`, and `reverse_type_coercers=reverse_geometry_type_coercers()` to map between domain and DB. The geometry extra also includes **pydantic-shapely** for projects that prefer Shapely types directly in Pydantic models. SpatiaLite 4.3+ required; 5.0+ recommended.
+
 ## cqrs-ddd-advanced-core (Optional)
 
 Role: High-Complexity Patterns.

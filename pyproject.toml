@@ -50,9 +50,11 @@ observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0"]
 
 # Geometry support (for in-memory and SQLAlchemy operators)
 geometry = [
+    "geojson-pydantic>=1.0",
     "shapely>=2.0",
     "geoalchemy2>=0.14.0",
-    "pyproj>=3.0"
+    "pyproj>=3.0",
+    "pydantic-shapely>=1.0a6",
 ]
 
 # Development
@@ -155,6 +157,10 @@ check_untyped_defs = false
 [[tool.mypy.overrides]]
 module = "noxfile"
 disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = "cqrs_ddd_persistence_sqlalchemy.types.spatialite"
+disallow_untyped_calls = false
 
 [tool.pyright]
 include = [

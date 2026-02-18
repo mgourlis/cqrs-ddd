@@ -45,7 +45,14 @@ class WithinOperator(SQLAlchemyOperator):
 
 
 class DWithinOperator(SQLAlchemyOperator):
-    """Expects ``value = (geojson, distance_meters)``."""
+    """
+    Expects ``value = (geojson, distance_meters)``.
+
+    **SRID Assumption:** This operator assumes both the database column and the
+    input GeoJSON are in WGS 84 (EPSG:4326). Both geometries are transformed
+    to Web Mercator (EPSG:3857) for distance calculation. If your database
+    uses a different SRID, you will need to customize this operator.
+    """
 
     @property
     def name(self) -> SpecificationOperator:
@@ -64,7 +71,12 @@ class DWithinOperator(SQLAlchemyOperator):
 
 
 class BboxIntersectsOperator(SQLAlchemyOperator):
-    """Expects ``value = (minx, miny, maxx, maxy)``."""
+    """Expects ``value = (minx, miny, maxx, maxy)``.
+
+    Uses ST_Intersects(col, ST_MakeEnvelope(...)) for dialect compatibility.
+    On SpatiaLite, ST_MakeEnvelope is rewritten to BuildMbr
+    via @compiles in types/spatialite.py.
+    """
 
     @property
     def name(self) -> SpecificationOperator:
@@ -73,7 +85,10 @@ class BboxIntersectsOperator(SQLAlchemyOperator):
     def apply(self, column: Any, value: Any) -> ColumnElement[bool]:
         minx, miny, maxx, maxy = value
         bbox_geom = func.ST_MakeEnvelope(minx, miny, maxx, maxy, 4326)
-        return cast("ColumnElement[bool]", column.op("&&&")(bbox_geom))
+        return cast(
+            "ColumnElement[bool]",
+            func.ST_Intersects(column, bbox_geom),
+        )
 
 
 class ContainsGeomOperator(SQLAlchemyOperator):
@@ -154,7 +169,15 @@ class GeomEqualsOperator(SQLAlchemyOperator):
 
 
 class DistanceLtOperator(SQLAlchemyOperator):
-    """Expects ``value = (geojson, distance_meters)``."""
+    """
+    Expects ``value = (geojson, distance_meters)``.
+
+    **SRID Assumption:** This operator assumes both the database column and
+    input GeoJSON are in WGS 84 (EPSG:4326). Both geometries are
+    transformed to Web Mercator (EPSG:3857) for distance calculation.
+    If your database uses a different SRID, you will need to customize
+    this operator.
+    """
 
     @property
     def name(self) -> SpecificationOperator:

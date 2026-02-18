@@ -36,7 +36,9 @@ from .cqrs import (
 
 # ── Domain ───────────────────────────────────────────────────────
 from .domain import (
+    HAS_GEO,
     AggregateRoot,
+    AggregateRootMixin,
     AuditableMixin,
     DomainEvent,
     EventTypeRegistry,
@@ -44,6 +46,9 @@ from .domain import (
     ValueObject,
     enrich_event_metadata,
 )
+
+if HAS_GEO:
+    from .domain import SpatialMixin  # noqa: F401
 
 # ── Middleware ───────────────────────────────────────────────────
 from .middleware import (
@@ -96,12 +101,14 @@ from .primitives import (
 # ── Validation ──────────────────────────────────────────────────
 from .validation import CompositeValidator, PydanticValidator, ValidationResult
 
-__all__ = [
+__all__: list[str] = [
     # Domain
     "AggregateRoot",
+    "AggregateRootMixin",
     "AuditableMixin",
     "DomainEvent",
     "EventTypeRegistry",
+    "HAS_GEO",
     "Modification",
     "ValueObject",
     "enrich_event_metadata",
@@ -172,3 +179,5 @@ __all__ = [
     "ILockStrategy",
     "InMemoryLockStrategy",
 ]
+if HAS_GEO:
+    __all__.append("SpatialMixin")

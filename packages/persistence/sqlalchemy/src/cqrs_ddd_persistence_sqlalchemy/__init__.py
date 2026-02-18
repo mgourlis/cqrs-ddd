@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .compat import HAS_GEOMETRY
 from .core.event_store import SQLAlchemyEventStore
 from .core.model_mapper import ModelMapper
 from .core.models import (
@@ -31,6 +32,18 @@ from .specifications import (
     build_sqla_filter,
 )
 
+if HAS_GEOMETRY:
+    from .types.spatialite import (
+        geojson_to_geometry,
+        geometry_to_geojson,
+        geometry_type_coercers,
+        init_geopackage,
+        register_spatialite_mappings,
+        reverse_geometry_type_coercers,
+        setup_geopackage_engine,
+        setup_spatialite_engine,
+    )
+
 __all__ = [
     # Core
     "ModelMapper",
@@ -58,3 +71,15 @@ __all__ = [
     "OptimisticConcurrencyError",
     "MappingError",
 ]
+
+if HAS_GEOMETRY:
+    __all__ += [
+        "geometry_to_geojson",
+        "geometry_type_coercers",
+        "geojson_to_geometry",
+        "init_geopackage",
+        "register_spatialite_mappings",
+        "reverse_geometry_type_coercers",
+        "setup_geopackage_engine",
+        "setup_spatialite_engine",
+    ]

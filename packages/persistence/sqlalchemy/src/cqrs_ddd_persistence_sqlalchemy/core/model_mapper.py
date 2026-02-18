@@ -70,6 +70,10 @@ class ModelMapper(Generic[T_Entity]):
     type_coercers:
         Dictionary mapping types to coercion functions for domain → DB conversion.
         Example: ``{UUID: str}`` or ``{UUID: lambda u: str(u)}``.
+    reverse_type_coercers:
+        Dictionary mapping types to coercion functions for DB → domain conversion
+        (e.g. ``from_model``). Used when the DB returns values that Pydantic cannot
+        validate directly (e.g. ``WKBElement`` → ``geojson_pydantic.Geometry``).
     """
 
     def _initialize_schema_info(
@@ -122,6 +126,7 @@ class ModelMapper(Generic[T_Entity]):
         field_map: dict[str, str] | None = None,
         exclude_fields: set[str] | None = None,
         type_coercers: dict[type, Callable[[Any], Any]] | None = None,
+        reverse_type_coercers: dict[type, Callable[[Any], Any]] | None = None,
     ) -> None:
         self.entity_cls = entity_cls
         self.db_model_cls = db_model_cls
@@ -132,6 +137,9 @@ class ModelMapper(Generic[T_Entity]):
         }
         self._exclude_fields: frozenset[str] = frozenset(exclude_fields or ())
         self._type_coercers: dict[type, Callable[[Any], Any]] = type_coercers or {}
+        self._reverse_type_coercers: dict[type, Callable[[Any], Any]] = (
+            reverse_type_coercers or {}
+        )
 
         # Pre-compute schema information once
         (
@@ -214,6 +222,7 @@ class ModelMapper(Generic[T_Entity]):
         # Apply reverse field mapping (DB column -> domain field)
         data = self._apply_field_map(data, reverse=True)
         data = self._exclude_fields_from_data(data)
+        data = self._reverse_coerce_values(data)
 
         # Build entity from safe dict (NOT from_attributes)
         entity = self._validate_entity(data, model)
@@ -314,7 +323,7 @@ class ModelMapper(Generic[T_Entity]):
             if k in self._columns and k not in self._relationships
         }
 
-    def _coerce_values(self, data: dict[str, Any]) -> dict[str, Any]:
+    def _coerce_values(self, data: dict[str, Any]) -> dict[str, Any]:  # noqa: C901
         """
         Coerce enums, custom types, and nested Pydantic models for DB storage.
 
@@ -324,10 +333,19 @@ class ModelMapper(Generic[T_Entity]):
             if value is None:
                 continue
 
-            # Check custom type coercers first
+            # Check custom type coercers first (exact type, then isinstance fallback)
             value_type = type(value)
+            coerced = False
             if value_type in self._type_coercers:
                 data[key] = self._type_coercers[value_type](value)
+                coerced = True
+            else:
+                for coercer_type, coercer_fn in self._type_coercers.items():
+                    if isinstance(value, coercer_type):
+                        data[key] = coercer_fn(value)
+                        coerced = True
+                        break
+            if coerced:
                 continue
 
             # Built-in coercions
@@ -355,10 +373,13 @@ class ModelMapper(Generic[T_Entity]):
         if value is None:
             return value
 
-        # Check custom type coercers
+        # Check custom type coercers (exact type, then isinstance fallback)
         value_type = type(value)
         if value_type in self._type_coercers:
             return self._type_coercers[value_type](value)
+        for coercer_type, coercer_fn in self._type_coercers.items():
+            if isinstance(value, coercer_type):
+                return coercer_fn(value)
 
         # Built-in coercions
         if isinstance(value, enum.Enum):
@@ -375,6 +396,26 @@ class ModelMapper(Generic[T_Entity]):
     # ------------------------------------------------------------------
     # Internal helpers — from_model
     # ------------------------------------------------------------------
+
+    def _reverse_coerce_values(self, data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Apply reverse_type_coercers to values in *data* (DB → domain conversion).
+        """
+        if not self._reverse_type_coercers:
+            return data
+        result = dict(data)
+        for key, value in list(result.items()):
+            if value is None:
+                continue
+            value_type = type(value)
+            if value_type in self._reverse_type_coercers:
+                result[key] = self._reverse_type_coercers[value_type](value)
+                continue
+            for coercer_type, coercer_fn in self._reverse_type_coercers.items():
+                if isinstance(value, coercer_type):
+                    result[key] = coercer_fn(value)
+                    break
+        return result
 
     def _safe_extract(
         self,

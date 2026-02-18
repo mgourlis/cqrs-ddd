@@ -28,6 +28,9 @@ def _to_shapely_geom(value: Any) -> Any:
     # Already a Shapely geometry
     if hasattr(value, "is_valid"):
         return value
+    # geojson_pydantic (or any Pydantic model with GeoJSON shape)
+    if hasattr(value, "model_dump"):
+        return shape(value.model_dump())
     # GeoJSON dict
     if isinstance(value, dict):
         return shape(value)

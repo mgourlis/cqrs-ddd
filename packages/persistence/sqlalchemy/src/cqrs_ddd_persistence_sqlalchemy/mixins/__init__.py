@@ -1,4 +1,4 @@
-"""SQLAlchemy model mixins for versioning, audit, and archival."""
+"""SQLAlchemy model mixins for versioning, audit, archival, and geometry."""
 
 from .columns import (
     ArchivableModelMixin,
@@ -11,3 +11,10 @@ __all__ = [
     "AuditableModelMixin",
     "VersionMixin",
 ]
+
+try:
+    from .geometry import SpatialModelMixin  # noqa: F401
+
+    __all__.append("SpatialModelMixin")
+except ImportError:
+    pass

@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from pydantic_core import PydanticUndefined
+
+from .mixins import AggregateRootMixin
 
 if TYPE_CHECKING:
     from ..primitives.id_generator import IIDGenerator
@@ -15,11 +17,11 @@ if TYPE_CHECKING:
 ID = TypeVar("ID", str, int, UUID)
 
 
-class AggregateRoot(BaseModel, Generic[ID]):
+class AggregateRoot(AggregateRootMixin, BaseModel, Generic[ID]):
     """Base class for all Aggregate Roots.
 
     Generic over ``ID`` to support UUID, int, or str primary keys.
-    Includes logic for collecting domain events and versioning.
+    Event collection and versioning are provided by :class:`.mixins.AggregateRootMixin`.
     Supports ID generation via IIDGenerator at initialization time.
 
     Usage::
@@ -37,10 +39,6 @@ class AggregateRoot(BaseModel, Generic[ID]):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     id: ID
-    _version: int = PrivateAttr(default=0)
-    _domain_events: list[DomainEvent] = PrivateAttr(
-        default_factory=lambda: cast("list[DomainEvent]", [])
-    )
     _id_generator: IIDGenerator | None = PrivateAttr(default=None)
 
     def __init__(
@@ -82,21 +80,6 @@ class AggregateRoot(BaseModel, Generic[ID]):
         version = data.get("_version", 0)
         object.__setattr__(self, "_version", version)
         object.__setattr__(self, "_id_generator", id_generator)
-
-    def add_event(self, event: DomainEvent) -> None:
-        """Record a domain event to be dispatched later."""
-        self._domain_events.append(event)
-
-    def collect_events(self) -> list[DomainEvent]:
-        """Return all recorded events and clear the internal list."""
-        events = list(self._domain_events)
-        self._domain_events.clear()
-        return events
-
-    @property
-    def version(self) -> int:
-        """Read-only version, managed by the persistence layer."""
-        return self._version
 
 
 class Modification(Generic[ID]):
