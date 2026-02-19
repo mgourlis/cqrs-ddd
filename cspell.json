@@ -146,6 +146,7 @@
         "timestamper",
         "tokenisation",
         "tonumber",
+        "transactionally",
         "tsquery",
         "tsvector",
         "typer",

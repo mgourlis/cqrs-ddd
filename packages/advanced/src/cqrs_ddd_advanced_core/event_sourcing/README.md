@@ -35,6 +35,8 @@ class Order(AggregateRoot[str]):
         object.__setattr__(self, "status", "paid")
 ```
 
+**Handler naming:** Both styles are supported: `apply_OrderCreated` (PascalCase) and `apply_order_created` (snake_case). Snake_case is recommended for ruff (N802) compliance.
+
 ## 2. Registries and upcasters
 
 ```python
@@ -232,6 +234,145 @@ dispatcher = PersistenceDispatcher(
 #       await dispatcher.apply(entity, uow=uow, events=events)
 ```
 
+## 8. Event Handler Formalization
+
+The advanced package provides comprehensive formalization for event handlers in aggregates, including optional mixins, validation, and decorators.
+
+### 8.1 Optional Mixin for Helper Methods
+
+Add `EventSourcedAggregateMixin` for introspection and validation support:
+
+```python
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
+from cqrs_ddd_advanced_core.domain.aggregate_mixin import EventSourcedAggregateMixin
+
+class Order(AggregateRoot[str], EventSourcedAggregateMixin[str]):
+    status: str = "pending"
+    amount: float = 0.0
+    currency: str = "EUR"
+
+    def apply_OrderCreated(self, event: OrderCreated) -> None:
+        self.status = "created"
+        self.amount = event.amount
+        self.currency = event.currency
+
+    def apply_OrderPaid(self, event: OrderPaid) -> None:
+        self.status = "paid"
+
+# Use mixin methods for introspection
+order = Order(id="1")
+order.has_handler_for_event("OrderCreated")  # True
+order.get_handler_for_event("OrderCreated")  # Returns apply_OrderCreated
+order._get_supported_event_types()  # {"OrderCreated", "OrderPaid"}
+```
+
+### 8.2 Validation Configuration
+
+Enable or disable runtime validation with configurable modes:
+
+```python
+from cqrs_ddd_advanced_core.domain.event_validation import (
+    EventValidationConfig,
+    EventValidator,
+)
+
+# Lenient mode (default) - allows apply_event fallback
+lenient_validator = EventValidator(EventValidationConfig(
+    enabled=True,
+    strict_mode=False,
+))
+
+# Strict mode - requires exact apply_<EventType> methods
+strict_validator = EventValidator(EventValidationConfig(
+    enabled=True,
+    strict_mode=True,
+))
+
+# Disabled - no validation (performance mode)
+no_validation = EventValidator(EventValidationConfig(
+    enabled=False,
+))
+
+# Use with DefaultEventApplicator
+from cqrs_ddd_advanced_core.event_sourcing.loader import DefaultEventApplicator
+
+applicator = DefaultEventApplicator(validator=strict_validator)
+```
+
+### 8.3 Optional Decorators
+
+Use decorators for metadata and per-aggregate validation configuration:
+
+```python
+from cqrs_ddd_advanced_core.domain.event_handlers import (
+    aggregate_event_handler,
+    aggregate_event_handler_validator,
+)
+
+# Configure validation at aggregate level
+@aggregate_event_handler_validator(enabled=True, strict=True)
+class Order(AggregateRoot[str], EventSourcedAggregateMixin[str]):
+    status: str = "pending"
+
+    @aggregate_event_handler()
+    def apply_OrderCreated(self, event: OrderCreated) -> None:
+        self.status = "created"
+
+    @aggregate_event_handler(event_type=OrderCreated)
+    def handle_creation(self, event: OrderCreated) -> None:
+        # Alternative handler name with explicit event type
+        self.status = "created"
+```
+
+### 8.4 Enhanced DefaultEventApplicator
+
+The `DefaultEventApplicator` now supports validation flags:
+
+```python
+from cqrs_ddd_advanced_core.domain.event_validation import EventValidator
+from cqrs_ddd_advanced_core.event_sourcing.loader import (
+    DefaultEventApplicator,
+)
+
+# With validation (default)
+validator = EventValidator(EventValidationConfig(enabled=True))
+applicator = DefaultEventApplicator(
+    validator=validator,
+    raise_on_missing_handler=True,  # Raise if no handler found
+)
+
+# Without validation (performance)
+no_validation = EventValidator(EventValidationConfig(enabled=False))
+applicator = DefaultEventApplicator(validator=no_validation)
+
+# Apply events
+result = applicator.apply(aggregate, event)
+```
+
+### 8.5 Error Handling
+
+Formalization provides clear, specific error messages:
+
+```python
+from cqrs_ddd_advanced_core.exceptions import (
+    MissingEventHandlerError,
+    StrictValidationViolationError,
+)
+
+try:
+    validator.validate_handler_exists(aggregate, event)
+except MissingEventHandlerError as e:
+    # Clear error: "Aggregate 'Order' has no handler for event 'OrderCreated'"
+    print(f"Aggregate: {e.aggregate_type}")
+    print(f"Event: {e.event_type}")
+
+except StrictValidationViolationError as e:
+    # Clear error: "Strict validation violation for Order.OrderCreated: ..."
+    print(f"Aggregate: {e.aggregate_type}")
+    print(f"Event: {e.event_type}")
+    print(f"Reason: {e.reason}")
+```
+
 ## Summary
 
 | Component                 | Use when                                                                 |
@@ -239,3 +380,7 @@ dispatcher = PersistenceDispatcher(
 | **EventSourcedRepository** | Load/save aggregates in app code or via PersistenceDispatcher (same UoW). |
 | **EventSourcedLoader**     | Load a single aggregate by ID when you have event_store + optional snapshot/upcast. |
 | **UpcastingEventReader**   | Read events for projections/rebuilds with payloads upcast to current schema. |
+| **EventSourcedAggregateMixin** | Add introspection and validation support to event-sourced aggregates. |
+| **EventValidator**         | Configure validation modes (lenient/strict/enabled/disabled). |
+| **@aggregate_event_handler**         | Decorate methods to mark them as event handlers (metadata only). |
+| **@aggregate_event_handler_validator** | Configure validation at aggregate class level. |

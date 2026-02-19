@@ -8,6 +8,17 @@ from cqrs_ddd_core.primitives.exceptions import (
     ValidationError,
 )
 
+# ── Event handler exceptions (canonical definitions in domain.exceptions) ───
+# Re-export for backward compatibility; internal code should use domain.exceptions.
+from .domain.exceptions import (
+    EventHandlerError,
+    EventSourcedAggregateRequiredError,
+    EventSourcingConfigurationError,
+    InvalidEventHandlerError,
+    MissingEventHandlerError,
+    StrictValidationViolationError,
+)
+
 
 class HandlerNotRegisteredError(HandlerError, PersistenceError):
     """Raised when a persistence handler is requested but not registered."""
@@ -55,3 +66,21 @@ class JobStateError(DomainError):
 
     E.g. cannot start/complete/fail/cancel in current state, max retries exceeded.
     """
+
+
+__all__ = [
+    "EventHandlerError",
+    "EventSourcedAggregateRequiredError",
+    "EventSourcingConfigurationError",
+    "InvalidEventHandlerError",
+    "MissingEventHandlerError",
+    "StrictValidationViolationError",
+    "HandlerNotRegisteredError",
+    "JobStateError",
+    "MergeStrategyRegistryMissingError",
+    "ResilienceError",
+    "SagaConfigurationError",
+    "SagaHandlerNotFoundError",
+    "SagaStateError",
+    "SourceNotRegisteredError",
+]

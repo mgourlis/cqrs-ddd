@@ -43,6 +43,10 @@ from .conflict.resolution import (
     field_level_merge,
 )
 
+# Event Sourcing
+from .cqrs.event_sourced_mediator import EventSourcedMediator
+from .cqrs.factory import EventSourcedMediatorFactory
+
 # CQRS Handlers and Mixins
 from .cqrs.handlers import (
     ConflictCommandHandler,
@@ -52,6 +56,8 @@ from .cqrs.handlers import (
     RetryableCommandHandler,
     RetryBehaviorMixin,
 )
+
+# CQRS Handlers and Mixins
 from .cqrs.mixins import (
     ConflictConfig,
     ConflictResilient,
@@ -60,11 +66,25 @@ from .cqrs.mixins import (
     Retryable,
     RetryPolicy,
 )
+from .decorators.event_sourcing import non_event_sourced
+
+# Exceptions
+from .domain.exceptions import (
+    EventHandlerError,
+    EventSourcedAggregateRequiredError,
+    EventSourcingConfigurationError,
+    InvalidEventHandlerError,
+    MissingEventHandlerError,
+    StrictValidationViolationError,
+)
 from .event_sourcing import (
     DefaultEventApplicator,
     EventSourcedLoader,
     EventSourcedRepository,
     UpcastingEventReader,
+)
+from .event_sourcing.persistence_orchestrator import (
+    EventSourcedPersistenceOrchestrator,
 )
 
 # Persistence
@@ -125,8 +145,18 @@ __all__ = [
     # Event sourcing
     "DefaultEventApplicator",
     "EventSourcedLoader",
+    "EventSourcedMediator",
+    "EventSourcedMediatorFactory",
+    "EventSourcedPersistenceOrchestrator",
     "EventSourcedRepository",
     "UpcastingEventReader",
+    "non_event_sourced",
+    "EventHandlerError",
+    "MissingEventHandlerError",
+    "InvalidEventHandlerError",
+    "StrictValidationViolationError",
+    "EventSourcedAggregateRequiredError",
+    "EventSourcingConfigurationError",
     # Ports
     "ISagaRepository",
     "IEventApplicator",

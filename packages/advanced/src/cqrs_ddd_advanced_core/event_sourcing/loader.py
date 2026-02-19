@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from cqrs_ddd_core.domain.events import DomainEvent
     from cqrs_ddd_core.ports.event_store import IEventStore
 
+    from ..domain.event_validation import EventValidator
     from ..ports.event_applicator import IEventApplicator
     from ..ports.snapshots import ISnapshotStore
     from ..snapshots.strategy_registry import SnapshotStrategyRegistry
@@ -27,22 +28,94 @@ class DefaultEventApplicator(Generic[T]):
     """
     Applies events by dispatching to apply_<EventTypeName>
     or apply_event on the aggregate.
+
+    Now with optional runtime validation for better error messages.
+
+    Args:
+        validator: Optional EventValidator for handler validation.
+                  If None, creates a default lenient validator.
+        raise_on_missing_handler: If True, raise error when no handler exists.
+                                  If False, silently ignore missing handlers.
+                                  Defaults to True for safety.
     """
 
+    def __init__(
+        self,
+        validator: EventValidator | None = None,
+        *,
+        raise_on_missing_handler: bool = True,
+    ) -> None:
+        # Import here to avoid circular dependency
+        from ..domain.event_validation import EventValidationConfig, EventValidator
+
+        self._validator = validator or EventValidator(
+            EventValidationConfig(
+                enabled=True, strict_mode=False, allow_fallback_handler=True
+            )
+        )
+        self._raise_on_missing_handler = raise_on_missing_handler
+
     def apply(self, aggregate: T, event: DomainEvent) -> T:
+        """Apply the event to the aggregate and return the aggregate.
+
+        This method validates handler existence (if validation is enabled),
+        then dispatches to the appropriate handler method.
+
+        Args:
+            aggregate: The aggregate instance to update.
+            event: The domain event to apply.
+
+        Returns:
+            The same aggregate after applying the event (possibly mutated in place).
+
+        Raises:
+            MissingEventHandlerError: If no handler exists and validation is enabled.
+            StrictValidationViolationError: If strict mode is violated.
+            AttributeError: Legacy error for missing handlers (when validator disabled).
+        """
         event_type = type(event).__name__
-        method = getattr(aggregate, "apply_" + event_type, None)
+
+        # Validate handler exists (if validation enabled and we care about errors)
+        # Skip validation if raise_on_missing_handler=False (silent mode)
+        if self._raise_on_missing_handler:
+            self._validator.validate_handler_exists(aggregate, event)
+
+        # Try exact handler: apply_<EventType> or apply_<snake_case> (ruff-compliant)
+        from ..domain.event_validation import event_type_to_snake
+
+        method = getattr(aggregate, f"apply_{event_type}", None)
+        if method is None or not callable(method):
+            method = getattr(
+                aggregate, f"apply_{event_type_to_snake(event_type)}", None
+            )
         if method is not None and callable(method):
             method(event)
             return aggregate
+
+        # Try fallback handler: apply_event
         method = getattr(aggregate, "apply_event", None)
         if method is not None and callable(method):
             method(event)
             return aggregate
-        raise AttributeError(
-            f"Aggregate {type(aggregate).__name__} \
-            has no apply_{event_type} or apply_event"
-        )
+
+        # No handler found
+        if self._raise_on_missing_handler:
+            # Try to use custom exception if validation was enabled
+            if self._validator.is_enabled():
+                from ..domain.exceptions import MissingEventHandlerError
+
+                raise MissingEventHandlerError(
+                    aggregate_type=type(aggregate).__name__,
+                    event_type=event_type,
+                )
+            # Legacy error message for backward compatibility
+            raise AttributeError(
+                f"Aggregate {type(aggregate).__name__} "
+                f"has no apply_{event_type} or apply_event"
+            )
+
+        # Silently ignore if configured
+        return aggregate
 
 
 class EventSourcedLoader(Generic[T]):

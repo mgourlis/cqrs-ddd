@@ -270,7 +270,10 @@ class TestDefaultEventApplicator:
         applicator = DefaultEventApplicator[Order]()
         order = Order(id="o1")
         event = OtherEvent(aggregate_id="o1")
-        with pytest.raises(AttributeError, match="no apply_OtherEvent or apply_event"):
+        with pytest.raises(
+            AttributeError,
+            match="no handler for event.*OtherEvent|no apply_OtherEvent or apply_event",
+        ):
             applicator.apply(order, event)
 
 
