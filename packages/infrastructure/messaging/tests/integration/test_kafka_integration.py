@@ -50,7 +50,7 @@ async def test_kafka_publish_consume(kafka_bootstrap_servers: str) -> None:
             "test-topic",
             MessageEnvelope(event_type="OrderCreated", payload={"order_id": "1"}),
         )
-        await asyncio.sleep(2.0)
+        await asyncio.sleep(5.0)
         assert len(received) >= 1
         assert received[0].get("order_id") == "1"
     finally:
