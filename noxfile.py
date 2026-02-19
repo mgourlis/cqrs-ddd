@@ -6,7 +6,7 @@ LOCATIONS = [
     "packages/specifications/src",
     "packages/advanced/src",
     "packages/persistence/sqlalchemy/src",
-    "packages/persistence/redis/src",
+    "packages/infrastructure/redis/src",
     "tests",
 ]
 
@@ -19,7 +19,7 @@ def tests(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
-    session.install("-e", "./packages/persistence/redis")
+    session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", ".[dev]")
     session.run("pytest", *session.posargs)
 
@@ -48,7 +48,7 @@ def type_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
-    session.install("-e", "./packages/persistence/redis")
+    session.install("-e", "./packages/infrastructure/redis")
     session.install(
         "mypy",
         "pydantic",
@@ -75,7 +75,7 @@ def arch_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
-    session.install("-e", "./packages/persistence/redis")
+    session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", ".[dev]")
     session.run("pytest", "--no-cov", "tests/architecture", *session.posargs)
 

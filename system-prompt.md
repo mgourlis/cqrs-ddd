@@ -18,6 +18,22 @@
 
 ## **2. The Package Ecosystem**
 
+### **Implemented vs. Planned**
+
+**Implemented (today):** Five packages provide the full foundation and write-side path:
+
+- **`cqrs-ddd-core`** — Domain, CQRS, ports (including `IMessagePublisher`, `IMessageConsumer`, `ICacheService`, `ILockStrategy`), middleware, validation, in-memory fakes.
+- **`cqrs-ddd-advanced-core`** — Sagas, event sourcing, background jobs, scheduling, conflict resolution, snapshots, upcasting, undo; outbox orchestration and event publishing/consuming *logic* (transport protocols are in core).
+- **`cqrs-ddd-specifications`** — Specification pattern: composable query AST, operators, in-memory evaluator.
+- **`cqrs-ddd-persistence-sqlalchemy`** — Write-side: repository, UoW, outbox, event store, specification-to-SQL compiler; optional saga/job/snapshot/scheduler persistence.
+- **`cqrs-ddd-redis`** — Implementations of `ICacheService` and `ILockStrategy` (Redlock, FIFO). Used by outbox workers, sagas, and core’s `CachingRepository`.
+
+Protocols for messaging, cache, and locking are defined in **core** so that core’s outbox and CQRS building blocks can depend on them; concrete adapters (Redis, future RabbitMQ/Kafka, etc.) live in downstream packages. See [README.md](README.md) and [docs/package-organization.md](docs/package-organization.md) for the implemented architecture and data flow.
+
+**Planned:** All other packages below (mongo, cassandra, projections, identity, access-control, multitenancy, messaging transport adapters, file-storage, observability, notifications, filtering, audit, analytics, feature-flags, FastAPI/Django/GraphQL bridges, CLI, container) are specified but not yet implemented; they exist as placeholder directories with `.prompt.md` specification files. The `cqrs-ddd-caching` package has been **eliminated** — protocols live in core, implementations in redis; no separate package is needed.
+
+---
+
 ### **GROUP 1: The Foundation (Mandatory)**
 * **`cqrs-ddd-core`**: The Foundation.
     * **Contents:** Domain primitives (`AggregateRoot[ID]`, `DomainEvent`, `ValueObject`, `AuditableMixin`), CQRS primitives (`Command`, `Query`, `CommandHandler`, `QueryHandler`, `EventHandler`), Infrastructure Protocols (`IRepository`, `IUnitOfWork`, `IOutbox`, `IEventStore`, `IEventDispatcher`, `IMiddleware`, `IValidator`), and pure-logic building blocks (`Mediator`, `HandlerRegistry`, `EventDispatcher`, `EventTypeRegistry`, `MiddlewarePipeline`, `ValidationSystem`, in-memory test fakes).
@@ -43,13 +59,6 @@
     * **Dependency:** `cqrs-ddd-core`. Optional: `cqrs-ddd-persistence-mongo`, `cqrs-ddd-messaging`.
     * **Pattern:** Workers subscribe to the event bus (or poll the event store), apply `ProjectionHandler.handle(event)` to update read models, and checkpoint their position. On crash, resume from last checkpoint.
     * **Key Feature:** Full replay capability — drop a read model collection and rebuild entirely from event history.
-* **`cqrs-ddd-caching`**: Speed & Coordination.
-    * **Contents:** `ICacheService` protocol (`get`, `set`, `delete`, `invalidate_pattern`), `IDistributedLock` protocol (`acquire`, `release`, async context manager), `RedisCacheService`, `RedisLockStrategy`, `MemcachedCacheService`, `MemoryCacheService` (testing fake), `InMemoryLockStrategy` (testing fake), `cached()` / `cache_invalidate()` decorators, `ThreadSafetyMiddleware` (wraps handlers with distributed locking), `CachingMixin` (repository-level read-through cache).
-    * **Tech:** Redis, Memcached.
-    * **Dependency:** `cqrs-ddd-core`.
-    * **Key Rule:** `IDistributedLock` is **critical** for Saga consistency in multi-process deployments. `ThreadSafetyMiddleware` acquires a lock keyed by aggregate ID before executing a command handler.
-    * **Testing:** `MemoryCacheService` and `InMemoryLockStrategy` are provided for unit tests that don't require Redis.
-
 ### **GROUP 3: Security & Isolation**
 * **`cqrs-ddd-identity`**: Authentication ("Who are you?").
     * **Contents:** `IIdentityProvider` protocol (`resolve(token) -> Principal`, `refresh(principal) -> Principal`), `Principal` (immutable value object: `user_id`, `roles`, `claims`, `tenant_id`, `permissions`), `TokenValidator` (JWT verification utilities), identity provider adapters.
@@ -66,7 +75,12 @@
     * **Rule:** Automatically injects `WHERE tenant_id = :ctx` into ALL DB queries via Mixins. **No query may execute without a tenant filter** — the mixin raises `TenantContextMissingError` if `TenantContext` is empty.
     * **Pattern:** Mixins are applied at the repository/store level, making tenant isolation invisible to domain code. Domain methods never receive `tenant_id` as a parameter.
 
-### **GROUP 4: Infrastructure Abstractions**
+### **GROUP 4: Infrastructure Adapters**
+* **`cqrs-ddd-redis`**: Caching & Distributed Locking (moved from persistence to infrastructure).
+    * **Contents:** `RedisCacheService` (implements `ICacheService`), `RedlockLockStrategy`, `FifoRedisLockStrategy` (implement `ILockStrategy`).
+    * **Dependency:** `cqrs-ddd-core`, `redis`, `redlock-ng`.
+    * **Status:** ✅ Implemented. Located at `packages/infrastructure/redis/`.
+    * **Key Rule:** `ILockStrategy` is **critical** for Saga consistency in multi-process deployments. Redis is caching/coordination infrastructure, not data persistence.
 * **`cqrs-ddd-file-storage`**: Blob Management.
     * **Contents:** `IBlobStorage` protocol (`upload`, `download`, `delete`, `get_presigned_url`, `exists`), `FileMetadata` value object (size, content_type, checksum), cloud-provider adapters.
     * **Extras:** `[s3]`, `[azure]`, `[gcs]`, `[local]` (filesystem for development).
@@ -89,7 +103,7 @@
     * **Dependency:** `cqrs-ddd-core`.
     * **Pattern:** Domain events trigger notification handlers (registered in `EventDispatcher`), which render templates and dispatch through the configured sender. Notification logic lives outside the domain.
 
-### **GROUP 5: Intelligence & Operations**
+### **GROUP 5: Cross-Cutting Business Features**
 * **`cqrs-ddd-filtering`**: API Query Engine.
     * **Contents:** `FilterSpec` (parsed filter AST), `IFilterAdapter` protocol (translates AST to SQL/Mongo query), `FilterParser` (parses API parameters like `?filter=status:eq:active&sort=created_at:desc`), `TenantConstraintInjector` (auto-appends security constraints before query execution).
     * **Dependency:** `cqrs-ddd-core`.
@@ -111,7 +125,7 @@
     * **Extras:** `[launchdarkly]`, `[unleash]`, `[inmemory]` (testing).
     * **Pattern:** Feature flags are evaluated at the middleware layer, BEFORE the command handler executes. This allows zero-deploy feature rollbacks.
 
-### **GROUP 6: Interface Adapters**
+### **GROUP 6: Interface Adapters (Bridges) & Tooling**
 * **`cqrs-ddd-fastapi`**: REST API Integration.
     * **Contents:** `CQRSRouter` (auto-generates REST endpoints from command/query types), `FastAPIDependencyInjector` (bridges FastAPI `Depends()` to `Mediator` and repositories), `RequestMiddleware` (extracts auth/tenant context from HTTP headers into ContextVars), lifespan helpers for startup/shutdown of background workers.
     * **Dependency:** `cqrs-ddd-core`, FastAPI.
@@ -189,15 +203,16 @@ When analyzing, reviewing, or generating code across the ecosystem, apply these 
 Allowed import directions (`✅` = allowed, `opt` = optional extra, `❌` = forbidden):
 
 ```
-                       core  advanced  persist-sa  persist-mongo  caching  messaging  identity
-cqrs-ddd-core           —      ❌         ❌           ❌           ❌        ❌         ❌
-cqrs-ddd-advanced      ✅       —         ❌           ❌           ❌        ❌         ❌
-persist-sqlalchemy     ✅    ✅(opt)       —           ❌           ❌        ❌         ❌
-persist-mongo          ✅      ❌         ❌            —           ❌        ❌         ❌
-cqrs-ddd-caching       ✅      ❌         ❌           ❌            —        ❌         ❌
-cqrs-ddd-messaging     ✅      ❌         ❌           ❌           ❌         —         ❌
-cqrs-ddd-identity      ✅      ❌         ❌           ❌           ❌        ❌          —
-cqrs-ddd-fastapi       ✅   ✅(opt)    ✅(opt)        ❌        ✅(opt)   ✅(opt)    ✅(opt)
+                       core  advanced  specs  persist-sa  persist-mongo  redis  messaging  identity
+cqrs-ddd-core           —      ❌       ❌       ❌           ❌          ❌       ❌         ❌
+cqrs-ddd-advanced      ✅       —       ❌       ❌           ❌          ❌       ❌         ❌
+cqrs-ddd-specs         ✅      ❌        —       ❌           ❌          ❌       ❌         ❌
+persist-sqlalchemy     ✅    ✅(opt)    ✅        —           ❌          ❌       ❌         ❌
+persist-mongo          ✅      ❌       ❌       ❌            —          ❌       ❌         ❌
+cqrs-ddd-redis         ✅      ❌       ❌       ❌           ❌           —       ❌         ❌
+cqrs-ddd-messaging     ✅      ❌       ❌       ❌           ❌          ❌        —         ❌
+cqrs-ddd-identity      ✅      ❌       ❌       ❌           ❌          ❌       ❌          —
+cqrs-ddd-fastapi       ✅   ✅(opt)    ❌    ✅(opt)         ❌       ✅(opt)  ✅(opt)    ✅(opt)
 ```
 
 ### **4.4 Per-Module Review Focus**

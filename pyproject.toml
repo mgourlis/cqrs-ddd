@@ -81,7 +81,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/persistence/redis/src", "packages/advanced/src", "packages/specifications/src"]
+src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/infrastructure/redis/src", "packages/advanced/src", "packages/specifications/src"]
 
 [tool.ruff.lint]
 select = [
@@ -142,7 +142,7 @@ plugins = ["pydantic.mypy"]
 explicit_package_bases = false
 namespace_packages = false
 exclude = ["(?x)(^|/)tests/", "(^|/)build/"]
-mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/persistence/redis/src:packages/specifications/src"
+mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/infrastructure/redis/src:packages/specifications/src"
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -166,7 +166,7 @@ disallow_untyped_calls = false
 include = [
     "packages/core/src",
     "packages/persistence/sqlalchemy/src",
-    "packages/persistence/redis/src",
+    "packages/infrastructure/redis/src",
     "packages/advanced/src",
     "packages/specifications/src",
     "tests"
@@ -186,7 +186,7 @@ asyncio_mode = "auto"
 testpaths = [
     "packages/core/tests",
     "packages/persistence/sqlalchemy/tests",
-    "packages/persistence/redis/tests",
+    "packages/infrastructure/redis/tests",
     "packages/advanced/tests",
     "packages/specifications/tests",
     "tests",
@@ -198,7 +198,7 @@ addopts = "--strict-markers --import-mode=importlib --cov=. --cov-report=term-mi
 source = [
     "packages/core/src/cqrs_ddd_core",
     "packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy",
-    "packages/persistence/redis/src/cqrs_ddd_redis",
+    "packages/infrastructure/redis/src/cqrs_ddd_redis",
     "packages/advanced/src/cqrs_ddd_advanced_core",
     "packages/specifications/src/cqrs_ddd_specifications",
 ]

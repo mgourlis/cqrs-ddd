@@ -1,215 +1,131 @@
-# System Architecture Guide: The Modular CQRS/DDD Toolkit
+# CQRS-DDD Toolkit
 
-# Core Philosophy
-This framework is a composable ecosystem for building Enterprise-grade, Domain-Driven Design (DDD) applications.
+A composable, enterprise-grade Python framework for **Domain-Driven Design (DDD)** and **CQRS** applications. This document describes the **implemented** architecture—what exists today and how to use it.
 
-# 🚀 Technology Stack
-- **Python**: 3.10, 3.11, 3.12 (Supported & Tested)
-- **Domain Modeling**: Pydantic v2
-- **Persistence**: SQLAlchemy 2.0 (Async) / PostgreSQL
+---
 
-Rule #1: Strict Isolation. cqrs-ddd-core must never depend on extensions (Identity, Multitenancy, etc.).
+## Implemented Architecture
 
-Rule #2: Intent-Based Packaging. We do not have a generic "utils" package. We have messaging, caching, notifications.
+The toolkit is built as a monorepo of five **implemented** packages. Dependencies flow inward: infrastructure and persistence depend on core; advanced and specifications extend core without introducing infrastructure.
 
-Rule #3: Polyglot Persistence. We explicitly separate the Write Side (Postgres/SQLAlchemy) from the Read Side (Mongo) to allow for scalable CQRS.
+```
+                    ┌─────────────────────────────────────────────────────────┐
+                    │                     cqrs-ddd-core                        │
+                    │  Domain • CQRS • Ports • Middleware • Validation • Fakes │
+                    └─────────────────────────────────────────────────────────┘
+                                              │
+           ┌──────────────────────────────────┼──────────────────────────────────┐
+           │                                  │                                  │
+           ▼                                  ▼                                  ▼
+┌──────────────────────┐          ┌──────────────────────┐          ┌──────────────────────┐
+│ cqrs-ddd-advanced-   │          │ cqrs-ddd-            │          │ cqrs-ddd-persistence- │
+│ core                 │          │ specifications        │          │ sqlalchemy           │
+│ Sagas • Event        │          │ Specification pattern  │          │ Write-side: Repo,    │
+│ Sourcing • Jobs •    │          │ AST • Operators •      │          │ UoW, Outbox, Event   │
+│ Scheduling • Undo    │          │ In-memory evaluator   │          │ Store • Spec compiler│
+└──────────────────────┘          └──────────────────────┘          └──────────────────────┘
+           │                                  │                                  │
+           │                                  └──────────────┬───────────────────┘
+           │                                                 │
+           ▼                                                 ▼
+┌──────────────────────┐                          SQLAlchemy compiles
+│ cqrs-ddd-persistence-│                          specifications to
+│ sqlalchemy [advanced]│                          WHERE clauses
+│ Saga • Jobs •        │
+│ Snapshots • Scheduler│
+└──────────────────────┘
 
-# Implementation Rules
-Composition over Inheritance: When defining a Repository, use Mixins.
+┌──────────────────────┐
+│ cqrs-ddd-redis       │  ← Implements ILockStrategy, ICacheService from core
+│ Cache • Redlock •    │    Used by outbox workers, sagas, CachingRepository
+│ Fifo locking         │
+└──────────────────────┘
+```
 
-Correct: class MyRepo(MultitenantMixin, CachingMixin, SQLAlchemyRepository): ...
+### Implemented Packages (5)
 
-Context Propagation: Never pass tenant_id or user_id as function arguments in the Domain. Use the ContextVars provided by multitenancy and identity.
+| Package | PyPI name | Role |
+|:--------|:----------|:-----|
+| **core** | `cqrs-ddd-core` | Domain primitives (`AggregateRoot`, `DomainEvent`, `ValueObject`), CQRS (`Command`, `Query`, `Mediator`, `EventDispatcher`), ports (`IRepository`, `IUnitOfWork`, `IEventStore`, `IOutboxStorage`, `IMessagePublisher`, `IMessageConsumer`, `ILockStrategy`, `ICacheService`), middleware pipeline, validation, in-memory fakes. **Zero infrastructure dependencies.** |
+| **advanced** | `cqrs-ddd-advanced-core` | Sagas, event sourcing, background jobs, scheduling, conflict resolution, snapshots, upcasting, undo/redo. Depends only on core. |
+| **specifications** | `cqrs-ddd-specifications` | Specification pattern: composable query AST, operators, in-memory evaluator, hooks. Used by persistence for type-safe filtering. |
+| **persistence/sqlalchemy** | `cqrs-ddd-persistence-sqlalchemy` | Write-side persistence: `SQLAlchemyRepository`, `SQLAlchemyUnitOfWork`, `SQLAlchemyOutboxStorage`, `SQLAlchemyEventStore`, specification-to-SQL compiler. Optional: saga/job/snapshot/scheduler persistence. |
+| **infrastructure/redis** | `cqrs-ddd-redis` | `RedisCacheService` (ICacheService), `RedlockLockStrategy`, `FifoRedisLockStrategy` (ILockStrategy). Used for distributed locking and caching. |
 
-One-Way Data Flow: The Read Model (persistence-mongo) never writes back to the Event Store.
+Detailed module-by-module breakdown: [docs/package-organization.md](docs/package-organization.md).
 
-Interface Segregation: Domain services depend on IBlobStorage (in Core), never on boto3 (in file-storage).
+---
 
-# GROUP 1: The Foundation (Mandatory)
+## Technology Stack
 
-## cqrs-ddd-core
+- **Python**: 3.10, 3.11, 3.12
+- **Domain**: Pydantic v2
+- **Write-side persistence**: SQLAlchemy 2.0 (async) / PostgreSQL (SQLite for tests)
+- **Caching / locking**: Redis (optional; in-memory fakes in core for tests)
 
-Scope: Interfaces (IRepository, IBlobStorage, IIdentityProvider), base classes (Aggregate, Command, Event), and In-Memory implementations.
+---
 
-No external dependencies.
+## Core Philosophy
 
-## cqrs-ddd-persistence-sqlalchemy
+1. **Strict isolation** — `cqrs-ddd-core` has no infrastructure dependencies. It defines protocols; adapters live in other packages.
+2. **Intent-based packaging** — No generic "utils"; each package has a clear role (messaging, caching, persistence, etc.).
+3. **Polyglot persistence** — Write side (Postgres/SQLAlchemy) is separate from read side (Mongo, planned). Sync via projection workers (planned).
 
-Scope: PostgreSQL/SQLite implementation of Event Store, Outbox, and Repositories.
+---
 
-Why: ACID transactional safety for the "Write Side".
+## Implementation Rules
 
-### GeoPackage / SpatiaLite support (optional)
+- **Composition over inheritance** — Repositories use mixins: e.g. `class OrderRepo(MultitenantMixin, CachingMixin, SQLAlchemyRepository)`.
+- **Context propagation** — Use `ContextVar` for tenant/user; domain methods stay signature-pure (no `tenant_id` in parameters).
+- **One-way data flow** — Read models are updated from events; they never write back to the event store.
+- **Interface segregation** — Domain depends on `IBlobStorage` (core), not on concrete storage SDKs.
 
-Install the geometry extra for spatial queries and GeoPackage file support:
+---
+
+## Install and Use
+
+From the repo root (monorepo):
 
 ```bash
+uv sync
+# or
+pip install -e "packages/core" -e "packages/advanced" -e "packages/specifications" \
+  -e "packages/persistence/sqlalchemy" -e "packages/infrastructure/redis"
+```
+
+Optional extras:
+
+```bash
+# GeoPackage / SpatiaLite (spatial queries)
 pip install cqrs-ddd-persistence-sqlalchemy[geometry]
-```
-
-For domain models with a geometry field, install the core geo extra (validated GeoJSON via geojson-pydantic):
-
-```bash
 pip install cqrs-ddd-core[geometry]
+
+# Advanced persistence (sagas, jobs, snapshots, scheduler)
+pip install cqrs-ddd-persistence-sqlalchemy[advanced]
 ```
 
-At application startup, call once:
+At startup, for spatial support:
 
 ```python
 from cqrs_ddd_persistence_sqlalchemy import init_geopackage
-
-init_geopackage(engine)  # registers SpatiaLite mappings + event listener
+init_geopackage(engine)
 ```
 
-- **Safe** (work after mapping registration): ST_Intersects, ST_Within, ST_Contains, ST_Overlaps, ST_Crosses, ST_Touches, ST_Disjoint, ST_Equals, ST_Distance.
-- **Danger** (require `register_spatialite_mappings()`): ST_Transform, ST_Length, ST_Buffer, etc. — names differ in SpatiaLite; mappings translate them.
-- **Missing in SpatiaLite**: ST_DWithin, ST_MakeEnvelope — the package provides `@compiles` overrides that rewrite to ST_Distance and BuildMbr for SQLite/SpatiaLite.
+- **Safe** (after mapping registration): ST_Intersects, ST_Within, ST_Contains, ST_Overlaps, ST_Crosses, ST_Touches, ST_Disjoint, ST_Equals, ST_Distance.
+- **SpatiaLite-specific**: ST_Transform, ST_Length, ST_Buffer, etc. use `register_spatialite_mappings()`.
+- **Missing in SpatiaLite**: ST_DWithin, ST_MakeEnvelope — package provides `@compiles` overrides to ST_Distance and BuildMbr.
 
-Domain aggregates can use `SpatialMixin` from core (field `geometry: Geometry | None` from geojson-pydantic; only available when `cqrs-ddd-core[geometry]` is installed). Persistence models use `SpatialModelMixin` (column `geom`). Use `ModelMapper` with `field_map={"geometry": "geom"}`, `type_coercers=geometry_type_coercers()`, and `reverse_type_coercers=reverse_geometry_type_coercers()` to map between domain and DB. The geometry extra also includes **pydantic-shapely** for projects that prefer Shapely types directly in Pydantic models. SpatiaLite 4.3+ required; 5.0+ recommended.
+---
 
-## cqrs-ddd-advanced-core (Optional)
+## Roadmap (Planned Packages)
 
-Role: High-Complexity Patterns.
+The following are specified in the architecture but **not yet implemented** (placeholder directories or documented only):
 
-Contents: Snapshotting strategies, Upcasters, Conflict Resolution policies.
+- **Persistence**: `cqrs-ddd-persistence-mongo` (read-side), `cassandra` (future).
+- **Engines**: `cqrs-ddd-projections` (write→read sync).
+- **Features**: identity, access-control, multitenancy, observability, audit, analytics, filtering, feature-flags.
+- **Infrastructure**: messaging (RabbitMQ/Kafka/SQS adapters), file-storage, notifications.
+- **Bridges**: FastAPI, Django, GraphQL.
+- **Tooling**: CLI, container (DI / composition root).
 
-# Group 2: The Data & Scale Layer (High Performance)
-
-## cqrs-ddd-persistence-mongo
-
-Scope: MongoDB implementation for Read Models (Projections).
-
-Why: Speed and flexibility for the "Read Side".
-
-## cqrs-ddd-projections
-
-Scope: The engine that syncs Write -> Read.
-
-Features: Checkpointing, Replay, Async Workers.
-
-## cqrs-ddd-caching (Renamed from parts of integrations)
-
-Scope: Redis / Memcached implementations of ICache and IDistributedLock.
-
-Why: Distributed locking is critical for Sagas.
-
-# Group 3: The Security Layer (Identity & Access)
-
-## cqrs-ddd-identity (Renamed from auth)
-
-Scope: "Who are you?" (Authentication).
-
-Implementations (Extras):
-
-[keycloak]: OIDC/Keycloak handlers.
-
-[ldap]: For legacy corporate directories.
-
-[db]: Simple username/password tables (if not using OIDC).
-
-Why: Rename to identity to distinguish from authz.
-
-## cqrs-ddd-access-control (Renamed from authz)
-
-Scope: "What can you do?" (Authorization).
-
-Implementations:
-
-RBAC: Simple Role-Based checks.
-
-ABAC: The connector to your Stateful ABAC Engine.
-
-Why: Keeps the complex policy logic separate from simple identity verification.
-
-## cqrs-ddd-multitenancy
-
-Scope: Context propagation (tenant_id) and DB isolation rules.
-
-Why: Cross-cutting concern that touches almost every other package.
-
-# Group 4: The Infrastructure Abstractions (Consolidated)
-Here we solve the "Too Many Packages" problem. Use extras.
-
-## cqrs-ddd-file-storage (Renamed from storage)
-
-Scope: Implementations of IBlobStorage.
-
-Extras: pip install cqrs-ddd-file-storage[s3, azure, gcs, dropbox]
-
-Why: You don't want 5 different packages for "saving a file". One package, many drivers.
-
-## cqrs-ddd-messaging (Extracted from integrations)
-
-Scope: Implementations of IMessageBroker (for Domain Events).
-
-Extras: [rabbitmq], [kafka], [redis], [sqs].
-
-Why: Messaging is a distinct, complex architectural component.
-
-## cqrs-ddd-observability (Renamed from telemetry)
-
-Scope: Tracing, Metrics, and Logging.
-
-Extras: [opentelemetry], [sentry], [prometheus].
-
-Why: "Observability" is the modern term covering all three pillars.
-
-## cqrs-ddd-notifications (New/Extracted)
-
-Scope: Sending emails, SMS, Push.
-
-Extras: [smtp], [sendgrid], [twilio].
-
-Why: Keeps your domain pure from "side effects".
-
-# Group 5: The "Intelligence" Layer
-
-## cqrs-ddd-filtering
-
-Scope: Your search_query_dsl integration and security wrapper. (https://github.com/mgourlis/search_query_dsl)
-
-Why: Safe, flexible API filtering.
-
-## cqrs-ddd-audit
-
-Scope: Compliance logging (User X did Y).
-
-Why: Distinct from technical logs; required for business/legal.
-
-## cqrs-ddd-analytics
-
-Scope: Connectors for Data Warehousing (OLAP).
-
-Implementations:
-
-Flatteners: Converts complex Events -> Flat Rows.
-
-Loaders: [bigquery], [snowflake], [clickhouse].
-
-Why: Moving data to the warehouse is different from Projections.
-
-## cqrs-ddd-feature-flags
-
-Scope: Toggles.
-
-Implementations: Local DB, [unleash], [launchdarkly].
-
-# Group 6: The Interface Adapters
-
-## cqrs-ddd-fastapi
-
-Scope: REST API helpers, Dependency Injection, Middleware.
-
-## cqrs-ddd-django
-
-Scope: Admin views, Signal bridges.
-
-## cqrs-ddd-graphql
-
-Scope: Strawberry integration for Mutations/Queries.
-
-## cqrs-ddd-cli (New Suggestion)
-
-Scope: Typer or Click helpers.
-
-Why: This package helps write management commands like myapp replay-events or myapp create-tenant.
+See [system-prompt.md](system-prompt.md) and [docs/package-organization.md](docs/package-organization.md) for full planned ecosystem and package roles.

@@ -5,13 +5,14 @@ You are the Lead Architect for the CQRS-DDD Toolkit. Ensure all code follows the
 ## 1. Project layout and packages
 
 - **Monorepo:** Code lives under `packages/`. Do not assume legacy top-level packages (e.g. `cqrs-ddd-core/`).
-- **Five packages:**
+- **Five implemented packages:**
   - `packages/core` — Domain primitives, CQRS, ports, in-memory adapters. **Zero infrastructure dependencies.**
   - `packages/advanced` — Sagas, TCC, background jobs, scheduling, conflict resolution, snapshots, upcasting, undo.
   - `packages/specifications` — Specification pattern and query building.
   - `packages/persistence/sqlalchemy` — Write-side persistence (event store, outbox, repositories).
-  - `packages/persistence/redis` — Redis-backed adapters (cache, locks, etc.).
-- **Modular rules:** Before changing a package, check for a local `system-prompt.md` in that package and follow it. Global rules are in `/system-prompt.md`.
+  - `packages/infrastructure/redis` — Redis-backed adapters (cache, locks, etc.).
+- **Planned packages** are organized under `packages/persistence/`, `packages/infrastructure/`, `packages/features/`, `packages/engines/`, `packages/bridges/`, `packages/cli/`, and `packages/container/`. Each has a `.prompt.md` specification file.
+- **Modular rules:** Before changing a package, check for a local `.prompt.md` or `system-prompt.md` in that package and follow it. Global rules are in `/system-prompt.md`.
 
 ## 2. Core philosophy and terminology
 
