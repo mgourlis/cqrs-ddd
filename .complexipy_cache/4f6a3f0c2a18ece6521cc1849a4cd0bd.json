@@ -5737,7 +5737,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/buffered.py"
     },
     {
-      "complexity": 6,
+      "complexity": 7,
       "file_name": "buffered.py",
       "function_name": "BufferedOutbox::publish",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/buffered.py"
@@ -6049,7 +6049,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/middleware/outbox.py"
     },
     {
-      "complexity": 3,
+      "complexity": 11,
       "file_name": "outbox.py",
       "function_name": "OutboxMiddleware::__call__",
       "path": "./packages/core/src/cqrs_ddd_core/middleware/outbox.py"
@@ -7581,6 +7581,12 @@
     {
       "complexity": 0,
       "file_name": "test_outbox.py",
+      "function_name": "TestOutboxService::test_process_batch_concurrency_error_returns_zero",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_outbox.py",
       "function_name": "TestOutboxService::test_process_batch_empty",
       "path": "./packages/core/tests/test_outbox.py"
     },
@@ -7588,6 +7594,12 @@
       "complexity": 0,
       "file_name": "test_outbox.py",
       "function_name": "TestOutboxService::test_process_batch_handles_publish_failure",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_outbox.py",
+      "function_name": "TestOutboxService::test_process_batch_lock_release_failure_logs_warning",
       "path": "./packages/core/tests/test_outbox.py"
     },
     {
@@ -7623,6 +7635,12 @@
     {
       "complexity": 0,
       "file_name": "test_outbox.py",
+      "function_name": "TestOutboxWorker::test_publish_with_uow_on_commit_calls_trigger",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_outbox.py",
       "function_name": "TestOutboxWorker::test_run_once",
       "path": "./packages/core/tests/test_outbox.py"
     },
@@ -7630,6 +7648,12 @@
       "complexity": 0,
       "file_name": "test_outbox.py",
       "function_name": "TestOutboxWorker::test_start_and_stop",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_outbox.py",
+      "function_name": "TestOutboxWorker::test_trigger_wakes_loop",
       "path": "./packages/core/tests/test_outbox.py"
     },
     {
@@ -7651,9 +7675,27 @@
       "path": "./packages/core/tests/test_outbox.py"
     },
     {
+      "complexity": 1,
+      "file_name": "test_outbox.py",
+      "function_name": "TestOutboxService::test_process_batch_publish_raises_mark_failed_called",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_outbox.py",
+      "function_name": "TestOutboxWorker::test_start_idempotent",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
       "complexity": 2,
       "file_name": "test_outbox.py",
       "function_name": "TestOutboxService::test_process_batch_partial_success",
+      "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_outbox.py",
+      "function_name": "TestOutboxWorker::test_run_loop_logs_and_continues_on_process_batch_error",
       "path": "./packages/core/tests/test_outbox.py"
     },
     {
@@ -7958,531 +8000,1491 @@
     },
     {
       "complexity": 0,
+      "file_name": "dead_letter.py",
+      "function_name": "DeadLetterHandler::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/dead_letter.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "dead_letter.py",
+      "function_name": "DeadLetterHandler::route",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/dead_letter.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "DeadLetterError::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "idempotency.py",
+      "function_name": "IdempotencyFilter::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "idempotency.py",
+      "function_name": "IdempotencyFilter::_key",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "idempotency.py",
+      "function_name": "IdempotencyFilter::clear_memory",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/idempotency.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "idempotency.py",
+      "function_name": "IdempotencyFilter::is_duplicate",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/idempotency.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "idempotency.py",
+      "function_name": "IdempotencyFilter::mark_processed",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "KafkaConnectionManager::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "KafkaConnectionManager::bootstrap_servers",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "KafkaConnectionManager::consumer_config",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "KafkaConnectionManager::producer_config",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "KafkaConnectionManager::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::stop",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::subscribe",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 16,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::run",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "KafkaPublisher::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "KafkaPublisher::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "KafkaPublisher::_get_producer",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "KafkaPublisher::close",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "publisher.py",
+      "function_name": "_message_to_envelope",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "publisher.py",
+      "function_name": "KafkaPublisher::publish",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bus.py",
+      "function_name": "InMemoryMessageBus::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/bus.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bus.py",
+      "function_name": "InMemoryMessageBus::clear",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/bus.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bus.py",
+      "function_name": "InMemoryMessageBus::get_published",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/bus.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "bus.py",
+      "function_name": "InMemoryMessageBus::register",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/bus.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "bus.py",
+      "function_name": "InMemoryMessageBus::publish",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/bus.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "InMemoryConsumer::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "InMemoryConsumer::subscribe",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::bus",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::get_published",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::publish",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::assert_published",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "publisher.py",
+      "function_name": "InMemoryPublisher::_event_type_of",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/memory/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "RabbitMQConnectionManager::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "RabbitMQConnectionManager::channel",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/connection.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "connection.py",
+      "function_name": "RabbitMQConnectionManager::close",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/connection.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "connection.py",
+      "function_name": "RabbitMQConnectionManager::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/connection.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "connection.py",
+      "function_name": "RabbitMQConnectionManager::connect",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "RabbitMQConsumer::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/consumer.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "consumer.py",
+      "function_name": "RabbitMQConsumer::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/consumer.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "consumer.py",
+      "function_name": "RabbitMQConsumer::subscribe",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "RabbitMQPublisher::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "RabbitMQPublisher::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "RabbitMQPublisher::_ensure_exchange",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "RabbitMQPublisher::publish",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/publisher.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "publisher.py",
+      "function_name": "_message_to_envelope",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/rabbitmq/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "retry.py",
+      "function_name": "RetryPolicy::should_retry",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "retry.py",
+      "function_name": "_sleep",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/retry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "retry.py",
+      "function_name": "RetryPolicy::wait_before_retry",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/retry.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "retry.py",
+      "function_name": "RetryPolicy::delay_for_attempt",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/retry.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "retry.py",
+      "function_name": "RetryPolicy::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "serialization.py",
+      "function_name": "EnvelopeSerializer::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/serialization.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "serialization.py",
+      "function_name": "EnvelopeSerializer::serialize",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/serialization.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "serialization.py",
+      "function_name": "_json_serializer",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/serialization.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "serialization.py",
+      "function_name": "EnvelopeSerializer::hydrate",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/serialization.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "serialization.py",
+      "function_name": "EnvelopeSerializer::deserialize",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/serialization.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "SQSConnectionManager::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "SQSConnectionManager::close",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "SQSConnectionManager::get_client",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "SQSConnectionManager::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/connection.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "connection.py",
+      "function_name": "SQSConnectionManager::get_queue_url",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::stop",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::subscribe",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 23,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::run",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "publisher.py",
+      "function_name": "SQSPublisher::health_check",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/publisher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "publisher.py",
+      "function_name": "SQSPublisher::__init__",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/publisher.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "publisher.py",
+      "function_name": "SQSPublisher::publish",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/publisher.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "publisher.py",
+      "function_name": "_message_to_envelope",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/publisher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "conftest.py",
+      "function_name": "kafka_bootstrap_servers",
+      "path": "./packages/infrastructure/messaging/tests/conftest.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "conftest.py",
+      "function_name": "rabbitmq_url",
+      "path": "./packages/infrastructure/messaging/tests/conftest.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_integration.py",
+      "function_name": "kafka_bootstrap_servers",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_kafka_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_integration.py",
+      "function_name": "test_kafka_health_check",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_kafka_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_integration.py",
+      "function_name": "test_kafka_publish_consume",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_kafka_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_integration.py",
+      "function_name": "rabbitmq_url",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_rabbitmq_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_integration.py",
+      "function_name": "test_rabbitmq_health_check",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_rabbitmq_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_integration.py",
+      "function_name": "test_rabbitmq_publish_consume",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_rabbitmq_integration.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_rabbitmq_integration.py",
+      "function_name": "_rabbitmq_url_from_params",
+      "path": "./packages/infrastructure/messaging/tests/integration/test_rabbitmq_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_dead_letter.py",
+      "function_name": "test_route_calls_callback_then_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_dead_letter.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_dead_letter.py",
+      "function_name": "test_route_raises_dead_letter_error",
+      "path": "./packages/infrastructure/messaging/tests/test_dead_letter.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_envelope.py",
+      "function_name": "test_envelope_attempt_ge_1",
+      "path": "./packages/infrastructure/messaging/tests/test_envelope.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_envelope.py",
+      "function_name": "test_envelope_defaults",
+      "path": "./packages/infrastructure/messaging/tests/test_envelope.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_envelope.py",
+      "function_name": "test_envelope_frozen",
+      "path": "./packages/infrastructure/messaging/tests/test_envelope.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_exceptions.py",
+      "function_name": "test_dead_letter_error_has_message_id",
+      "path": "./packages/infrastructure/messaging/tests/test_exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_exceptions.py",
+      "function_name": "test_messaging_error_is_infrastructure",
+      "path": "./packages/infrastructure/messaging/tests/test_exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::__init__",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::delete",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::get",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::get_batch",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::set",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "test_in_memory_clear",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "test_in_memory_is_duplicate_after_mark",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_idempotency.py",
+      "function_name": "test_with_cache",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::clear_namespace",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::delete_batch",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_idempotency.py",
+      "function_name": "_FakeCacheForIdempotency::set_batch",
+      "path": "./packages/infrastructure/messaging/tests/test_idempotency.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "mock_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "mock_producer",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_close_idempotent_when_not_started",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_close_stops_producer",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_health_check_delegates_to_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_publish_message_envelope_with_aggregate_id_in_payload",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_publish_partition_key_from_kwargs",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_publish_serializer_raises_messaging_error",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_kafka_publisher_unit.py",
+      "function_name": "test_publish_with_aggregate_id_on_message",
+      "path": "./packages/infrastructure/messaging/tests/test_kafka_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory.py",
+      "function_name": "test_assert_published",
+      "path": "./packages/infrastructure/messaging/tests/test_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory.py",
+      "function_name": "test_assert_published_fails_wrong_count",
+      "path": "./packages/infrastructure/messaging/tests/test_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory.py",
+      "function_name": "test_consumer_receives_on_publish",
+      "path": "./packages/infrastructure/messaging/tests/test_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory.py",
+      "function_name": "test_protocol_compliance",
+      "path": "./packages/infrastructure/messaging/tests/test_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory.py",
+      "function_name": "test_publish_get_published",
+      "path": "./packages/infrastructure/messaging/tests/test_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "mock_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "publisher",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_health_check_delegates_to_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_health_check_returns_false_when_connection_unhealthy",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_publish_dict_message",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_publish_message_envelope_passthrough",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_publish_serializer_raises_messaging_error",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_rabbitmq_publisher_unit.py",
+      "function_name": "test_publish_plain_object_event_type_from_kwargs",
+      "path": "./packages/infrastructure/messaging/tests/test_rabbitmq_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_delay_for_attempt_exponential",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_delay_for_attempt_zero_returns_zero",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_invalid_delays_raise",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_invalid_max_attempts_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_should_retry",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_retry.py",
+      "function_name": "test_wait_before_retry",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_retry.py",
+      "function_name": "test_delay_with_jitter_in_range",
+      "path": "./packages/infrastructure/messaging/tests/test_retry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_deserialize_invalid_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_deserialize_invalid_structure_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_deserialize_invalid_timestamp_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_hydrate_unregistered_returns_payload",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_hydrate_with_registry",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_hydrate_without_registry_returns_payload",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_serialize_deserialize_roundtrip",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_serialize_json_default_raises_type_error",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_serialize_model_dump_raises_wraps",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_serialization.py",
+      "function_name": "test_serialize_non_json_serializable_payload_raises",
+      "path": "./packages/infrastructure/messaging/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "mock_session",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_close_cleans_up_client",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_close_idempotent_when_never_opened",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_get_client_creates_and_caches",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_get_queue_url_creates_queue_if_not_exists",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_get_queue_url_raises_on_other_errors",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_get_queue_url_returns_url",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_health_check_returns_false_on_failure",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_connection_unit.py",
+      "function_name": "test_health_check_returns_true_when_list_queues_succeeds",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_connection_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "mock_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "publisher",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_health_check_delegates_to_connection",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_health_check_returns_false_when_connection_unhealthy",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_dict_message",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_fifo_adds_dedup_and_group_id",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_fifo_default_group_id",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_message_envelope_passthrough",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_serializer_raises_messaging_error",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_with_queue_url_in_kwargs",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_sqs_publisher_unit.py",
+      "function_name": "test_publish_plain_object_event_type_from_kwargs",
+      "path": "./packages/infrastructure/messaging/tests/test_sqs_publisher_unit.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::__init__",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 1,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::delete",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 2,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::delete_batch",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 6,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::get",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 7,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::set",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 9,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::clear_namespace",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 12,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::get_batch",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 15,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::set_batch",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 0,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::__init__",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_lock_key",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_queue_key",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::close",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 1,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_prune_expired_metadata",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 1,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::health_check",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 2,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_execute_fair_acquire_script",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 2,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::acquire",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 3,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::get_active_locks",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 4,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_try_reentrant_acquire",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 5,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::_try_fair_acquire_with_retry",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 7,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::release",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 10,
       "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::extend",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::__init__",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_make_key",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_store_lock_metadata",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 1,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_prune_expired_metadata",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 3,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_acquire_new_lock",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 3,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::close",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 3,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::get_active_locks",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 4,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_handle_reentrant_lock",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 4,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::health_check",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 5,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::release",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 7,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::acquire",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 14,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::extend",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/redlock_locking.py"
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::cache_service",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::redis_client",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_batch_ops",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_clear_namespace_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete_batch",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete_batch_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete_batch_with_empty_keys",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_batch_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_batch_with_empty_keys",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_batch_with_pydantic_cls",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_cache_miss_returns_none",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_missing",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_set",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_get_with_pydantic_model_returns_instance",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_pydantic_serialization",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_batch_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_batch_with_empty_items",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_batch_with_pydantic_models",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_batch_with_ttl",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_error_handling",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_with_ttl",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_set_without_ttl",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 2,
       "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_clear_namespace",
-      "path": "./packages/persistence/redis/tests/test_cache.py"
+      "path": "./packages/infrastructure/redis/tests/test_cache.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_acquire_timeout_throws_error",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_basic_acquire_release",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_extend_updates_metadata",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_get_active_locks",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_health_check",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_reentrancy_increments_ref_count",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "TestFifoRedisLockStrategy::test_technical_failure_throws_error",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "mock_redis",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_fifo_locking_redis.py",
       "function_name": "strategy",
-      "path": "./packages/persistence/redis/tests/test_fifo_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_fifo_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_acquire_timeout_throws_acquisition_error",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_basic_acquire_release",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_extend_handles_invalid_token",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_extend_partial_node_failures_with_quorum",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_get_active_locks_filters_expired",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_metadata_pruning",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_quorum_failure_throws_acquisition_error",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_reentrancy_different_session_treats_as_new_acquisition",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_reentrancy_fallback_on_extend_failure",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_reentrancy_increments_ref_count",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_reentrancy_local_expiration_triggers_fresh_acquisition",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_release_cleans_metadata_even_on_redis_failure",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_release_handles_invalid_token_gracefully",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_release_unknown_lock_attempts_redis_unlock",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_technical_failure_throws_redis_lock_error",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "mock_lock",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "redis_urls",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 1,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_extend_lua_logic",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 1,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "TestRedlockLockStrategy::test_health_check_quorum",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 2,
       "file_name": "test_redlock_locking_redis.py",
       "function_name": "strategy",
-      "path": "./packages/persistence/redis/tests/test_redlock_locking_redis.py"
+      "path": "./packages/infrastructure/redis/tests/test_redlock_locking_redis.py"
     },
     {
       "complexity": 0,
@@ -13126,6 +14128,12 @@
       "complexity": 0,
       "file_name": "test_utils.py",
       "function_name": "TestGeojsonToStr::test_dict_roundtrip",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestGeojsonToStr::test_non_dict_non_str_uses_str",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {

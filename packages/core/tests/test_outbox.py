@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -226,8 +226,10 @@ class TestOutboxService:
         count = await service.process_batch()
 
         assert count == 1
-        assert any("release" in rec.message.lower() and "warning" in rec.levelname.lower()
-                   for rec in caplog.records)
+        assert any(
+            "release" in rec.message.lower() and "warning" in rec.levelname.lower()
+            for rec in caplog.records
+        )
 
     @pytest.mark.asyncio
     async def test_process_batch_concurrency_error_returns_zero(self) -> None:
@@ -448,7 +450,9 @@ class TestOutboxWorker:
             lock_strategy=lock_strategy,
             poll_interval=10.0,
         )
-        with patch.object(worker._service, "process_batch", new_callable=AsyncMock) as mock_batch:
+        with patch.object(
+            worker._service, "process_batch", new_callable=AsyncMock
+        ) as mock_batch:
             mock_batch.return_value = 0
             await worker.start()
             await worker.start()
@@ -486,8 +490,10 @@ class TestOutboxWorker:
             await asyncio.sleep(0.15)
             await worker.stop()
 
-        assert any("batch failed" in rec.message or "loop error" in rec.message.lower()
-                   for rec in caplog.records)
+        assert any(
+            "batch failed" in rec.message or "loop error" in rec.message.lower()
+            for rec in caplog.records
+        )
 
     @pytest.mark.asyncio
     async def test_publish_with_uow_on_commit_calls_trigger(self) -> None:
@@ -501,7 +507,9 @@ class TestOutboxWorker:
             def on_commit(self, cb: Any) -> None:
                 on_commit_callback.append(cb)
 
-        with patch("cqrs_ddd_core.cqrs.outbox.buffered.get_current_uow", return_value=MockUoW()):
+        with patch(
+            "cqrs_ddd_core.cqrs.outbox.buffered.get_current_uow", return_value=MockUoW()
+        ):
             await pub.publish("OrderCreated", {"order_id": "1"})
 
         assert len(on_commit_callback) == 1

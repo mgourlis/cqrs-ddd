@@ -29,6 +29,7 @@ jobs:
           pip install -e ./packages/advanced
           pip install -e "./packages/persistence/sqlalchemy[geometry]"
           pip install -e ./packages/infrastructure/redis
+          pip install -e "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]"
           pip install ".[dev, geometry]"
 
       - name: Install SpatiaLite (for geometry persistence tests)

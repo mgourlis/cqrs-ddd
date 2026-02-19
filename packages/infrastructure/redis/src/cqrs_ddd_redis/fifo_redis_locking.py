@@ -261,9 +261,7 @@ class FifoRedisLockStrategy:
         """
 
         try:
-            result_raw = self._redis.eval(  # type: ignore[no-untyped-call]
-                release_script, 2, lock_key, queue_key, token
-            )
+            result_raw = self._redis.eval(release_script, 2, lock_key, queue_key, token)  # type: ignore[no-untyped-call]
             if hasattr(result_raw, "__await__"):
                 await result_raw
             self._lock_metadata.pop(lock_key, None)

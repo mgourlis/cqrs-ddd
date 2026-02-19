@@ -26,12 +26,10 @@ class OutboxMessage:
     error: str | None = None
     retry_count: int = 0
     correlation_id: str = field(
-        default="",
-        metadata={"description": "Traces entire request chain"}
+        default="", metadata={"description": "Traces entire request chain"}
     )
     causation_id: str | None = field(
-        default=None,
-        metadata={"description": "Direct parent message ID"}
+        default=None, metadata={"description": "Direct parent message ID"}
     )
 
 
