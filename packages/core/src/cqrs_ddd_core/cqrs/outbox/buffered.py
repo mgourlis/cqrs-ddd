@@ -86,6 +86,10 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
 
     async def publish(self, topic: str, message: Any, **kwargs: Any) -> None:
         """Save message to outbox and schedule real-time trigger."""
+        # Extract tracing IDs from kwargs
+        correlation_id = kwargs.pop("correlation_id", "")
+        causation_id = kwargs.pop("causation_id", None)
+        
         if isinstance(message, dict):
             payload = message
         elif hasattr(message, "model_dump"):
@@ -98,7 +102,9 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
         outbox_msg = OutboxMessage(
             event_type=topic,
             payload=payload,
-            metadata=kwargs,
+            metadata=kwargs,  # Remaining metadata after extracting tracing IDs
+            correlation_id=correlation_id,
+            causation_id=causation_id,
         )
 
         # Get current UoW for transactional consistency

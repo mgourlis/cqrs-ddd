@@ -25,6 +25,8 @@ class OutboxMessage:
     published_at: datetime | None = None
     error: str | None = None
     retry_count: int = 0
+    correlation_id: str = field(default="", metadata={"description": "Traces entire request chain"})
+    causation_id: str | None = field(default=None, metadata={"description": "Direct parent message ID"})
 
 
 @runtime_checkable

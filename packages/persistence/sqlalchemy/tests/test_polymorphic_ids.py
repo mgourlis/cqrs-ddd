@@ -138,6 +138,7 @@ async def test_polymorphic_id_outbox_insertion(async_session: AsyncSession) -> N
                 "aggregate_id": str(int_agg.id),
                 "aggregate_type": "IntAggregate",
             },
+            correlation_id="test-correlation-1",
         )
         async_session.add(msg)
     await async_session.flush()
@@ -161,6 +162,7 @@ async def test_polymorphic_id_outbox_insertion(async_session: AsyncSession) -> N
                 "aggregate_id": str(uuid_agg.id),
                 "aggregate_type": "UUIDAggregate",
             },
+            correlation_id="test-correlation-2",
         )
         async_session.add(msg)
     await async_session.flush()

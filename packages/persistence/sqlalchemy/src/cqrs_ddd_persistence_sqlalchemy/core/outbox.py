@@ -39,6 +39,8 @@ class SQLAlchemyOutboxStorage(IOutboxStorage):
                 retry_count=msg.retry_count,
                 error=msg.error,
                 event_metadata=msg.metadata,
+                correlation_id=msg.correlation_id,
+                causation_id=msg.causation_id,
             )
             self.session.add(model)
 
@@ -69,6 +71,8 @@ class SQLAlchemyOutboxStorage(IOutboxStorage):
                 published_at=None,
                 error=m.error,
                 retry_count=m.retry_count,
+                correlation_id=m.correlation_id,
+                causation_id=m.causation_id,
             )
             for m in models
         ]

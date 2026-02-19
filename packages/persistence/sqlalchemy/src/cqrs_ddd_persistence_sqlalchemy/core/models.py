@@ -52,6 +52,13 @@ class OutboxMessage(Base):
     retry_count: Mapped[int] = mapped_column(Integer, default=0)
     error: Mapped[str | None] = mapped_column(String, nullable=True)
     event_metadata: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=True)
+    correlation_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    causation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+
+    __table_args__ = (
+        Index('ix_outbox_pending_id', 'status', 'id'),
+        Index('ix_outbox_tracing', 'correlation_id', 'causation_id'),
+    )
 
 
 class StoredEventModel(Base):

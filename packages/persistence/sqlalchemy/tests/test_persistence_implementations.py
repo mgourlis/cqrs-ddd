@@ -112,12 +112,15 @@ async def test_outbox_storage(
             event_type="Event1",
             payload={"a": 1},
             metadata={"aggregate_id": "agg-1"},
+            correlation_id="test-correlation-1",
         )
         msg2 = OutboxMessage(
             message_id="msg-2",
             event_type="Event2",
             payload={"b": 2},
             metadata={"aggregate_id": "agg-1"},
+            correlation_id="test-correlation-1",
+            causation_id="msg-1",
         )
 
         await storage.save_messages([msg1, msg2])

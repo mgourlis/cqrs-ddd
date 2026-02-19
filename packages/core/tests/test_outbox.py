@@ -32,10 +32,14 @@ def _make_message(
     payload: dict[str, object] | None = None,
     error: str | None = None,
     retry_count: int = 0,
+    correlation_id: str = "test-correlation-id",
+    causation_id: str | None = None,
 ) -> OutboxMessage:
     msg = OutboxMessage(
         event_type=event_type,
         payload=payload or {"order_id": "ord-1"},
+        correlation_id=correlation_id,
+        causation_id=causation_id,
     )
     msg.error = error
     msg.retry_count = retry_count
