@@ -68,7 +68,7 @@ class TestOutboxService:
         publisher.publish.assert_called_once_with(
             topic="OrderCreated",
             message={"order_id": "ord-1"},
-            correlation_id=None,
+            correlation_id="test-correlation-id",
         )
         # Message should be marked as published
         pending = await storage.get_pending()

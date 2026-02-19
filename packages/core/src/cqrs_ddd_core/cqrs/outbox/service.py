@@ -92,7 +92,9 @@ class OutboxService:
                     await self.publisher.publish(
                         topic=msg.event_type,
                         message=msg.payload,
-                        correlation_id=msg.metadata.get("correlation_id"),
+                        correlation_id=msg.metadata.get("correlation_id")
+                        or msg.correlation_id
+                        or None,
                     )
                     published_ids.append(msg.message_id)
                 except Exception as exc:  # noqa: BLE001
@@ -166,7 +168,9 @@ class OutboxService:
                     await self.publisher.publish(
                         topic=msg.event_type,
                         message=msg.payload,
-                        correlation_id=msg.metadata.get("correlation_id"),
+                        correlation_id=msg.metadata.get("correlation_id")
+                        or msg.correlation_id
+                        or None,
                     )
                     published_ids.append(msg.message_id)
                 except Exception as exc:  # noqa: BLE001

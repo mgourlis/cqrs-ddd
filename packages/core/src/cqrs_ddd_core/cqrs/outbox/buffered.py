@@ -89,7 +89,7 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
         # Extract tracing IDs from kwargs
         correlation_id = kwargs.pop("correlation_id", "")
         causation_id = kwargs.pop("causation_id", None)
-        
+
         if isinstance(message, dict):
             payload = message
         elif hasattr(message, "model_dump"):
@@ -106,6 +106,10 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
             correlation_id=correlation_id,
             causation_id=causation_id,
         )
+        # Ensure tracing IDs are in metadata for OutboxService when publishing
+        outbox_msg.metadata["correlation_id"] = correlation_id
+        if causation_id is not None:
+            outbox_msg.metadata["causation_id"] = causation_id
 
         # Get current UoW for transactional consistency
         uow = get_current_uow()

@@ -53,6 +53,7 @@ async def test_uow_auto_commit(
                 status=OutboxStatus.PENDING,
                 occurred_at=datetime.now(timezone.utc),
                 event_metadata={"aggregate_id": "agg-1"},
+                correlation_id="test-correlation",
             )
             session.add(msg)
         # Session is closed here, but data should be committed.
@@ -83,6 +84,7 @@ async def test_uow_auto_rollback(
                     status=OutboxStatus.PENDING,
                     occurred_at=datetime.now(timezone.utc),
                     event_metadata={"aggregate_id": "agg-1"},
+                    correlation_id="test-correlation",
                 )
                 session.add(msg)
                 raise ValueError("Force rollback")

@@ -2,7 +2,7 @@ import enum
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, Enum, Integer, String
+from sqlalchemy import BigInteger, DateTime, Enum, Index, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from ..mixins import VersionMixin
@@ -56,8 +56,8 @@ class OutboxMessage(Base):
     causation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
     __table_args__ = (
-        Index('ix_outbox_pending_id', 'status', 'id'),
-        Index('ix_outbox_tracing', 'correlation_id', 'causation_id'),
+        Index("ix_outbox_pending_id", "status", "id"),
+        Index("ix_outbox_tracing", "correlation_id", "causation_id"),
     )
 
 

@@ -53,7 +53,7 @@ class OutboxMiddleware(IMiddleware):
             for event in result.events:
                 topic = type(event).__name__
                 logger.debug("Publishing event %s to outbox", topic)
-                
+
                 # Extract tracing IDs from enriched DomainEvent
                 # (Mediator has already called enrich_event_metadata)
                 tracing_kwargs = {}
@@ -61,7 +61,7 @@ class OutboxMiddleware(IMiddleware):
                     tracing_kwargs["correlation_id"] = event.correlation_id
                 if hasattr(event, "causation_id") and event.causation_id:
                     tracing_kwargs["causation_id"] = event.causation_id
-                
+
                 await self._outbox.publish(topic, event, **tracing_kwargs)
 
         return result
