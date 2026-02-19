@@ -362,3 +362,9 @@ class TestGeojsonToStr:
     def test_string_passthrough(self):
         s = '{"type": "Point"}'
         assert geojson_to_str(s) == s
+
+    def test_non_dict_non_str_uses_str(self):
+        """Non-dict, non-str input is converted via str()."""
+        assert geojson_to_str([1, 2, 3]) == "[1, 2, 3]"
+        assert geojson_to_str(42) == "42"
+        assert geojson_to_str(3.14) == "3.14"

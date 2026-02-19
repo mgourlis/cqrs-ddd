@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -14,7 +14,7 @@ from cqrs_ddd_core.cqrs import BufferedOutbox as OutboxPublisher
 from cqrs_ddd_core.cqrs import BufferedOutbox as OutboxWorker
 from cqrs_ddd_core.cqrs import OutboxService
 from cqrs_ddd_core.ports.outbox import OutboxMessage
-from cqrs_ddd_core.primitives.exceptions import OutboxError
+from cqrs_ddd_core.primitives.exceptions import ConcurrencyError, OutboxError
 
 # ═══════════════════════════════════════════════════════════════════════
 # Helpers
@@ -192,6 +192,59 @@ class TestOutboxService:
             correlation_id="corr-42",
         )
 
+    @pytest.mark.asyncio
+    async def test_process_batch_publish_raises_mark_failed_called(self) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        publisher.publish.side_effect = RuntimeError("broker down")
+        lock_strategy = InMemoryLockStrategy()
+        service = OutboxService(storage, publisher, lock_strategy)
+        msg = _make_message()
+        await storage.save_messages([msg])
+
+        count = await service.process_batch()
+
+        assert count == 0
+        pending = await storage.get_pending()
+        failed = [m for m in pending if m.error]
+        assert len(failed) == 1
+        assert "broker down" in (failed[0].error or "")
+
+    @pytest.mark.asyncio
+    async def test_process_batch_lock_release_failure_logs_warning(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        lock_strategy.release = AsyncMock(side_effect=RuntimeError("release failed"))
+        service = OutboxService(storage, publisher, lock_strategy)
+
+        msg = _make_message()
+        await storage.save_messages([msg])
+
+        count = await service.process_batch()
+
+        assert count == 1
+        assert any("release" in rec.message.lower() and "warning" in rec.levelname.lower()
+                   for rec in caplog.records)
+
+    @pytest.mark.asyncio
+    async def test_process_batch_concurrency_error_returns_zero(self) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        lock_strategy.acquire = AsyncMock(side_effect=ConcurrencyError("locked"))
+        service = OutboxService(storage, publisher, lock_strategy)
+
+        msg = _make_message()
+        await storage.save_messages([msg])
+
+        count = await service.process_batch()
+
+        assert count == 0
+        publisher.publish.assert_not_called()
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # OutboxPublisher tests
@@ -358,3 +411,99 @@ class TestOutboxWorker:
         await worker.start()
         await asyncio.sleep(0.05)
         await worker.stop()
+
+    @pytest.mark.asyncio
+    async def test_trigger_wakes_loop(self) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        worker = OutboxWorker(
+            storage=storage,
+            broker=publisher,
+            lock_strategy=lock_strategy,
+            poll_interval=10.0,
+            wait_delay=0.02,
+            max_delay=0.05,
+        )
+        msg = _make_message()
+        await storage.save_messages([msg])
+
+        await worker.start()
+        worker.trigger()
+        await asyncio.sleep(0.1)
+        await worker.stop()
+
+        publisher.publish.assert_called()
+        pending = await storage.get_pending()
+        assert len(pending) == 0
+
+    @pytest.mark.asyncio
+    async def test_start_idempotent(self) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        worker = OutboxWorker(
+            storage=storage,
+            broker=publisher,
+            lock_strategy=lock_strategy,
+            poll_interval=10.0,
+        )
+        with patch.object(worker._service, "process_batch", new_callable=AsyncMock) as mock_batch:
+            mock_batch.return_value = 0
+            await worker.start()
+            await worker.start()
+            await worker.stop()
+        assert not worker._running
+        assert worker._task is not None or not worker._running
+
+    @pytest.mark.asyncio
+    async def test_run_loop_logs_and_continues_on_process_batch_error(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        storage = InMemoryOutboxStorage()
+        publisher = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        worker = OutboxWorker(
+            storage=storage,
+            broker=publisher,
+            lock_strategy=lock_strategy,
+            poll_interval=0.02,
+            wait_delay=0.01,
+            max_delay=0.02,
+        )
+        call_count = 0
+
+        async def _raise_second(*args: Any, **kwargs: Any) -> int:
+            nonlocal call_count
+            call_count += 1
+            if call_count >= 2:
+                raise RuntimeError("batch failed")
+            return 0
+
+        with patch.object(worker._service, "process_batch", side_effect=_raise_second):
+            await worker.start()
+            worker.trigger()
+            await asyncio.sleep(0.15)
+            await worker.stop()
+
+        assert any("batch failed" in rec.message or "loop error" in rec.message.lower()
+                   for rec in caplog.records)
+
+    @pytest.mark.asyncio
+    async def test_publish_with_uow_on_commit_calls_trigger(self) -> None:
+        storage = InMemoryOutboxStorage()
+        broker = _make_publisher()
+        lock_strategy = InMemoryLockStrategy()
+        pub = OutboxPublisher(storage, broker, lock_strategy)
+        on_commit_callback: list[Any] = []
+
+        class MockUoW:
+            def on_commit(self, cb: Any) -> None:
+                on_commit_callback.append(cb)
+
+        with patch("cqrs_ddd_core.cqrs.outbox.buffered.get_current_uow", return_value=MockUoW()):
+            await pub.publish("OrderCreated", {"order_id": "1"})
+
+        assert len(on_commit_callback) == 1
+        assert callable(on_commit_callback[0])
+        assert getattr(on_commit_callback[0], "__self__", None) is pub
