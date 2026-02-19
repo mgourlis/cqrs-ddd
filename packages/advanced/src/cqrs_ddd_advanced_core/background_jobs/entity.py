@@ -23,6 +23,7 @@ from .events import (
 
 if TYPE_CHECKING:
     from cqrs_ddd_core.domain.events import DomainEvent
+    from cqrs_ddd_core.primitives.id_generator import IIDGenerator
 
 
 class BackgroundJobStatus(str, Enum):
@@ -89,28 +90,27 @@ class BaseBackgroundJob(AggregateRoot[str]):
     @classmethod
     def create(
         cls,
-        *,
-        job_type: str,
-        total_items: int = 0,
-        max_retries: int = 3,
-        correlation_id: str | None = None,
-        metadata: dict[str, Any] | None = None,
-        **extra: Any,
+        aggregate_id: str | None = None,
+        id_generator: IIDGenerator | None = None,
+        **data: Any,
     ) -> BaseBackgroundJob:
-        """Create a new job and emit ``JobCreated``."""
-        job = cls(
-            job_type=job_type,
-            total_items=total_items,
-            max_retries=max_retries,
-            correlation_id=correlation_id,
-            metadata=metadata or {},
-            **extra,
-        )
+        """Create a new job and emit ``JobCreated``.
+
+        Accepts the same signature as :meth:`AggregateRoot.create`; job-specific
+        fields (e.g. ``job_type``, ``total_items``) are passed via ``**data``.
+        """
+        if aggregate_id is not None:
+            data = {**data, "id": aggregate_id}
+        elif id_generator is not None:
+            data = {**data, "id_generator": id_generator}
+        if "metadata" in data and data["metadata"] is None:
+            data = {**data, "metadata": {}}
+        job = cls(**data)
         job._emit(
             JobCreated(
                 job_type=job.job_type,
                 total_items=job.total_items,
-                correlation_id=correlation_id,
+                correlation_id=job.correlation_id,
             )
         )
         return job

@@ -21,6 +21,7 @@ from ..exceptions import OptimisticConcurrencyError
 from ..specifications.compiler import apply_query_options, build_sqla_filter
 from .model_mapper import ModelMapper
 from .uow import SQLAlchemyUnitOfWork
+from .versioning import set_version_after_merge, set_version_for_insert
 
 ID = TypeVar("ID", str, int, UUID)
 T = TypeVar("T", bound=AggregateRoot[Any])
@@ -110,14 +111,7 @@ class SQLAlchemyRepository(IRepository[T, ID], Generic[T, ID]):
         model = self.to_model(entity)
 
         if entity.version == 0:
-            if (
-                hasattr(model, "__table__")
-                and hasattr(model.__table__, "c")
-                and "version" in model.__table__.c
-            ):
-                model.version = 1
-            elif hasattr(model, "_version"):
-                object.__setattr__(model, "_version", 1)
+            set_version_for_insert(model)
             active_uow.session.add(model)
             if entity.id is None:
                 await active_uow.session.flush()
@@ -127,13 +121,7 @@ class SQLAlchemyRepository(IRepository[T, ID], Generic[T, ID]):
         else:
             try:
                 merged = await active_uow.session.merge(model)
-                if (
-                    hasattr(merged, "__table__")
-                    and hasattr(merged.__table__, "c")
-                    and "version" in merged.__table__.c
-                ):
-                    merged.version = entity.version + 1
-                object.__setattr__(entity, "_version", entity.version + 1)
+                set_version_after_merge(merged, entity)
                 model = merged
             except StaleDataError as e:
                 raise OptimisticConcurrencyError(

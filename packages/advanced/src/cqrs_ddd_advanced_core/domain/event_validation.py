@@ -82,6 +82,50 @@ class EventValidator:
         """
         self._config = config or EventValidationConfig()
 
+    def _check_strict_mode(
+        self,
+        aggregate_type: str,
+        event_type: str,
+        has_exact: bool,
+        has_fallback: bool,
+        allow_fallback: bool,
+    ) -> None:
+        """Strict mode: require exact handler or allowed fallback. Raises if invalid."""
+        if has_exact:
+            return
+        if has_fallback and allow_fallback:
+            return
+        if has_fallback:
+            raise StrictValidationViolationError(
+                aggregate_type=aggregate_type,
+                event_type=event_type,
+                reason=(
+                    "Strict mode requires exact apply_<EventType> method, "
+                    "not apply_event fallback. Set allow_fallback_handler=True "
+                    "to use fallback in strict mode."
+                ),
+            )
+        raise MissingEventHandlerError(
+            aggregate_type=aggregate_type,
+            event_type=event_type,
+        )
+
+    def _check_lenient_mode(
+        self,
+        aggregate_type: str,
+        event_type: str,
+        has_exact: bool,
+        has_fallback: bool,
+        allow_fallback: bool,
+    ) -> None:
+        """Lenient mode: allow exact or fallback when allowed. Raises if no handler."""
+        if has_exact or (has_fallback and allow_fallback):
+            return
+        raise MissingEventHandlerError(
+            aggregate_type=aggregate_type,
+            event_type=event_type,
+        )
+
     def validate_handler_exists(
         self, aggregate: AggregateRoot[Any], event: DomainEvent
     ) -> None:
@@ -104,50 +148,21 @@ class EventValidator:
 
         event_type = type(event).__name__
         aggregate_type = type(aggregate).__name__
-
-        # Check for exact handler (PascalCase or snake_case for ruff compliance)
         event_type_snake = event_type_to_snake(event_type)
         has_exact = hasattr(aggregate, f"apply_{event_type}") or hasattr(
             aggregate, f"apply_{event_type_snake}"
         )
-
-        # Check for fallback handler
         has_fallback = hasattr(aggregate, "apply_event")
+        allow_fallback = self._config.allow_fallback_handler
 
-        # Determine if validation passes
         if self._config.strict_mode:
-            # Strict mode: require exact handler (unless fallback explicitly allowed)
-            if not has_exact:
-                # Check if fallback is allowed in strict mode
-                fallback_allowed = self._config.allow_fallback_handler
-
-                if has_fallback and fallback_allowed:
-                    # Fallback explicitly allowed in strict mode
-                    pass
-                elif has_fallback:
-                    raise StrictValidationViolationError(
-                        aggregate_type=aggregate_type,
-                        event_type=event_type,
-                        reason=(
-                            "Strict mode requires exact apply_<EventType> method, "
-                            "not apply_event fallback. Set allow_fallback_handler=True "
-                            "to use fallback in strict mode."
-                        ),
-                    )
-                else:
-                    raise MissingEventHandlerError(
-                        aggregate_type=aggregate_type,
-                        event_type=event_type,
-                    )
+            self._check_strict_mode(
+                aggregate_type, event_type, has_exact, has_fallback, allow_fallback
+            )
         else:
-            # Lenient mode: allow exact or fallback (if configured)
-            fallback_allowed = self._config.allow_fallback_handler
-
-            if not has_exact and not (has_fallback and fallback_allowed):
-                raise MissingEventHandlerError(
-                    aggregate_type=aggregate_type,
-                    event_type=event_type,
-                )
+            self._check_lenient_mode(
+                aggregate_type, event_type, has_exact, has_fallback, allow_fallback
+            )
 
     def get_config(self) -> EventValidationConfig:
         """Get the current validation configuration.

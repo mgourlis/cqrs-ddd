@@ -323,7 +323,38 @@ class ModelMapper(Generic[T_Entity]):
             if k in self._columns and k not in self._relationships
         }
 
-    def _coerce_values(self, data: dict[str, Any]) -> dict[str, Any]:  # noqa: C901
+    def _apply_type_coercers(self, value: Any) -> tuple[Any, bool]:
+        """Apply custom type coercers; return (coerced_value, True) if applied."""
+        value_type = type(value)
+        if value_type in self._type_coercers:
+            return self._type_coercers[value_type](value), True
+        for coercer_type, coercer_fn in self._type_coercers.items():
+            if isinstance(value, coercer_type):
+                return coercer_fn(value), True
+        return value, False
+
+    def _coerce_builtin_for_storage(self, value: Any) -> Any:
+        """Coerce built-in types (Enum, Pydantic, list, set, dict) for DB storage."""
+        if isinstance(value, enum.Enum):
+            return value.value
+        if hasattr(value, "model_dump"):
+            return value.model_dump(mode="python")
+        if isinstance(value, list):
+            return [self._coerce_single(item) for item in value]
+        if isinstance(value, set | frozenset):
+            return [self._coerce_single(item) for item in value]
+        if isinstance(value, dict):
+            return {k: self._coerce_single(v) for k, v in value.items()}
+        return value
+
+    def _coerce_value_for_storage(self, value: Any) -> Any:
+        """Coerce a single value for DB storage (custom coercers then built-in)."""
+        coerced, applied = self._apply_type_coercers(value)
+        if applied:
+            return coerced
+        return self._coerce_builtin_for_storage(value)
+
+    def _coerce_values(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Coerce enums, custom types, and nested Pydantic models for DB storage.
 
@@ -332,36 +363,7 @@ class ModelMapper(Generic[T_Entity]):
         for key, value in list(data.items()):
             if value is None:
                 continue
-
-            # Check custom type coercers first (exact type, then isinstance fallback)
-            value_type = type(value)
-            coerced = False
-            if value_type in self._type_coercers:
-                data[key] = self._type_coercers[value_type](value)
-                coerced = True
-            else:
-                for coercer_type, coercer_fn in self._type_coercers.items():
-                    if isinstance(value, coercer_type):
-                        data[key] = coercer_fn(value)
-                        coerced = True
-                        break
-            if coerced:
-                continue
-
-            # Built-in coercions
-            if isinstance(value, enum.Enum):
-                data[key] = value.value
-            elif hasattr(value, "model_dump"):
-                data[key] = value.model_dump(mode="python")
-            elif isinstance(value, list):
-                data[key] = [self._coerce_single(item) for item in value]
-            elif isinstance(value, set | frozenset):
-                # Convert sets to lists for JSON serialization
-                data[key] = [self._coerce_single(item) for item in value]
-            elif isinstance(value, dict):
-                # Recursively coerce dict values
-                data[key] = {k: self._coerce_single(v) for k, v in value.items()}
-
+            data[key] = self._coerce_value_for_storage(value)
         return data
 
     def _coerce_single(self, value: Any) -> Any:

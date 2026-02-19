@@ -35,6 +35,7 @@ from cqrs_ddd_core.ports.search_result import SearchResult
 
 from ..core.model_mapper import ModelMapper
 from ..core.uow import SQLAlchemyUnitOfWork
+from ..core.versioning import set_version_after_merge, set_version_for_insert
 from ..exceptions import OptimisticConcurrencyError
 from ..specifications.compiler import apply_query_options, build_sqla_filter
 
@@ -115,14 +116,7 @@ class SQLAlchemyOperationPersistence(
         model = self.to_model(entity)
 
         if entity.version == 0:
-            if (
-                hasattr(model, "__table__")
-                and hasattr(model.__table__, "c")
-                and "version" in model.__table__.c
-            ):
-                model.version = 1
-            elif hasattr(model, "_version"):
-                object.__setattr__(model, "_version", 1)
+            set_version_for_insert(model)
             session.add(model)
             if entity.id is None:
                 await session.flush()
@@ -132,13 +126,7 @@ class SQLAlchemyOperationPersistence(
         else:
             try:
                 merged = await session.merge(model)
-                if (
-                    hasattr(merged, "__table__")
-                    and hasattr(merged.__table__, "c")
-                    and "version" in merged.__table__.c
-                ):
-                    merged.version = entity.version + 1
-                object.__setattr__(entity, "_version", entity.version + 1)
+                set_version_after_merge(merged, entity)
                 model = merged
             except StaleDataError as e:
                 raise OptimisticConcurrencyError(

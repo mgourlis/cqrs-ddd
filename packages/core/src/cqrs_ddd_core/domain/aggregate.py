@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from pydantic_core import PydanticUndefined
+from typing_extensions import Self
 
 from .mixins import AggregateRootMixin
 
@@ -79,3 +80,34 @@ class AggregateRoot(AggregateRootMixin, BaseModel, Generic[ID]):
         version = data.get("_version", 0)
         object.__setattr__(self, "_version", version)
         object.__setattr__(self, "_id_generator", id_generator)
+
+    @classmethod
+    def reconstitute(cls, aggregate_id: ID, **data: Any) -> Self:
+        """Create an aggregate instance for reconstitution (load/replay) only.
+
+        Used by the event-sourcing loader to obtain a minimal instance before
+        applying the event stream. Must not run domain validation; subclasses
+        should not override with invariant checks. For domain creation (e.g.
+        command side), use :meth:`create` instead.
+        """
+        return cls(id=aggregate_id, **data)
+
+    @classmethod
+    def create(
+        cls,
+        aggregate_id: ID | None = None,
+        id_generator: IIDGenerator | None = None,
+        **data: Any,
+    ) -> Self:
+        """Create an aggregate instance for domain use (command side).
+
+        When ``aggregate_id`` is provided, it is used. When ``aggregate_id`` is
+        not provided and ``id_generator`` is, the id is generated via
+        ``id_generator.next_id()``. Override to enforce invariants or apply
+        the first event. The loader uses :meth:`reconstitute`, not this method.
+        """
+        if aggregate_id is not None:
+            return cls(id=aggregate_id, **data)
+        if id_generator is not None:
+            return cls(id_generator=id_generator, **data)
+        return cls(**data)

@@ -145,9 +145,14 @@ class EventSourcedLoader(Generic[T]):
         self._upcaster_registry = upcaster_registry
         self._snapshot_strategy_registry = snapshot_strategy_registry
         self._applicator = applicator or DefaultEventApplicator[T]()
-        self._create_aggregate = create_aggregate or (
-            lambda aid: aggregate_type(id=aid)
-        )
+        if create_aggregate is not None:
+            self._create_aggregate = create_aggregate
+        else:
+            reconstitute = getattr(aggregate_type, "reconstitute", None)
+            if callable(reconstitute):
+                self._create_aggregate = lambda aid: reconstitute(aid)
+            else:
+                self._create_aggregate = lambda aid: aggregate_type(id=aid)
         self._aggregate_type_name = aggregate_type.__name__
 
     async def load(self, aggregate_id: str) -> T | None:

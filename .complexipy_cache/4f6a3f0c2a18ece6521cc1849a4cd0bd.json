@@ -50,6 +50,450 @@
     },
     {
       "complexity": 0,
+      "file_name": "basic_usage.py",
+      "function_name": "Order::apply_order_cancelled",
+      "path": "./packages/advanced/examples/event_handling/basic_usage.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "basic_usage.py",
+      "function_name": "Order::apply_order_created",
+      "path": "./packages/advanced/examples/event_handling/basic_usage.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "basic_usage.py",
+      "function_name": "Order::apply_order_paid",
+      "path": "./packages/advanced/examples/event_handling/basic_usage.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "basic_usage.py",
+      "function_name": "main",
+      "path": "./packages/advanced/examples/event_handling/basic_usage.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "Product::apply_product_created",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "Product::apply_product_discontinued",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "Product::apply_product_price_changed",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "Product::on_creation",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "SimpleProduct::apply_product_created",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "SimpleProduct::apply_product_price_changed",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "example_with_decorators",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "example_without_decorators",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "decorators.py",
+      "function_name": "main",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "decorators.py",
+      "function_name": "inspect_decorated_handlers",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "decorators.py",
+      "function_name": "example_validation_with_decorators",
+      "path": "./packages/advanced/examples/event_handling/decorators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "StrictTask::apply_task_assigned",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "StrictTask::apply_task_completed",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "StrictTask::apply_task_created",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "example_strict_vs_lenient",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "example_validation_with_fallback",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "main",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "example_strict_mode_rejects_fallback",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "handle_missing_handler_error",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "handle_strict_violation_error",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "error_handling.py",
+      "function_name": "example_graceful_degradation",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "error_handling.py",
+      "function_name": "FlexibleTask::apply_event",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "error_handling.py",
+      "function_name": "example_error_recovery",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "error_handling.py",
+      "function_name": "handle_event_handler_error_generic",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "error_handling.py",
+      "function_name": "safe_apply_event",
+      "path": "./packages/advanced/examples/event_handling/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithDecorators::apply_invoice_cancelled",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithDecorators::apply_invoice_created",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithDecorators::apply_invoice_paid",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithMixin::apply_invoice_cancelled",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithMixin::apply_invoice_created",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithMixin::apply_invoice_paid",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithValidation::apply_invoice_cancelled",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithValidation::apply_invoice_created",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "InvoiceWithValidation::apply_invoice_paid",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "ModernInvoice::apply_invoice_cancelled",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "ModernInvoice::apply_invoice_created",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "ModernInvoice::apply_invoice_paid",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "OldInvoice::apply_invoice_cancelled",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "OldInvoice::apply_invoice_created",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "OldInvoice::apply_invoice_paid",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "example_add_decorators",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "example_add_mixin",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "example_backward_compatibility",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "migration_guide.py",
+      "function_name": "main",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "migration_guide.py",
+      "function_name": "example_add_validation",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "migration_guide.py",
+      "function_name": "example_full_migration",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "migration_guide.py",
+      "function_name": "example_gradual_migration",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "migration_guide.py",
+      "function_name": "example_migration_checklist",
+      "path": "./packages/advanced/examples/event_handling/migration_guide.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithExactHandlers::apply_item_created",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithExactHandlers::apply_item_deleted",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithExactHandlers::apply_item_updated",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithMixedHandlers::apply_item_created",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "example_disabled_validation",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "example_lenient_mode",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "validation_modes.py",
+      "function_name": "main",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "validation_modes.py",
+      "function_name": "example_missing_handler_behavior",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithMixedHandlers::apply_event",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "validation_modes.py",
+      "function_name": "example_strict_mode",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "validation_modes.py",
+      "function_name": "ItemWithFallback::apply_event",
+      "path": "./packages/advanced/examples/event_handling/validation_modes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "CreateInvoice::__init__",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "CreateOrder::__init__",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "GetOrder::__init__",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "SQLAlchemyEventStore::__init__",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "SQLAlchemyEventStore::append",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "UpdateCache::__init__",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "example_basic_setup",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "example_factory_setup",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "example_migration",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mediator_extension.py",
+      "function_name": "example_non_event_sourced_aggregates",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "mediator_extension.py",
+      "function_name": "example_data_integrity_scenarios",
+      "path": "./packages/advanced/examples/event_sourcing/mediator_extension.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "background_jobs.py",
       "function_name": "InMemoryBackgroundJobRepository::__init__",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/background_jobs.py"
@@ -218,14 +662,38 @@
     },
     {
       "complexity": 0,
-      "file_name": "entity.py",
-      "function_name": "BaseBackgroundJob::_touch",
-      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/entity.py"
+      "file_name": "snapshot_store.py",
+      "function_name": "InMemorySnapshotStore::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/snapshot_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "snapshot_store.py",
+      "function_name": "InMemorySnapshotStore::clear",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/snapshot_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "snapshot_store.py",
+      "function_name": "InMemorySnapshotStore::delete_snapshot",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/snapshot_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "snapshot_store.py",
+      "function_name": "InMemorySnapshotStore::get_latest_snapshot",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/snapshot_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "snapshot_store.py",
+      "function_name": "InMemorySnapshotStore::save_snapshot",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/adapters/memory/snapshot_store.py"
     },
     {
       "complexity": 0,
       "file_name": "entity.py",
-      "function_name": "BaseBackgroundJob::create",
+      "function_name": "BaseBackgroundJob::_touch",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/entity.py"
     },
     {
@@ -268,6 +736,12 @@
       "complexity": 3,
       "file_name": "entity.py",
       "function_name": "BaseBackgroundJob::_emit",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/entity.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "entity.py",
+      "function_name": "BaseBackgroundJob::create",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/entity.py"
     },
     {
@@ -530,6 +1004,54 @@
     },
     {
       "complexity": 0,
+      "file_name": "event_sourced_mediator.py",
+      "function_name": "EventSourcedMediator::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "event_sourced_mediator.py",
+      "function_name": "EventSourcedMediator::configure_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "event_sourced_mediator.py",
+      "function_name": "EventSourcedMediator::configure_non_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "event_sourced_mediator.py",
+      "function_name": "EventSourcedMediator::_dispatch_command",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "factory.py",
+      "function_name": "EventSourcedMediatorFactory::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "factory.py",
+      "function_name": "EventSourcedMediatorFactory::create",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "factory.py",
+      "function_name": "EventSourcedMediatorFactory::register_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/factory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "factory.py",
+      "function_name": "EventSourcedMediatorFactory::register_non_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/factory.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "handlers.py",
       "function_name": "ConflictCommandHandler::__init__",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/handlers.py"
@@ -659,6 +1181,300 @@
       "file_name": "mixins.py",
       "function_name": "RetryPolicy::calculate_delay",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_sourcing.py",
+      "function_name": "non_event_sourced",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/decorators/event_sourcing.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "aggregate_mixin.py",
+      "function_name": "EventSourcedAggregateMixin::_apply_event_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/aggregate_mixin.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "aggregate_mixin.py",
+      "function_name": "EventSourcedAggregateMixin::has_handler_for_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/aggregate_mixin.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "aggregate_mixin.py",
+      "function_name": "EventSourcedAggregateMixin::get_handler_for_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/aggregate_mixin.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "aggregate_mixin.py",
+      "function_name": "EventSourcedAggregateMixin::_get_supported_event_types",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/aggregate_mixin.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_handlers.py",
+      "function_name": "aggregate_event_handler_validator",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_handlers.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_handlers.py",
+      "function_name": "get_handler_event_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_handlers.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_handlers.py",
+      "function_name": "is_aggregate_event_handler",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_handlers.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "event_handlers.py",
+      "function_name": "get_event_handler_config",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_handlers.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "event_handlers.py",
+      "function_name": "aggregate_event_handler",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_handlers.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::get_config",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::is_enabled",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::is_strict_mode",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_validation.py",
+      "function_name": "event_type_to_snake",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::_check_lenient_mode",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::_check_strict_mode",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "event_validation.py",
+      "function_name": "EventValidator::validate_handler_exists",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/event_validation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "EventHandlerError::message",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "EventSourcedAggregateRequiredError::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "EventSourcedAggregateRequiredError::message",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "MissingEventHandlerError::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "MissingEventHandlerError::message",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "StrictValidationViolationError::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "exceptions.py",
+      "function_name": "StrictValidationViolationError::message",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/domain/exceptions.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "loader.py",
+      "function_name": "DefaultEventApplicator::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "loader.py",
+      "function_name": "EventSourcedLoader::maybe_snapshot",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "loader.py",
+      "function_name": "EventSourcedLoader::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "loader.py",
+      "function_name": "DefaultEventApplicator::apply",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "loader.py",
+      "function_name": "EventSourcedLoader::load",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::clear_registrations",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::is_event_sourced",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::register_non_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::unregister_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::persist_events",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::get_event_store",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::_create_stored_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::register_event_sourced_type",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::persist_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::_loader",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::retrieve",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::persist",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::get_all",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::get_by_aggregate",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::get_events",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::_upcast_one",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
     },
     {
       "complexity": 0,
@@ -869,6 +1685,24 @@
       "file_name": "dispatcher.py",
       "function_name": "IPersistenceDispatcher::fetch_domain",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/ports/dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_applicator.py",
+      "function_name": "IEventApplicable::get_handler_for_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/ports/event_applicator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_applicator.py",
+      "function_name": "IEventApplicable::has_handler_for_event",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/ports/event_applicator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_applicator.py",
+      "function_name": "IEventApplicator::apply",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/ports/event_applicator.py"
     },
     {
       "complexity": 0,
@@ -1663,12 +2497,6 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/state.py"
     },
     {
-      "complexity": 0,
-      "file_name": "state.py",
-      "function_name": "SagaState::touch",
-      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/state.py"
-    },
-    {
       "complexity": 1,
       "file_name": "state.py",
       "function_name": "SagaState::mark_event_processed",
@@ -2151,6 +2979,72 @@
     {
       "complexity": 0,
       "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_cancel_existing_job",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_cancel_nonexistent_job",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_mark_running_handles_sweeper_failure",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_mark_running_nonexistent_job",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_mark_running_transitions_state",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_mark_running_triggers_sweeper",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_process_stale_jobs_marks_as_failed",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_process_stale_jobs_no_stale_jobs",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_retry_failed_job",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_retry_nonexistent_job",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_set_sweeper_trigger",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_background_jobs.py",
       "function_name": "TestBaseBackgroundJobEntity::test_cancel_completed_raises",
       "path": "./packages/advanced/tests/test_background_jobs.py"
     },
@@ -2257,6 +3151,12 @@
       "path": "./packages/advanced/tests/test_background_jobs.py"
     },
     {
+      "complexity": 2,
+      "file_name": "test_background_jobs.py",
+      "function_name": "TestBackgroundJobServiceExtended::test_process_stale_jobs_handles_sweep_failure",
+      "path": "./packages/advanced/tests/test_background_jobs.py"
+    },
+    {
       "complexity": 0,
       "file_name": "test_caching_dispatcher.py",
       "function_name": "TestCachingPersistenceDispatcher::cache_service",
@@ -2277,7 +3177,25 @@
     {
       "complexity": 0,
       "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_apply_cache_invalidation_failure_continues",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
       "function_name": "TestCachingPersistenceDispatcher::test_apply_invalidates_cache",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_apply_with_list_result_invalidates_all",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_fetch_builds_cached_search_result",
       "path": "./packages/advanced/tests/test_caching_dispatcher.py"
     },
     {
@@ -2290,6 +3208,24 @@
       "complexity": 0,
       "file_name": "test_caching_dispatcher.py",
       "function_name": "TestCachingPersistenceDispatcher::test_fetch_domain_cache_miss",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_fetch_domain_partial_cache_hit",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_fetch_spec_based_bypasses_cache",
+      "path": "./packages/advanced/tests/test_caching_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_dispatcher.py",
+      "function_name": "TestCachingPersistenceDispatcher::test_stream_in_batches",
       "path": "./packages/advanced/tests/test_caching_dispatcher.py"
     },
     {
@@ -2339,6 +3275,510 @@
       "file_name": "test_enhanced_strategies.py",
       "function_name": "test_union_list_with_callable_identity",
       "path": "./packages/advanced/tests/test_enhanced_strategies.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithHandlers::apply_order_cancelled",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithHandlers::apply_order_created",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithHandlers::apply_order_paid",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithLenientValidator::apply_order_created",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithStrictValidator::apply_order_created",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_aggregates_without_mixin_still_work",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_fallback_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_raise_on_missing_handler_false",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_raise_on_missing_handler_true",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_with_strict_validator",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_with_validation_disabled",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_applicator_with_validation_enabled",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_apply_event_internal",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_apply_event_internal_missing_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_default_validator_is_lenient",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_event_handler_decorator_metadata",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_event_handler_decorator_validate_on_load",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_event_handler_decorator_with_event_type",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_event_handler_error_is_cqrsddd_error",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_event_handler_validator_decorator",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_existing_aggregates_still_work",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_event_handler_config_none",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_handler_for_event_exact_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_handler_for_event_fallback_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_handler_for_event_no_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_supported_event_types",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_get_supported_event_types_with_fallback",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_has_handler_for_event_no_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_has_handler_for_event_with_exact_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_has_handler_for_event_with_fallback",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_is_event_handler_without_decorator",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_missing_handler_error_attributes",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_missing_handler_error_message",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_mode_allows_fallback_when_configured",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_validation_falls_back_to_missing_handler_error",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_validation_rejects_fallback",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_validation_requires_exact_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_violation_error_attributes",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_strict_violation_error_message",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validation_allows_exact_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validation_allows_fallback_when_allowed",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validation_disabled_silently_ignores",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validation_enabled_raises_on_missing_handler",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validation_rejects_fallback_when_not_allowed",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validator_get_config",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validator_is_enabled",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "test_validator_is_strict_mode",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_event_handler_formalization.py",
+      "function_name": "OrderWithFallback::apply_event",
+      "path": "./packages/advanced/tests/test_event_handler_formalization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "CreateOrder::__init__",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockAggregate::apply_order_created",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockEventStore::__init__",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockEventStore::append",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockEventStore::append_batch",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockEventStore::get_events",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockUnitOfWork::__aenter__",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockUnitOfWork::__init__",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "_make_handler_class",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_configure_event_sourced_type",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_configure_non_event_sourced_type",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_configure_without_orchestrator_raises",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_event_sourced_mediator_extends_core_mediator",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_factory_creates_configured_mediator",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_non_event_sourced_aggregate_events_skipped",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "test_send_command_with_persistence",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_event_sourced_mediator.py",
+      "function_name": "MockUnitOfWork::__aexit__",
+      "path": "./packages/advanced/tests/test_event_sourced_mediator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "Order::apply_OrderCreated",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "Order::apply_OrderPaid",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "OrderCreatedV1ToV2::upcast",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestDefaultEventApplicator::test_apply_dispatches_to_apply_event_type",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestDefaultEventApplicator::test_apply_raises_when_no_handler",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::event_registry",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::event_store",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::snapshot_store",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::test_load_applies_upcasting",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::test_load_reconstitutes_from_events_only",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::test_load_returns_none_when_no_events_no_snapshot",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::test_load_uses_snapshot_then_replays_events",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedLoader::test_maybe_snapshot_saves_when_strategy_says_yes",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestEventSourcedRepository::test_retrieve_loads_via_loader",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestInMemorySnapshotStore::test_delete_snapshot",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestInMemorySnapshotStore::test_get_latest_nonexistent_returns_none",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestInMemorySnapshotStore::test_save_and_get_latest",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestUpcastingEventReader::test_get_events_passthrough_when_no_upcasters",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_event_sourcing.py",
+      "function_name": "TestUpcastingEventReader::test_get_events_upcasts_payloads",
+      "path": "./packages/advanced/tests/test_event_sourcing.py"
     },
     {
       "complexity": 0,
@@ -2463,13 +3903,43 @@
     {
       "complexity": 0,
       "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_apply_missing_handler_raises_error",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
       "function_name": "test_dispatcher_apply_modification",
       "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
     },
     {
       "complexity": 0,
       "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_apply_uses_highest_priority_handler",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_apply_with_explicit_uow",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
       "function_name": "test_dispatcher_fetch_domain",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_fetch_domain_missing_handler_raises_error",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_fetch_query_missing_handler_raises_error",
       "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
     },
     {
@@ -2487,7 +3957,25 @@
     {
       "complexity": 0,
       "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_fetch_spec_build_search_result",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_missing_source_raises_error",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_persistence_dispatcher.py",
       "function_name": "test_dispatcher_multi_source_routing",
+      "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_persistence_dispatcher.py",
+      "function_name": "test_dispatcher_fetch_id_based_streaming",
       "path": "./packages/advanced/tests/test_persistence_dispatcher.py"
     },
     {
@@ -2597,6 +4085,186 @@
       "file_name": "test_resilient_handlers.py",
       "function_name": "CustomComposedHandler::process",
       "path": "./packages/advanced/tests/test_resilient_handlers.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_compensate_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_complete_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_custom_handler_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_fail_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_resume_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_send_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_send_all_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_step_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderActions::test_suspend_action",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderBasics::test_build_creates_saga_subclass",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderBasics::test_build_sets_listens_to",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderBasics::test_empty_builder_builds_successfully",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderBasics::test_with_max_retries",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderBasics::test_with_state_class",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderIntegration::test_listens_to_contains_all_registered_events",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderIntegration::test_multi_event_saga_flow",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderIntegration::test_saga_with_suspend_and_resume",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderTCC::test_on_tcc_begin_triggers_try_commands",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderTCC::test_tcc_begin_without_steps_raises_error",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderTCC::test_tcc_tried_unknown_step_raises_error",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderTCC::test_tcc_without_begin_raises_error",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderTCC::test_with_tcc_step",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_at_least_one_action_required",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_duplicate_event_registration_raises_error",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_duplicate_tcc_begin_raises_error",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_fail_mutually_exclusive_with_dispatch",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_handler_mutually_exclusive_with_actions",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_send_and_send_all_mutually_exclusive",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_suspend_mutually_exclusive_with_dispatch",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_saga_builder.py",
+      "function_name": "TestSagaBuilderValidation::test_suspend_timeout_requires_suspend",
+      "path": "./packages/advanced/tests/test_saga_builder.py"
     },
     {
       "complexity": 0,
@@ -3317,6 +4985,162 @@
       "file_name": "test_undo.py",
       "function_name": "TestUndoService::test_undo_unregistered_event_raises",
       "path": "./packages/advanced/tests/test_undo.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "OrderCreatedV1ToV2::upcast",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "OrderCreatedV2ToV3::upcast",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "PaymentProcessedV1ToV2::upcast",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestEventUpcaster::test_explicit_target_version_not_overridden",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestEventUpcaster::test_target_version_auto_computed",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestEventUpcaster::test_upcast_raises_not_implemented_error",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_chain_sorts_by_source_version",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_latest_version_for_empty_chain",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_latest_version_property",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_upcast_multi_step_chain",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_upcast_single_step",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_upcast_skips_different_event_types",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_upcast_skips_irrelevant_versions",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterChain::test_upcast_with_empty_chain",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::registry",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_chain_for_empty_returns_empty_chain",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_chain_for_returns_chain",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_clear",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_has_upcasters_false",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_has_upcasters_true",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_multiple_event_types_isolation",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_register_duplicate_source_version_raises_error",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_register_multiple_upcasters_for_same_event",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_register_single_upcaster",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_registered_event_types",
+      "path": "./packages/advanced/tests/test_upcasting.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_upcasting.py",
+      "function_name": "TestUpcasterRegistry::test_upcast_convenience_method",
+      "path": "./packages/advanced/tests/test_upcasting.py"
     },
     {
       "complexity": 0,
@@ -4065,37 +5889,13 @@
     {
       "complexity": 0,
       "file_name": "aggregate.py",
-      "function_name": "AggregateRoot::add_event",
+      "function_name": "AggregateRoot::reconstitute",
       "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
     },
     {
-      "complexity": 0,
+      "complexity": 2,
       "file_name": "aggregate.py",
-      "function_name": "AggregateRoot::collect_events",
-      "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "aggregate.py",
-      "function_name": "AggregateRoot::increment_version",
-      "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "aggregate.py",
-      "function_name": "AggregateRoot::original_version",
-      "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "aggregate.py",
-      "function_name": "AggregateRoot::version",
-      "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
-    },
-    {
-      "complexity": 1,
-      "file_name": "aggregate.py",
-      "function_name": "Modification::__init__",
+      "function_name": "AggregateRoot::create",
       "path": "./packages/core/src/cqrs_ddd_core/domain/aggregate.py"
     },
     {
@@ -4151,6 +5951,24 @@
       "file_name": "events.py",
       "function_name": "enrich_event_metadata",
       "path": "./packages/core/src/cqrs_ddd_core/domain/events.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mixins.py",
+      "function_name": "AggregateRootMixin::add_event",
+      "path": "./packages/core/src/cqrs_ddd_core/domain/mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mixins.py",
+      "function_name": "AggregateRootMixin::collect_events",
+      "path": "./packages/core/src/cqrs_ddd_core/domain/mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "mixins.py",
+      "function_name": "AggregateRootMixin::version",
+      "path": "./packages/core/src/cqrs_ddd_core/domain/mixins.py"
     },
     {
       "complexity": 0,
@@ -4243,7 +6061,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/middleware/persistence.py"
     },
     {
-      "complexity": 3,
+      "complexity": 7,
       "file_name": "persistence.py",
       "function_name": "EventStorePersistenceMiddleware::__call__",
       "path": "./packages/core/src/cqrs_ddd_core/middleware/persistence.py"
@@ -4761,6 +6579,36 @@
     {
       "complexity": 0,
       "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_delete_cache_invalidation_failure_degrades_gracefully",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_execute_read_through_batch_key_generation",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_execute_read_through_collects_missing_ids",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_get_batch_cache_failure_degrades_gracefully",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_get_cache_failure_degrades_gracefully",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
       "function_name": "TestCachingRepository::test_get_hit",
       "path": "./packages/core/tests/test_caching_repository.py"
     },
@@ -4774,6 +6622,54 @@
       "complexity": 0,
       "file_name": "test_caching_repository.py",
       "function_name": "TestCachingRepository::test_get_with_cls",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_list_all_caches_fetched_entities",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_list_all_with_ids_full_cache_hit",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_list_all_with_ids_full_cache_miss",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_list_all_with_ids_partial_cache_hit",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_list_all_without_ids",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_search_bypasses_cache",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_set_batch_cache_failure_degrades_gracefully",
+      "path": "./packages/core/tests/test_caching_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_caching_repository.py",
+      "function_name": "TestCachingRepository::test_set_cache_failure_degrades_gracefully",
       "path": "./packages/core/tests/test_caching_repository.py"
     },
     {
@@ -5108,6 +7004,336 @@
     },
     {
       "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::store",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_append_multiple_events",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_append_single_event",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_by_aggregate_all_events",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_by_aggregate_nonexistent_type",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_by_aggregate_with_type_filter",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_events_by_aggregate_id",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_events_nonexistent_aggregate",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_get_events_with_version_filter",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_multiple_aggregates_isolation",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_memory_event_store.py",
+      "function_name": "TestInMemoryEventStore::test_events_maintain_order",
+      "path": "./packages/core/tests/test_memory_event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "DummySpecification::is_satisfied_by",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::repo",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_add_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_clear_helper_method",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_delete_existing_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_delete_nonexistent_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_get_existing_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_get_nonexistent_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_len_reflects_entity_count",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_list_all_with_empty_repo",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_list_all_with_nonexistent_ids",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_list_all_with_specific_ids",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_list_all_without_ids",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_search_with_matching_specification",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_search_with_no_matches",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_update_entity",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_search_stream_mode",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_memory_repository.py",
+      "function_name": "TestInMemoryRepository::test_search_stream_with_batch_size",
+      "path": "./packages/core/tests/test_memory_repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::registry",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_clear",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_clear_commands",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_clear_queries",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_get_command_nonexistent",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_get_query_nonexistent",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_has_command_false_for_unregistered",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_has_query_false_for_unregistered",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_command_success",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_command_unregistered_type",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_falls_back_to_query",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_query_success",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_query_unregistered_type",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_returns_none_if_not_found",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_tries_command_first",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_list_all_registered",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_list_registered_commands",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_list_registered_queries",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_overwrite_registration",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_register_command",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_register_multiple_commands",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_register_multiple_queries",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_register_query",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_registry_isolation",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_command_invalid_data",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_message_registry.py",
+      "function_name": "TestMessageRegistry::test_hydrate_query_invalid_data",
+      "path": "./packages/core/tests/test_message_registry.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "test_middleware.py",
       "function_name": "MyEvent::model_dump",
       "path": "./packages/core/tests/test_middleware.py"
@@ -5189,6 +7415,132 @@
       "file_name": "test_middleware_registry.py",
       "function_name": "test_middleware_registry_ordering",
       "path": "./packages/core/tests/test_middleware_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archive_already_archived_raises_error",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archive_restore_cycle",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archive_sets_archived_at",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archive_with_by_parameter",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archive_without_by_parameter",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archived_at_defaults_to_none",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_archived_by_defaults_to_none",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_is_archived_false_after_restore",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_is_archived_false_by_default",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_is_archived_true_after_archive",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_restore_clears_archived_at",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_restore_clears_archived_by",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestArchivableMixin::test_restore_not_archived_raises_error",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_created_at_and_updated_at_are_initially_equal",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_created_at_defaults_to_current_time",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_touch_does_not_change_created_at",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_touch_updates_updated_at",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_updated_at_defaults_to_current_time",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestCombinedMixins::test_entity_has_both_mixin_features",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mixins.py",
+      "function_name": "TestCombinedMixins::test_touch_and_archive_work_independently",
+      "path": "./packages/core/tests/test_mixins.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_mixins.py",
+      "function_name": "TestAuditableMixin::test_touch_can_be_called_multiple_times",
+      "path": "./packages/core/tests/test_mixins.py"
     },
     {
       "complexity": 0,
@@ -5303,6 +7655,108 @@
       "file_name": "test_outbox.py",
       "function_name": "TestOutboxService::test_process_batch_partial_success",
       "path": "./packages/core/tests/test_outbox.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_execution_order_lifo",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_middleware_can_modify_message",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_middleware_can_modify_result",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_with_multiple_middleware_layers",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_with_no_middleware",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestBuildPipeline::test_build_pipeline_with_single_middleware",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::mock_outbox",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::outbox_middleware",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_handles_empty_events_list",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_middleware_in_pipeline_integration",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_passthrough_for_non_command_response",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_publishes_events_from_command_response",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_returns_original_command_response",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_uses_event_type_name_as_topic",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TrackingMiddleware::__call__",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TrackingMiddleware::__init__",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_pipeline_and_outbox_middleware.py",
+      "function_name": "TestOutboxMiddleware::test_publishes_each_event_separately",
+      "path": "./packages/core/tests/test_pipeline_and_outbox_middleware.py"
     },
     {
       "complexity": 0,
@@ -5523,12 +7977,6 @@
     {
       "complexity": 6,
       "file_name": "cache.py",
-      "function_name": "RedisCacheService::clear_namespace",
-      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
-    },
-    {
-      "complexity": 6,
-      "file_name": "cache.py",
       "function_name": "RedisCacheService::get",
       "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
     },
@@ -5536,6 +7984,12 @@
       "complexity": 7,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::set",
+      "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "cache.py",
+      "function_name": "RedisCacheService::clear_namespace",
       "path": "./packages/persistence/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
@@ -5721,7 +8175,67 @@
     {
       "complexity": 0,
       "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_clear_namespace_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_delete",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_delete_batch",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_delete_batch_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_delete_batch_with_empty_keys",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_delete_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_batch_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_batch_with_empty_keys",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_batch_with_pydantic_cls",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_cache_miss_returns_none",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_error_handling",
       "path": "./packages/persistence/redis/tests/test_cache.py"
     },
     {
@@ -5739,7 +8253,61 @@
     {
       "complexity": 0,
       "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_get_with_pydantic_model_returns_instance",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
       "function_name": "TestRedisCacheService::test_pydantic_serialization",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_batch_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_batch_with_empty_items",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_batch_with_pydantic_models",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_batch_with_ttl",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_error_handling",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_with_ttl",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_set_without_ttl",
+      "path": "./packages/persistence/redis/tests/test_cache.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_cache.py",
+      "function_name": "TestRedisCacheService::test_clear_namespace",
       "path": "./packages/persistence/redis/tests/test_cache.py"
     },
     {
@@ -6043,7 +8611,7 @@
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/advanced/persistence.py"
     },
     {
-      "complexity": 11,
+      "complexity": 8,
       "file_name": "persistence.py",
       "function_name": "SQLAlchemyOperationPersistence::persist",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/advanced/persistence.py"
@@ -6169,6 +8737,12 @@
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/compat.py"
     },
     {
+      "complexity": 1,
+      "file_name": "compat.py",
+      "function_name": "require_geometry",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/compat.py"
+    },
+    {
       "complexity": 0,
       "file_name": "event_store.py",
       "function_name": "SQLAlchemyEventStore::__init__",
@@ -6243,6 +8817,12 @@
     {
       "complexity": 1,
       "file_name": "model_mapper.py",
+      "function_name": "ModelMapper::_coerce_value_for_storage",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "model_mapper.py",
       "function_name": "ModelMapper::_dump_entity",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
@@ -6279,13 +8859,13 @@
     {
       "complexity": 3,
       "file_name": "model_mapper.py",
-      "function_name": "ModelMapper::__init__",
+      "function_name": "ModelMapper::_apply_field_map",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
       "complexity": 3,
       "file_name": "model_mapper.py",
-      "function_name": "ModelMapper::_apply_field_map",
+      "function_name": "ModelMapper::_coerce_values",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
@@ -6298,6 +8878,18 @@
       "complexity": 3,
       "file_name": "model_mapper.py",
       "function_name": "ModelMapper::_initialize_schema_info",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "model_mapper.py",
+      "function_name": "ModelMapper::__init__",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "model_mapper.py",
+      "function_name": "ModelMapper::_apply_type_coercers",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
@@ -6321,13 +8913,13 @@
     {
       "complexity": 5,
       "file_name": "model_mapper.py",
-      "function_name": "ModelMapper::_validate_entity",
+      "function_name": "ModelMapper::_coerce_builtin_for_storage",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
-      "complexity": 6,
+      "complexity": 5,
       "file_name": "model_mapper.py",
-      "function_name": "ModelMapper::_coerce_single",
+      "function_name": "ModelMapper::_validate_entity",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
@@ -6339,13 +8931,19 @@
     {
       "complexity": 9,
       "file_name": "model_mapper.py",
+      "function_name": "ModelMapper::_coerce_single",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "model_mapper.py",
       "function_name": "ModelMapper::_extract_relationships",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
       "complexity": 11,
       "file_name": "model_mapper.py",
-      "function_name": "ModelMapper::_coerce_values",
+      "function_name": "ModelMapper::_reverse_coerce_values",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/model_mapper.py"
     },
     {
@@ -6445,15 +9043,15 @@
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/repository.py"
     },
     {
-      "complexity": 13,
+      "complexity": 9,
       "file_name": "repository.py",
-      "function_name": "SQLAlchemyRepository::_execute_stream",
+      "function_name": "SQLAlchemyRepository::add",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/repository.py"
     },
     {
-      "complexity": 15,
+      "complexity": 13,
       "file_name": "repository.py",
-      "function_name": "SQLAlchemyRepository::add",
+      "function_name": "SQLAlchemyRepository::_execute_stream",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/repository.py"
     },
     {
@@ -6497,6 +9095,42 @@
       "file_name": "uow.py",
       "function_name": "SQLAlchemyUnitOfWork::__aenter__",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/uow.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "versioning.py",
+      "function_name": "set_version_after_merge",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/versioning.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "versioning.py",
+      "function_name": "_model_has_version_column",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/versioning.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "versioning.py",
+      "function_name": "set_version_for_insert",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/versioning.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "columns.py",
+      "function_name": "VersionMixin::__mapper_args__",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/mixins/columns.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "columns.py",
+      "function_name": "ArchivableModelMixin::__table_args__",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/mixins/columns.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "geometry.py",
+      "function_name": "SpatialModelMixin::geom",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/mixins/geometry.py"
     },
     {
       "complexity": 1,
@@ -7184,6 +9818,72 @@
     },
     {
       "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "_st_dwithin_sqlite",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "_st_make_envelope_sqlite",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "geometry_type_coercers",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "register_spatialite_mappings",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "reverse_geometry_type_coercers",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "setup_geopackage_engine",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "spatialite.py",
+      "function_name": "setup_spatialite_engine",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "spatialite.py",
+      "function_name": "init_geopackage",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "spatialite.py",
+      "function_name": "geojson_to_geometry",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "spatialite.py",
+      "function_name": "get_spatialite_version",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "spatialite.py",
+      "function_name": "geometry_to_geojson",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/types/spatialite.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "test_advanced_implementations.py",
       "function_name": "session_factory",
       "path": "./packages/persistence/sqlalchemy/tests/test_advanced_implementations.py"
@@ -7306,12 +10006,6 @@
       "complexity": 0,
       "file_name": "test_dispatcher_persistence.py",
       "function_name": "AggregateMixin::model_dump",
-      "path": "./packages/persistence/sqlalchemy/tests/test_dispatcher_persistence.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_dispatcher_persistence.py",
-      "function_name": "AggregateMixin::original_version",
       "path": "./packages/persistence/sqlalchemy/tests/test_dispatcher_persistence.py"
     },
     {
@@ -7527,6 +10221,12 @@
     {
       "complexity": 0,
       "file_name": "test_model_mapper.py",
+      "function_name": "test_isinstance_coercer_fallback",
+      "path": "./packages/persistence/sqlalchemy/tests/test_model_mapper.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_model_mapper.py",
       "function_name": "test_list_coercion",
       "path": "./packages/persistence/sqlalchemy/tests/test_model_mapper.py"
     },
@@ -7575,6 +10275,12 @@
     {
       "complexity": 0,
       "file_name": "test_model_mapper.py",
+      "function_name": "test_reverse_type_coercers",
+      "path": "./packages/persistence/sqlalchemy/tests/test_model_mapper.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_model_mapper.py",
       "function_name": "test_round_trip_with_private_attrs",
       "path": "./packages/persistence/sqlalchemy/tests/test_model_mapper.py"
     },
@@ -7605,19 +10311,7 @@
     {
       "complexity": 0,
       "file_name": "test_occ.py",
-      "function_name": "MockAggregate::increment_version",
-      "path": "./packages/persistence/sqlalchemy/tests/test_occ.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_occ.py",
       "function_name": "MockAggregate::model_dump",
-      "path": "./packages/persistence/sqlalchemy/tests/test_occ.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_occ.py",
-      "function_name": "MockAggregate::original_version",
       "path": "./packages/persistence/sqlalchemy/tests/test_occ.py"
     },
     {
@@ -7695,12 +10389,6 @@
     {
       "complexity": 0,
       "file_name": "test_polymorphic_ids.py",
-      "function_name": "AggregateMixin::original_version",
-      "path": "./packages/persistence/sqlalchemy/tests/test_polymorphic_ids.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_polymorphic_ids.py",
       "function_name": "AggregateMixin::version",
       "path": "./packages/persistence/sqlalchemy/tests/test_polymorphic_ids.py"
     },
@@ -7750,12 +10438,6 @@
       "complexity": 0,
       "file_name": "test_repository_integration.py",
       "function_name": "AggregateMixin::model_dump",
-      "path": "./packages/persistence/sqlalchemy/tests/test_repository_integration.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_repository_integration.py",
-      "function_name": "AggregateMixin::original_version",
       "path": "./packages/persistence/sqlalchemy/tests/test_repository_integration.py"
     },
     {
@@ -7929,12 +10611,6 @@
     {
       "complexity": 0,
       "file_name": "test_repository_logic.py",
-      "function_name": "AggregateMixin::original_version",
-      "path": "./packages/persistence/sqlalchemy/tests/test_repository_logic.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "test_repository_logic.py",
       "function_name": "AggregateMixin::version",
       "path": "./packages/persistence/sqlalchemy/tests/test_repository_logic.py"
     },
@@ -7973,6 +10649,180 @@
       "file_name": "test_repository_logic.py",
       "function_name": "AggregateMixin::model_validate",
       "path": "./packages/persistence/sqlalchemy/tests/test_repository_logic.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_geojson_round_trip",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_geojson_to_geometry_dict",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_geojson_to_geometry_point",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_geometry_to_geojson_point",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_geometry_type_coercers",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeoJSONCoercers::test_reverse_geometry_type_coercers",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeometryOperatorCompilation::test_bbox_intersects_compiles_to_buildmbr_on_sqlite",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestGeometryOperatorCompilation::test_dwithin_compiles_to_st_distance_on_sqlite",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestModelMapperGeometryIntegration::test_from_model_round_trip_geometry",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestModelMapperGeometryIntegration::test_to_model_coerces_geometry_to_wkb_element",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestRegisterSpatialiteMappings::test_register_spatialite_mappings_no_error",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestRegisterSpatialiteMappings::test_spatialite_mappings_constant",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_spatialite.py",
+      "function_name": "TestModelMapperGeometryIntegration::test_persistence_with_spatialite_geometry_round_trip",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_bbox_intersects_bounding_box",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_contains_geom_returns_containers",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_crosses_detects_line_crossing_polygon",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_disjoint_returns_non_overlapping",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_geom_equals_exact_match",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_intersects_returns_matching_geometries",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_overlaps_detects_partial_overlap",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_touches_returns_boundary_shared",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_within_returns_geometries_inside_polygon",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "_load_spatialite_and_create_tables",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "spatialite_session",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_distance_lt_threshold",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "_proj_available",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "spatialite_engine",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "TestSpatialOperatorsAgainstDB::test_dwithin_distance_threshold",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "test_spatialite_operators.py",
+      "function_name": "_seed_places",
+      "path": "./packages/persistence/sqlalchemy/tests/test_spatialite_operators.py"
     },
     {
       "complexity": 0,
@@ -8015,6 +10865,84 @@
       "file_name": "test_specification_compiler.py",
       "function_name": "test_build_sqla_filter_not",
       "path": "./packages/persistence/sqlalchemy/tests/test_specification_compiler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_mixin_adds_archived_columns",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_multiple_unique_list",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_multiple_unique_tuple",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_single_unique_list",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_single_unique_tuple",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_without_unique_columns_has_only_active_archived_indexes",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_auditable_mixin_adds_created_at_updated_at",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_auditable_mixin_updated_at_indexed",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_version_mixin_adds_version_column",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_version_mixin_mapper_args",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "_index_has_partial_where",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_partial_indexes_have_where_clause",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "test_sqlalchemy_mixins.py",
+      "function_name": "test_archivable_unique_indexes_are_partial",
+      "path": "./packages/persistence/sqlalchemy/tests/test_sqlalchemy_mixins.py"
     },
     {
       "complexity": 0,
@@ -8599,7 +11527,7 @@
       "path": "./packages/specifications/src/cqrs_ddd_specifications/operators_memory/geometry.py"
     },
     {
-      "complexity": 4,
+      "complexity": 5,
       "file_name": "geometry.py",
       "function_name": "_to_shapely_geom",
       "path": "./packages/specifications/src/cqrs_ddd_specifications/operators_memory/geometry.py"
@@ -9470,6 +12398,378 @@
     },
     {
       "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_operator_all_tokens_present",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_operator_missing_token",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_phrase_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_phrase_operator_exact_match",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_phrase_operator_no_match",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestFtsOperators::test_fts_phrase_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::line_geojson",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::point_geojson",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::polygon_geojson",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_bbox_intersects_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_contains_geom_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_crosses_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_disjoint_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_distance_lt_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_dwithin_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_geom_equals_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_geometry_operator_invalid_value",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_geometry_operator_with_shapely_object",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_intersects_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_intersects_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_overlaps_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_touches_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_within_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestGeometryOperators::test_within_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_contained_by_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_contains_operator_nested",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_contains_operator_simple",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_contains_operator_with_list",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_contains_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_all_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_all_operator_with_non_dict",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_any_operator_multiple_keys",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_any_operator_single_key",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_any_operator_with_non_dict",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_has_key_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_path_exists_operator_simple",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_path_exists_operator_with_dollar_sign",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestJsonOperators::test_json_path_exists_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestNullOperators::test_is_not_null_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestNullOperators::test_is_null_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_equal_operator_with_different_values",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_equal_operator_with_matching_values",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_greater_equal_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_greater_than_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_less_equal_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_less_than_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_not_equal_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStandardOperators::test_operator_names",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_contains_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_endswith_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_icontains_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_iendswith_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_ilike_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_iregex_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_istartswith_operator_case_insensitive",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_like_operator_with_none",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_like_operator_with_wildcards",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_not_like_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_regex_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_operators_memory.py",
+      "function_name": "TestStringOperators::test_startswith_operator",
+      "path": "./packages/specifications/tests/test_operators_memory.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "test_query_options.py",
       "function_name": "_name_eq",
       "path": "./packages/specifications/tests/test_query_options.py"
@@ -9633,7 +12933,19 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_bool_from_actual_bool",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestCastValue::test_bool_true",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_cast_failure_returns_original",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9645,7 +12957,25 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_date_from_date_object",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestCastValue::test_datetime",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_datetime_from_datetime_object",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_datetime_with_timezone_z",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9657,7 +12987,61 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_float_variants",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestCastValue::test_int",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_integer_variants",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_interval",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_interval_from_timedelta_object",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_json_from_dict",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_json_from_list",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_json_from_string",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_largebinary_from_bytes",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_largebinary_from_string",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9669,13 +13053,73 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_list_recursive_casting",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_none_inference_date",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_none_inference_datetime",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_none_inference_json",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_none_inference_non_string_passthrough",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_none_inference_uuid",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestCastValue::test_str",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_time",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_time_from_time_object",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestCastValue::test_unknown_type_returns_as_is",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_uuid",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestCastValue::test_uuid_from_uuid_object",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9694,6 +13138,18 @@
       "complexity": 0,
       "file_name": "test_utils.py",
       "function_name": "TestParseInterval::test_days",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_float_seconds",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_hms_format",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9723,7 +13179,67 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_case_insensitive",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_combination",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_days",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_hours",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_minutes",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_natural_language_seconds",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_numeric_string_as_seconds",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestParseInterval::test_seconds",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_shorthand_case_insensitive",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_shorthand_with_whitespace",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseInterval::test_timedelta_passthrough",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9735,7 +13251,31 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_bracketed_string",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_bracketed_string_with_quotes",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestParseListValue::test_comma_separated_string",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_empty_bracketed_string",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_empty_string",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
@@ -9753,7 +13293,25 @@
     {
       "complexity": 0,
       "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_set_conversion",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
       "function_name": "TestParseListValue::test_single_string",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_tuple_conversion",
+      "path": "./packages/specifications/tests/test_utils.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_utils.py",
+      "function_name": "TestParseListValue::test_whitespace_handling",
       "path": "./packages/specifications/tests/test_utils.py"
     },
     {
