@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
+
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 
 if TYPE_CHECKING:
     from cqrs_ddd_core.domain.events import DomainEvent
@@ -53,22 +56,34 @@ class UndoService:
         Raises:
             ValueError: If no executor is registered for the event type.
         """
+        registry = get_hook_registry()
+        event_type = type(event).__name__
+        return cast(
+            "list[DomainEvent]",
+            await registry.execute_all(
+                f"undo.execute.{event_type}",
+                {
+                    "event.type": event_type,
+                    "message_type": type(event),
+                    "correlation_id": get_correlation_id()
+                    or getattr(event, "correlation_id", None),
+                },
+                lambda: self._undo_internal(event),
+            ),
+        )
+
+    async def _undo_internal(self, event: DomainEvent) -> list[DomainEvent]:
         event_type = type(event).__name__
         executor = self._registry.get(event_type)
-
         if not executor:
             logger.warning("No UndoExecutor registered for event type '%s'", event_type)
             raise ValueError(
                 f"No UndoExecutor registered for event type '{event_type}'"
             )
-
-        # Check business rules
         can_undo = await executor.can_undo(event)
         if not can_undo:
             logger.info("Event '%s' cannot be undone (business rule)", event_type)
             return []
-
-        # Execute undo
         try:
             undo_events = await executor.undo(event)
             logger.info(

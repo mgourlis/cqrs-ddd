@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -129,17 +132,25 @@ class EventSourcedMediator(CoreMediator):
         event persistence orchestration for events from event-sourced
         aggregates. All within the same UnitOfWork transaction.
         """
-        # Call parent's _dispatch_command (handles middleware, handlers, enrichment)
-        result = await super()._dispatch_command(command)
+        registry = get_hook_registry()
+        command_type = type(command).__name__
+        return await registry.execute_all(
+            f"event_sourcing.mediator.{command_type}",
+            {
+                "command.type": command_type,
+                "message_type": type(command),
+                "correlation_id": get_correlation_id()
+                or getattr(command, "correlation_id", None),
+            },
+            lambda: self._dispatch_command_internal(command),
+        )
 
-        # MANDATORY: Persist events (if orchestrator configured)
-        # This happens WITHIN the UoW transaction from send()
-        # Events persist atomically with command execution
+    async def _dispatch_command_internal(self, command: Any) -> Any:
+        result = await super()._dispatch_command(command)
         if self._event_persistence_orchestrator and result.events:
             await self._event_persistence_orchestrator.persist_events(
                 result.events, result
             )
-
         return result
 
     def configure_event_sourced_type(

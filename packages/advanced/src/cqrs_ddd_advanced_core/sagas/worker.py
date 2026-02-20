@@ -7,6 +7,8 @@ import contextlib
 import logging
 from typing import TYPE_CHECKING
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 if TYPE_CHECKING:
@@ -102,4 +104,9 @@ class SagaRecoveryWorker(IBackgroundWorker):
 
     async def run_once(self) -> None:
         """Execute a single cycle (tests or manual trigger)."""
-        await self._process_cycle()
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "saga.recovery.run_once",
+            {"correlation_id": get_correlation_id()},
+            self._process_cycle,
+        )

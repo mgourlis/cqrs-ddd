@@ -24,8 +24,10 @@ from cqrs_ddd_advanced_core.ports import (
     T_Criteria,
 )
 from cqrs_ddd_advanced_core.ports.dispatcher import IPersistenceDispatcher
+from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.specification import ISpecification
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.search_result import SearchResult
 from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
@@ -158,22 +160,39 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         The handler is resolved based on the type of entity.
         """
         entity_type = type(entity)
+        registry = get_hook_registry()
+        return cast(
+            "T_ID",
+            await registry.execute_all(
+                f"persistence.apply.{entity_type.__name__}",
+                {
+                    "entity.type": entity_type.__name__,
+                    "entity.id": str(getattr(entity, "id", "")),
+                    "event_count": len(events or []),
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._apply_internal(entity, uow, events),
+            ),
+        )
+
+    async def _apply_internal(
+        self,
+        entity: AggregateRoot[T_ID],
+        uow: UnitOfWork | None = None,
+        events: list[Any] | None = None,
+    ) -> T_ID:
+        entity_type = type(entity)
         entries = self._registry.get_operation_entries(entity_type)
         if not entries:
             raise HandlerNotRegisteredError(
                 f"No IOperationPersistence handler for entity {entity_type.__name__}"
             )
-
-        # Use the highest priority handler
         entry = entries[0]
-        # Cast to IOperationPersistence to satisfy mypy
         handler = cast(
             "IOperationPersistence[Any, T_ID]", self._handler_factory(entry.handler_cls)
         )
-
         if uow:
             return await handler.persist(entity, uow, events=events)
-
         async with self._get_uow_factory(entry.source)() as new_uow:
             return await handler.persist(entity, new_uow, events=events)
 
@@ -184,22 +203,39 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         uow: UnitOfWork | None = None,
     ) -> list[T_Entity]:
         """Fetch domain entities by ID."""
+        registry = get_hook_registry()
+        return cast(
+            "list[T_Entity]",
+            await registry.execute_all(
+                f"persistence.fetch.{entity_type.__name__}",
+                {
+                    "entity.type": entity_type.__name__,
+                    "entity.count": len(ids),
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._fetch_domain_internal(entity_type, ids, uow),
+            ),
+        )
+
+    async def _fetch_domain_internal(
+        self,
+        entity_type: type[T_Entity],
+        ids: Sequence[T_ID],
+        uow: UnitOfWork | None = None,
+    ) -> list[T_Entity]:
         entry = self._registry.get_retrieval_entry(entity_type)
         if not entry:
             raise HandlerNotRegisteredError(
                 f"No IRetrievalPersistence handler for {entity_type.__name__}"
             )
-
         handler = cast(
             "IRetrievalPersistence[T_Entity, T_ID]",
             self._handler_factory(entry.handler_cls),
         )
-
         if uow:
             return await handler.retrieve(ids, uow)
-
-        async with self._get_uow_factory(entry.source)() as uow:
-            return await handler.retrieve(ids, uow)
+        async with self._get_uow_factory(entry.source)() as uow_ctx:
+            return await handler.retrieve(ids, uow_ctx)
 
     async def fetch(
         self,
@@ -213,21 +249,36 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         Returns a :class:`SearchResult` that can be ``await``-ed for a
         ``list`` or ``.stream()``-ed for an ``AsyncIterator``.
         """
-        # Determine whether criteria is a specification/QueryOptions or IDs
+        registry = get_hook_registry()
+        return cast(
+            "SearchResult[T_Result]",
+            await registry.execute_all(
+                f"persistence.query.{result_type.__name__}",
+                {
+                    "result.type": result_type.__name__,
+                    "criteria.type": type(criteria).__name__,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._fetch_internal(result_type, criteria, uow),
+            ),
+        )
+
+    async def _fetch_internal(
+        self,
+        result_type: type[T_Result],
+        criteria: T_Criteria[Any],
+        uow: UnitOfWork | None = None,
+    ) -> SearchResult[T_Result]:
         is_spec = isinstance(criteria, ISpecification) or hasattr(
             criteria, "specification"
         )
-
         if is_spec:
             return await self._search_result_for_specification(
                 result_type, criteria, uow
             )
-
-        # ID-based query — ensure criteria is a Sequence
         if not isinstance(criteria, Sequence):
             criteria = [criteria]
 
-        # ID-based query — stream uses batch size
         async def list_fn() -> list[T_Result]:
             return await self._fetch_by_ids(result_type, criteria, uow)
 

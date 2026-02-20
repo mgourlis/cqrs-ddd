@@ -5,7 +5,7 @@ import logging
 import random
 from abc import abstractmethod
 from collections.abc import Awaitable, Callable
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 from cqrs_ddd_advanced_core.conflict.resolution import (
     ConflictResolutionPolicy,
@@ -14,9 +14,11 @@ from cqrs_ddd_advanced_core.conflict.resolution import (
     MergeStrategyRegistry,
 )
 from cqrs_ddd_advanced_core.exceptions import MergeStrategyRegistryMissingError
+from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.cqrs.command import Command
 from cqrs_ddd_core.cqrs.handler import CommandHandler
 from cqrs_ddd_core.cqrs.response import CommandResponse
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.primitives.exceptions import ConcurrencyError
 
 from .mixins import ConflictResilient, Retryable
@@ -74,8 +76,22 @@ class PipelinedCommandHandler(CommandHandler[TResult], Generic[TResult]):
 
     async def handle(self, command: Command[TResult]) -> CommandResponse[TResult]:
         """Execute the command through the pipeline."""
-        pipeline = self.get_pipeline()
-        return await pipeline(command)
+        registry = get_hook_registry()
+        command_type = type(command).__name__
+        return cast(
+            "CommandResponse[TResult]",
+            await registry.execute_all(
+                f"handler.pipeline.stage.{command_type}",
+                {
+                    "handler.type": type(self).__name__,
+                    "command.type": command_type,
+                    "message_type": type(command),
+                    "correlation_id": get_correlation_id()
+                    or getattr(command, "correlation_id", None),
+                },
+                lambda: self.get_pipeline()(command),
+            ),
+        )
 
 
 class RetryBehaviorMixin:
@@ -117,6 +133,21 @@ class RetryBehaviorMixin:
         """Handles a failed attempt and returns next attempt number."""
         if attempt < retry_policy.max_retries:
             attempt += 1
+            registry = get_hook_registry()
+
+            async def _noop() -> None:
+                return None
+
+            await registry.execute_all(
+                f"handler.retry.{type(self).__name__}",
+                {
+                    "handler.type": type(self).__name__,
+                    "attempt": attempt,
+                    "max_retries": retry_policy.max_retries,
+                    "correlation_id": get_correlation_id(),
+                },
+                _noop,
+            )
             delay = retry_policy.calculate_delay(attempt)
             if retry_policy.jitter:
                 # Simple jitter: +/- 50% of delay

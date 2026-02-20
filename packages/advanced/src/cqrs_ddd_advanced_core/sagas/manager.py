@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 from cqrs_ddd_advanced_core.exceptions import HandlerNotRegisteredError
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 
 from .orchestration import (
     Saga,
@@ -168,6 +170,21 @@ class SagaManager:
 
     async def handle(self, event: DomainEvent) -> None:
         """Route an event to all registered sagas (event-driven choreography)."""
+        registry = get_hook_registry()
+        event_type_name = type(event).__name__
+        await registry.execute_all(
+            f"saga.handle_event.{event_type_name}",
+            {
+                "event.type": event_type_name,
+                "message_type": type(event),
+                "correlation_id": get_correlation_id()
+                or getattr(event, "correlation_id", None),
+            },
+            lambda: self._handle_internal(event),
+        )
+
+    async def _handle_internal(self, event: DomainEvent) -> None:
+        """Route an event to all registered sagas (event-driven choreography)."""
         event_type = type(event)
         saga_classes = self.registry.get_sagas_for_event(event_type)
         if not saga_classes:
@@ -194,7 +211,23 @@ class SagaManager:
 
         Explicit orchestration.
         """
-        return await self._process_saga(saga_class, correlation_id, event=initial_event)
+        registry = get_hook_registry()
+        return cast(
+            "str | None",
+            await registry.execute_all(
+                f"saga.run.{saga_class.__name__}",
+                {
+                    "saga.type": saga_class.__name__,
+                    "saga.correlation_id": correlation_id,
+                    "event.type": type(initial_event).__name__,
+                    "correlation_id": get_correlation_id()
+                    or getattr(initial_event, "correlation_id", None),
+                },
+                lambda: self._process_saga(
+                    saga_class, correlation_id, event=initial_event
+                ),
+            ),
+        )
 
     # ── Event Dispatcher Integration ────────────────────────────────
 
@@ -282,6 +315,14 @@ class SagaManager:
         On each recovery attempt, ``retry_count`` is incremented; on success it
         is reset to 0 so a future stall gets a fresh count.
         """
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "saga.recovery.pending",
+            {"saga.limit": limit, "correlation_id": get_correlation_id()},
+            lambda: self._recover_pending_sagas_internal(limit),
+        )
+
+    async def _recover_pending_sagas_internal(self, limit: int = 10) -> None:
         stalled = await self.repository.find_stalled_sagas(limit)
 
         for state in stalled:
@@ -319,6 +360,14 @@ class SagaManager:
 
     async def process_timeouts(self, limit: int = 10) -> None:
         """Process expired suspended sagas."""
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "saga.recovery.timeouts",
+            {"saga.limit": limit, "correlation_id": get_correlation_id()},
+            lambda: self._process_timeouts_internal(limit),
+        )
+
+    async def _process_timeouts_internal(self, limit: int = 10) -> None:
         expired = await self.repository.find_expired_suspended_sagas(limit)
 
         for state in expired:
@@ -370,6 +419,14 @@ class SagaManager:
 
     async def process_tcc_timeouts(self, limit: int = 10) -> None:
         """Process expired TIME_BASED TCC steps for running sagas."""
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "saga.recovery.tcc_timeouts",
+            {"saga.limit": limit, "correlation_id": get_correlation_id()},
+            lambda: self._process_tcc_timeouts_internal(limit),
+        )
+
+    async def _process_tcc_timeouts_internal(self, limit: int = 10) -> None:
         running = await self.repository.find_running_sagas_with_tcc_steps(limit)
 
         for state in running:

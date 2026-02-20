@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 if TYPE_CHECKING:
@@ -76,7 +78,15 @@ class CommandSchedulerWorker(IBackgroundWorker):
                 logger.exception("CommandSchedulerWorker error")
 
     async def _process(self) -> int:
-        count = await self._service.process_due_commands()
+        registry = get_hook_registry()
+        count = cast(
+            "int",
+            await registry.execute_all(
+                "scheduler.worker.process",
+                {"correlation_id": get_correlation_id()},
+                self._service.process_due_commands,
+            ),
+        )
         if count > 0:
             logger.info("CommandSchedulerWorker: executed %d due commands", count)
         return count

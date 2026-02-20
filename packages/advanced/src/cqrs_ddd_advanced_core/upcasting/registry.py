@@ -31,6 +31,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import fire_and_forget_hook, get_hook_registry
+
 if TYPE_CHECKING:
     from ..ports.upcasting import IEventUpcaster
 
@@ -105,6 +108,16 @@ class UpcasterChain:
             if upcaster.event_type != event_type:
                 continue
             if upcaster.source_version == version:
+                fire_and_forget_hook(
+                    get_hook_registry(),
+                    f"upcast.apply.{event_type}",
+                    {
+                        "event.type": event_type,
+                        "schema.from": version,
+                        "schema.to": upcaster.target_version,
+                        "correlation_id": get_correlation_id(),
+                    },
+                )
                 data = upcaster.upcast(data)
                 version = upcaster.target_version
                 logger.debug(

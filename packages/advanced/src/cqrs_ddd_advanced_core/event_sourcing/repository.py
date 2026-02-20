@@ -5,7 +5,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
+from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 
 from ..ports.persistence import IOperationPersistence, IRetrievalPersistence
@@ -76,6 +78,21 @@ class EventSourcedRepository(
 
     async def retrieve(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T]:
         """Load aggregates by ID from snapshot + event store (with upcasting)."""
+        registry = get_hook_registry()
+        return cast(
+            "list[T]",
+            await registry.execute_all(
+                f"event_sourcing.load.{self._aggregate_type_name}",
+                {
+                    "aggregate.type": self._aggregate_type_name,
+                    "aggregate.count": len(ids),
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._retrieve_internal(ids, uow),
+            ),
+        )
+
+    async def _retrieve_internal(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T]:
         loader = self._loader(uow)
         result: list[T] = []
         for id_val in ids:
@@ -91,7 +108,28 @@ class EventSourcedRepository(
         events: list[Any] | None = None,
     ) -> T_ID:
         """Append the entity's events to the event store and maybe snapshot."""
-        events = events if events is not None else entity.collect_events()
+        registry = get_hook_registry()
+        events_to_persist = events if events is not None else entity.collect_events()
+        return cast(
+            "T_ID",
+            await registry.execute_all(
+                f"event_sourcing.persist.{self._aggregate_type_name}",
+                {
+                    "aggregate.type": self._aggregate_type_name,
+                    "aggregate.id": str(getattr(entity, "id", "")),
+                    "event_count": len(events_to_persist),
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._persist_internal(entity, uow, events_to_persist),
+            ),
+        )
+
+    async def _persist_internal(
+        self,
+        entity: T,
+        uow: UnitOfWork,
+        events: list[Any],
+    ) -> T_ID:
         event_store = self._get_event_store(uow)
         snapshot_store = self._get_snapshot_store(uow)
         base_version = getattr(entity, "version", 0) - len(events)

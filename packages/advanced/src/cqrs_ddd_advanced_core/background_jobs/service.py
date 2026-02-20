@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
+
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -47,6 +50,24 @@ class BackgroundJobService:
         job: BaseBackgroundJob,
     ) -> BaseBackgroundJob:
         """Persist a newly created job (status PENDING)."""
+        registry = get_hook_registry()
+        attributes = {
+            "job.type": type(job).__name__,
+            "job.id": str(getattr(job, "id", "")),
+            "message_type": type(job),
+            "correlation_id": get_correlation_id()
+            or getattr(job, "correlation_id", None),
+        }
+        return cast(
+            "BaseBackgroundJob",
+            await registry.execute_all(
+                f"job.enqueue.{type(job).__name__}",
+                attributes,
+                lambda: self._schedule_internal(job),
+            ),
+        )
+
+    async def _schedule_internal(self, job: BaseBackgroundJob) -> BaseBackgroundJob:
         await self._persistence.add(job)
         return job
 
@@ -104,6 +125,20 @@ class BackgroundJobService:
 
         Returns the number of jobs swept.
         """
+        registry = get_hook_registry()
+        return cast(
+            "int",
+            await registry.execute_all(
+                "job.sweep.stale",
+                {
+                    "job.timeout_seconds": timeout_seconds,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._process_stale_jobs_internal(timeout_seconds),
+            ),
+        )
+
+    async def _process_stale_jobs_internal(self, timeout_seconds: int = 3600) -> int:
         stale_jobs = await self._persistence.get_stale_jobs(
             timeout_seconds=timeout_seconds
         )

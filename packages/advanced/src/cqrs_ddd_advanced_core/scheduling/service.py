@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
+
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -37,6 +40,17 @@ class CommandSchedulerService:
         Returns:
             The number of commands successfully dispatched.
         """
+        registry = get_hook_registry()
+        return cast(
+            "int",
+            await registry.execute_all(
+                "scheduler.dispatch.batch",
+                {"correlation_id": get_correlation_id()},
+                self._process_due_commands_internal,
+            ),
+        )
+
+    async def _process_due_commands_internal(self) -> int:
         due = await self._scheduler.get_due_commands()
         if not due:
             return 0
@@ -44,12 +58,23 @@ class CommandSchedulerService:
         count = 0
         for schedule_id, command in due:
             try:
+                op_registry = get_hook_registry()
                 logger.info(
                     "Executing scheduled command %s (ID: %s)",
                     command.__class__.__name__,
                     schedule_id,
                 )
-                await self._send_fn(command)
+                await op_registry.execute_all(
+                    f"scheduler.dispatch.{type(command).__name__}",
+                    {
+                        "command.type": type(command).__name__,
+                        "schedule.id": schedule_id,
+                        "message_type": type(command),
+                        "correlation_id": get_correlation_id()
+                        or getattr(command, "correlation_id", None),
+                    },
+                    self._dispatch_scheduled_command(command),
+                )
                 await self._scheduler.delete_executed(schedule_id)
                 count += 1
             except Exception:
@@ -60,3 +85,11 @@ class CommandSchedulerService:
                 )
 
         return count
+
+    def _dispatch_scheduled_command(
+        self, command: Command[Any]
+    ) -> Callable[[], Awaitable[Any]]:
+        async def _dispatch() -> Any:
+            return await self._send_fn(command)
+
+        return _dispatch

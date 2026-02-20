@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
+from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.domain.event_registry import EventTypeRegistry
+from cqrs_ddd_core.instrumentation import fire_and_forget_hook, get_hook_registry
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -74,6 +76,16 @@ class DefaultEventApplicator(Generic[T]):
             AttributeError: Legacy error for missing handlers (when validator disabled).
         """
         event_type = type(event).__name__
+        fire_and_forget_hook(
+            get_hook_registry(),
+            f"event_applicator.apply.{event_type}",
+            {
+                "event.type": event_type,
+                "aggregate.type": type(aggregate).__name__,
+                "correlation_id": get_correlation_id()
+                or getattr(event, "correlation_id", None),
+            },
+        )
 
         # Validate handler exists (if validation enabled and we care about errors)
         # Skip validation if raise_on_missing_handler=False (silent mode)
@@ -230,6 +242,19 @@ class EventSourcedLoader(Generic[T]):
         agg_id = getattr(aggregate, "id", None)
         if agg_id is None:
             return
-        await self._snapshot_store.save_snapshot(
-            self._aggregate_type_name, agg_id, snapshot_data, version
+        snapshot_store = self._snapshot_store
+        if snapshot_store is None:
+            return
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"snapshot.create.{self._aggregate_type_name}",
+            {
+                "aggregate.type": self._aggregate_type_name,
+                "aggregate.id": str(agg_id),
+                "aggregate.version": version,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: snapshot_store.save_snapshot(
+                self._aggregate_type_name, agg_id, snapshot_data, version
+            ),
         )

@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
+
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 
 if TYPE_CHECKING:
     from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
@@ -33,6 +36,25 @@ class UpcastingEventReader:
         after_version: int = 0,
     ) -> list[StoredEvent]:
         """Load events for an aggregate and upcast their payloads in place."""
+        registry = get_hook_registry()
+        return cast(
+            "list[StoredEvent]",
+            await registry.execute_all(
+                "upcast.apply.get_events",
+                {
+                    "aggregate.id": aggregate_id,
+                    "after_version": after_version,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._get_events_internal(
+                    aggregate_id, after_version=after_version
+                ),
+            ),
+        )
+
+    async def _get_events_internal(
+        self, aggregate_id: str, *, after_version: int = 0
+    ) -> list[StoredEvent]:
         raw = await self._event_store.get_events(
             aggregate_id, after_version=after_version
         )
@@ -44,6 +66,27 @@ class UpcastingEventReader:
         aggregate_type: str | None = None,
     ) -> list[StoredEvent]:
         """Load all events for an aggregate and upcast their payloads."""
+        registry = get_hook_registry()
+        return cast(
+            "list[StoredEvent]",
+            await registry.execute_all(
+                "upcast.apply.get_by_aggregate",
+                {
+                    "aggregate.id": aggregate_id,
+                    "aggregate.type": aggregate_type,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._get_by_aggregate_internal(
+                    aggregate_id, aggregate_type=aggregate_type
+                ),
+            ),
+        )
+
+    async def _get_by_aggregate_internal(
+        self,
+        aggregate_id: str,
+        aggregate_type: str | None = None,
+    ) -> list[StoredEvent]:
         raw = await self._event_store.get_by_aggregate(
             aggregate_id, aggregate_type=aggregate_type
         )

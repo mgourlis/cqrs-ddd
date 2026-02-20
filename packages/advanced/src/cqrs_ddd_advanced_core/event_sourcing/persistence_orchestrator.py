@@ -5,6 +5,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
+
 if TYPE_CHECKING:
     from cqrs_ddd_core.domain.events import DomainEvent
     from cqrs_ddd_core.ports.event_store import IEventStore
@@ -291,6 +294,22 @@ class EventSourcedPersistenceOrchestrator:
                 # Transaction commits or rolls back atomically
             ```
         """
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "persistence_orchestrator.orchestrate",
+            {
+                "event_count": len(events),
+                "correlation_id": get_correlation_id()
+                or getattr(command_response, "correlation_id", None),
+            },
+            lambda: self._persist_events_internal(events, command_response),
+        )
+
+    async def _persist_events_internal(
+        self,
+        events: list[DomainEvent],
+        command_response: Any,
+    ) -> None:
         for event in events:
             await self.persist_event(event, command_response)
 

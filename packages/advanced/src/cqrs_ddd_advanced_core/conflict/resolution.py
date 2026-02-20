@@ -7,6 +7,9 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import fire_and_forget_hook, get_hook_registry
+
 from ..ports.conflict import IMergeStrategy
 
 if TYPE_CHECKING:
@@ -291,7 +294,16 @@ class ConflictResolver:
         self.strategy = strategy
 
     def merge(self, existing: Any, incoming: Any) -> Any:
-        return self.strategy.merge(existing, incoming)
+        result = self.strategy.merge(existing, incoming)
+        registry = get_hook_registry()
+        strategy_name = type(self.strategy).__name__
+        attrs = {
+            "strategy.type": strategy_name,
+            "correlation_id": get_correlation_id(),
+        }
+        fire_and_forget_hook(registry, f"conflict.resolve.{strategy_name}", attrs)
+        fire_and_forget_hook(registry, f"merge_strategy.apply.{strategy_name}", attrs)
+        return result
 
 
 # Helper for backward compatibility or simple function calls

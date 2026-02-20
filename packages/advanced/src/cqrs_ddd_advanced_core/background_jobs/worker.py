@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 if TYPE_CHECKING:
@@ -78,8 +80,19 @@ class JobSweeperWorker(IBackgroundWorker):
                 logger.exception("JobSweeperWorker error")
 
     async def _sweep(self) -> int:
-        count = await self._service.process_stale_jobs(
-            timeout_seconds=self._timeout_seconds
+        registry = get_hook_registry()
+        count = cast(
+            "int",
+            await registry.execute_all(
+                "job.sweep.worker",
+                {
+                    "job.timeout_seconds": self._timeout_seconds,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._service.process_stale_jobs(
+                    timeout_seconds=self._timeout_seconds
+                ),
+            ),
         )
         if count > 0:
             logger.info("JobSweeperWorker: swept %d stale jobs", count)
