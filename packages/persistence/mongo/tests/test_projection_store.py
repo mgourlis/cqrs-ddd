@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from cqrs_ddd_persistence_mongo.exceptions import MongoPersistenceError
 from cqrs_ddd_persistence_mongo.projection_store import MongoProjectionStore
 

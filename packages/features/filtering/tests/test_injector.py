@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import pytest
+
 from cqrs_ddd_filtering.exceptions import SecurityConstraintError
 from cqrs_ddd_filtering.injector import SecurityConstraintInjector
-
 from cqrs_ddd_specifications.ast import AttributeSpecification
 from cqrs_ddd_specifications.operators import SpecificationOperator
 

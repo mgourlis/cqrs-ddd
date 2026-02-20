@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from cqrs_ddd_persistence_mongo.connection import MongoConnectionManager
 from cqrs_ddd_persistence_mongo.exceptions import MongoConnectionError
 

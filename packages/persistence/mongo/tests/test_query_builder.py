@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from cqrs_ddd_persistence_mongo.query_builder import MongoQueryBuilder
-
 from cqrs_ddd_specifications.ast import AttributeSpecification
 from cqrs_ddd_specifications.base import AndSpecification, OrSpecification
 from cqrs_ddd_specifications.operators import SpecificationOperator

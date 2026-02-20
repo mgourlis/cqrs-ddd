@@ -5,8 +5,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from cqrs_ddd_persistence_mongo.serialization import model_from_doc, model_to_doc
 from pydantic import BaseModel
+
+from cqrs_ddd_persistence_mongo.serialization import model_from_doc, model_to_doc
 
 
 class SampleModel(BaseModel):

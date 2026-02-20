@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from cqrs_ddd_filtering.exceptions import FieldNotAllowedError
 from cqrs_ddd_filtering.parser import FilterParser
 from cqrs_ddd_filtering.syntax import JsonFilterSyntax

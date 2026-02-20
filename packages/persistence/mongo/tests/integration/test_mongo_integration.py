@@ -6,9 +6,10 @@ import pytest
 
 pytest.importorskip("testcontainers")
 
+from pydantic import BaseModel
+
 from cqrs_ddd_persistence_mongo.connection import MongoConnectionManager
 from cqrs_ddd_persistence_mongo.repository import MongoRepository
-from pydantic import BaseModel
 
 
 class ReadModel(BaseModel):
