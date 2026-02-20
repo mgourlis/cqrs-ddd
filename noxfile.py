@@ -6,8 +6,12 @@ LOCATIONS = [
     "packages/specifications/src",
     "packages/advanced/src",
     "packages/persistence/sqlalchemy/src",
+    "packages/persistence/mongo/src",
     "packages/infrastructure/redis/src",
     "packages/infrastructure/messaging/src",
+    "packages/infrastructure/observability/src",
+    "packages/engines/projections/src",
+    "packages/features/filtering/src",
     "tests",
 ]
 
@@ -20,8 +24,12 @@ def tests(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
+    session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/engines/projections")
+    session.install("-e", "./packages/features/filtering")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", *session.posargs)
 
@@ -50,8 +58,12 @@ def type_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
+    session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/engines/projections")
+    session.install("-e", "./packages/features/filtering")
     session.install(
         "mypy",
         "pydantic",
@@ -78,8 +90,12 @@ def arch_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
+    session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/engines/projections")
+    session.install("-e", "./packages/features/filtering")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", "--no-cov", "tests/architecture", *session.posargs)
 

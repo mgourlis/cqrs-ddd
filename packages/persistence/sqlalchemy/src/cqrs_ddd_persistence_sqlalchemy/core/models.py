@@ -2,7 +2,14 @@ import enum
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, Enum, Index, Integer, String
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    Enum,
+    Index,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from ..mixins import VersionMixin
@@ -65,6 +72,9 @@ class StoredEventModel(Base):
     """
     Model for the Event Store.
     Persists domain events for event sourcing and audit logs.
+
+    The ``position`` column enables cursor-based pagination for efficient
+    projection processing without loading all events into memory.
     """
 
     __tablename__ = "event_store"
@@ -82,3 +92,8 @@ class StoredEventModel(Base):
         String, nullable=True, index=True
     )
     causation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    position: Mapped[int] = mapped_column(
+        Integer, autoincrement=True, unique=True, index=True, nullable=True
+    )
+
+    __table_args__ = (Index("ix_event_store_aggregate", "aggregate_id", "version"),)

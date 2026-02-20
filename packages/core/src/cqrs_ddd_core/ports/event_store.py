@@ -4,10 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 from uuid import uuid4
 
 from ..utils import default_dict_factory
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
 @dataclass(frozen=True)
@@ -16,6 +19,7 @@ class StoredEvent:
 
     - ``version``: aggregate event sequence number (1st, 2nd, 3rd event...).
     - ``schema_version``: event payload schema version for upcasting (v1, v2, v3...).
+    - ``position``: cursor-based position for efficient pagination.
     """
 
     event_id: str = field(default_factory=lambda: str(uuid4()))
@@ -29,6 +33,7 @@ class StoredEvent:
     occurred_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     correlation_id: str | None = None
     causation_id: str | None = None
+    position: int | None = None
 
 
 @runtime_checkable
@@ -62,4 +67,39 @@ class IEventStore(Protocol):
 
     async def get_all(self) -> list[StoredEvent]:
         """Return every stored event (for projections / catch-up)."""
+        ...
+
+    async def get_events_after(
+        self, position: int, limit: int = 1000
+    ) -> list[StoredEvent]:
+        """Return events after a given position for cursor-based pagination.
+
+        Uses a numeric position column for efficient
+        pagination without loading all events.
+        This is the preferred method for projections
+        to avoid memory exhaustion.
+
+        Args:
+            position: The last processed event position (exclusive).
+            limit: Maximum number of events to return.
+
+        Returns:
+            List of stored events in position order, up to ``limit`` events.
+        """
+        ...
+
+    def get_all_streaming(
+        self, batch_size: int = 1000
+    ) -> AsyncIterator[list[StoredEvent]]:
+        """Stream all events in batches for memory-efficient processing.
+
+        Yields batches of events until all events are consumed. This is the
+        preferred method for replay operations and large-scale projections.
+
+        Args:
+            batch_size: Number of events per batch.
+
+        Yields:
+            Lists of stored events in position order.
+        """
         ...

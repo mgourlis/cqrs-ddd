@@ -6231,6 +6231,12 @@
     {
       "complexity": 0,
       "file_name": "event_store.py",
+      "function_name": "IEventStore::get_all_streaming",
+      "path": "./packages/core/src/cqrs_ddd_core/ports/event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_store.py",
       "function_name": "IEventStore::get_by_aggregate",
       "path": "./packages/core/src/cqrs_ddd_core/ports/event_store.py"
     },
@@ -6238,6 +6244,12 @@
       "complexity": 0,
       "file_name": "event_store.py",
       "function_name": "IEventStore::get_events",
+      "path": "./packages/core/src/cqrs_ddd_core/ports/event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_store.py",
+      "function_name": "IEventStore::get_events_after",
       "path": "./packages/core/src/cqrs_ddd_core/ports/event_store.py"
     },
     {
@@ -8000,6 +8012,576 @@
     },
     {
       "complexity": 0,
+      "file_name": "checkpoint.py",
+      "function_name": "InMemoryCheckpointStore::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoint.py",
+      "function_name": "InMemoryCheckpointStore::clear",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoint.py",
+      "function_name": "InMemoryCheckpointStore::get_position",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoint.py",
+      "function_name": "InMemoryCheckpointStore::save_position",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_handle_dead_letter",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_handle_skip",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_register_builtin_policies",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::register_policy",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_handle_retry",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_handle_retry_then_dead_letter",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::handle_failure",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "error_handling.py",
+      "function_name": "ProjectionErrorPolicy::_invoke_dead_letter",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "handler.py",
+      "function_name": "ProjectionHandler::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "handler.py",
+      "function_name": "ProjectionHandler::add_handler",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "handler.py",
+      "function_name": "ProjectionHandler::handles",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/handler.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "handler.py",
+      "function_name": "ProjectionHandler::handle",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "partitioning.py",
+      "function_name": "PartitionedProjectionWorker::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/partitioning.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "partitioning.py",
+      "function_name": "PartitionedProjectionWorker::_should_process_event",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/partitioning.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "partitioning.py",
+      "function_name": "PartitionedProjectionWorker::start",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/partitioning.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "partitioning.py",
+      "function_name": "PartitionedProjectionWorker::stop",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/partitioning.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ports.py",
+      "function_name": "ICheckpointStore::get_position",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/ports.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ports.py",
+      "function_name": "ICheckpointStore::save_position",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/ports.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ports.py",
+      "function_name": "IProjectionHandler::handle",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/ports.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ports.py",
+      "function_name": "IProjectionRegistry::get_handlers",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/ports.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "ports.py",
+      "function_name": "IProjectionRegistry::register",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/ports.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "registry.py",
+      "function_name": "ProjectionRegistry::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "registry.py",
+      "function_name": "ProjectionRegistry::get_handlers",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "registry.py",
+      "function_name": "ProjectionRegistry::register",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::_hydrate_event",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::_dispatch_to_handlers",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::_execute_on_drop",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::_report_progress",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::replay",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "sink.py",
+      "function_name": "EventSinkRunner::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/sink.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "sink.py",
+      "function_name": "EventSinkRunner::stop",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/sink.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "sink.py",
+      "function_name": "EventSinkRunner::start",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/sink.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::start",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::__init__",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_get_checkpoint_position",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_handle_empty_batch",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_hydrate",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_should_process_event",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::stop",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_dispatch",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_log_hydration_failure",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_process_event_batch",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_run",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_process_event_with_retry",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checkpoint.py",
+      "function_name": "test_clear",
+      "path": "./packages/engines/projections/tests/test_checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checkpoint.py",
+      "function_name": "test_save_and_get_position",
+      "path": "./packages/engines/projections/tests/test_checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_error_handling.py",
+      "function_name": "test_register_custom_policy_without_modifying_core",
+      "path": "./packages/engines/projections/tests/test_error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_error_handling.py",
+      "function_name": "test_retry_then_dead_letter_retries_before_callback",
+      "path": "./packages/engines/projections/tests/test_error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_error_handling.py",
+      "function_name": "test_retry_then_dead_letter_without_callback_still_raises",
+      "path": "./packages/engines/projections/tests/test_error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_error_handling.py",
+      "function_name": "test_unknown_policy_raises_handler_error",
+      "path": "./packages/engines/projections/tests/test_error_handling.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_handler.py",
+      "function_name": "test_add_handler_registers_event_type",
+      "path": "./packages/engines/projections/tests/test_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_handler.py",
+      "function_name": "test_handle_dispatches_exact_event_type",
+      "path": "./packages/engines/projections/tests/test_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_handler.py",
+      "function_name": "test_handle_noop_for_unmapped_event",
+      "path": "./packages/engines/projections/tests/test_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_handler.py",
+      "function_name": "test_handle_uses_parent_mapping_fallback",
+      "path": "./packages/engines/projections/tests/test_handler.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "HandlerA::handle",
+      "path": "./packages/engines/projections/tests/test_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "test_multiple_handlers_same_event",
+      "path": "./packages/engines/projections/tests/test_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "test_register_and_get",
+      "path": "./packages/engines/projections/tests/test_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_worker.py",
+      "function_name": "in_memory_event_store",
+      "path": "./packages/engines/projections/tests/test_worker.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_worker.py",
+      "function_name": "test_worker_processes_events_and_checkpoints",
+      "path": "./packages/engines/projections/tests/test_worker.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_worker.py",
+      "function_name": "test_worker_start_stop",
+      "path": "./packages/engines/projections/tests/test_worker.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "adapter.py",
+      "function_name": "IFilterAdapter::to_backend_query",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/adapter.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "injector.py",
+      "function_name": "SecurityConstraintInjector::__init__",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/injector.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "injector.py",
+      "function_name": "SecurityConstraintInjector::inject",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/injector.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "pagination.py",
+      "function_name": "PaginationParser::encode_cursor",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/pagination.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "pagination.py",
+      "function_name": "PaginationParser::parse",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/pagination.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::__init__",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_int_param",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_validate_spec_dict",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::parse",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_fields",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 34,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_sort",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "query_string.py",
+      "function_name": "QueryStringBuilder::build",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/query_string.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "syntax.py",
+      "function_name": "FilterSyntax::parse_filter",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/syntax.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "syntax.py",
+      "function_name": "ColonSeparatedSyntax::_parse_value",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/syntax.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "syntax.py",
+      "function_name": "JsonFilterSyntax::parse_filter",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/syntax.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "syntax.py",
+      "function_name": "JsonFilterSyntax::_normalise",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/syntax.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "syntax.py",
+      "function_name": "ColonSeparatedSyntax::parse_filter",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/syntax.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "whitelist.py",
+      "function_name": "FieldWhitelist::allow_project",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/whitelist.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "whitelist.py",
+      "function_name": "FieldWhitelist::allow_sort",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/whitelist.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "whitelist.py",
+      "function_name": "FieldWhitelist::__init__",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/whitelist.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "whitelist.py",
+      "function_name": "FieldWhitelist::allow_filter",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/whitelist.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_injector.py",
+      "function_name": "test_inject_requires_tenant_raises",
+      "path": "./packages/features/filtering/tests/test_injector.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_injector.py",
+      "function_name": "test_inject_tenant",
+      "path": "./packages/features/filtering/tests/test_injector.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pagination.py",
+      "function_name": "test_encode_cursor",
+      "path": "./packages/features/filtering/tests/test_pagination.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_pagination.py",
+      "function_name": "test_parse_offset_limit",
+      "path": "./packages/features/filtering/tests/test_pagination.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_parser.py",
+      "function_name": "test_json_syntax",
+      "path": "./packages/features/filtering/tests/test_parser.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_parser.py",
+      "function_name": "test_parse_colon_filter",
+      "path": "./packages/features/filtering/tests/test_parser.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_parser.py",
+      "function_name": "test_parse_with_whitelist",
+      "path": "./packages/features/filtering/tests/test_parser.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_parser.py",
+      "function_name": "test_whitelist_rejects_unknown_field",
+      "path": "./packages/features/filtering/tests/test_parser.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "dead_letter.py",
       "function_name": "DeadLetterHandler::__init__",
       "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/dead_letter.py"
@@ -8101,7 +8683,13 @@
       "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
     },
     {
-      "complexity": 16,
+      "complexity": 5,
+      "file_name": "consumer.py",
+      "function_name": "KafkaConsumer::_handle_message",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
+    },
+    {
+      "complexity": 9,
       "file_name": "consumer.py",
       "function_name": "KafkaConsumer::run",
       "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/kafka/consumer.py"
@@ -8413,7 +9001,13 @@
       "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
     },
     {
-      "complexity": 23,
+      "complexity": 6,
+      "file_name": "consumer.py",
+      "function_name": "SQSConsumer::_process_message",
+      "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
+    },
+    {
+      "complexity": 11,
       "file_name": "consumer.py",
       "function_name": "SQSConsumer::run",
       "path": "./packages/infrastructure/messaging/src/cqrs_ddd_messaging/sqs/consumer.py"
@@ -8960,6 +9554,162 @@
     },
     {
       "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::get",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::get_correlation_id",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::get_span_id",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::get_trace_id",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::set",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "CorrelationIdPropagator::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/correlation.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "correlation.py",
+      "function_name": "CorrelationIdPropagator::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "health.py",
+      "function_name": "HealthRegistry::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "health.py",
+      "function_name": "HealthRegistry::register",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "health.py",
+      "function_name": "HealthRegistry::get_instance",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "health.py",
+      "function_name": "HealthRegistry::status",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "health.py",
+      "function_name": "HealthRegistry::check_all",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "metrics.py",
+      "function_name": "MetricsMiddleware::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/metrics.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "metrics.py",
+      "function_name": "MetricsMiddleware::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/metrics.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "sentry.py",
+      "function_name": "SentryMiddleware::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/sentry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "structured_logging.py",
+      "function_name": "StructuredLoggingMiddleware::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/structured_logging.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "structured_logging.py",
+      "function_name": "StructuredLoggingMiddleware::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/structured_logging.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "tracing.py",
+      "function_name": "TracingMiddleware::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/tracing.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "tracing.py",
+      "function_name": "TracingMiddleware::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/tracing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_propagator_does_not_raise",
+      "path": "./packages/infrastructure/observability/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_propagator_sets_context_from_message",
+      "path": "./packages/infrastructure/observability/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_health.py",
+      "function_name": "test_check_all",
+      "path": "./packages/infrastructure/observability/tests/test_health.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_health.py",
+      "function_name": "test_singleton",
+      "path": "./packages/infrastructure/observability/tests/test_health.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_health.py",
+      "function_name": "test_status_contains_timestamp",
+      "path": "./packages/infrastructure/observability/tests/test_health.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_structured_logging.py",
+      "function_name": "test_failure_does_not_swallow",
+      "path": "./packages/infrastructure/observability/tests/test_structured_logging.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_structured_logging.py",
+      "function_name": "test_logs_success",
+      "path": "./packages/infrastructure/observability/tests/test_structured_logging.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::__init__",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
@@ -9005,6 +9755,30 @@
       "file_name": "cache.py",
       "function_name": "RedisCacheService::set_batch",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoints.py",
+      "function_name": "RedisCheckpointStore::__init__",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/checkpoints.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoints.py",
+      "function_name": "RedisCheckpointStore::_get_key",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/checkpoints.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoints.py",
+      "function_name": "RedisCheckpointStore::save_position",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/checkpoints.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "checkpoints.py",
+      "function_name": "RedisCheckpointStore::get_position",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/checkpoints.py"
     },
     {
       "complexity": 0,
@@ -9488,6 +10262,372 @@
     },
     {
       "complexity": 0,
+      "file_name": "connection.py",
+      "function_name": "MongoConnectionManager::__init__",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "MongoConnectionManager::client",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/connection.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "connection.py",
+      "function_name": "MongoConnectionManager::close",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/connection.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "connection.py",
+      "function_name": "MongoConnectionManager::health_check",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/connection.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "connection.py",
+      "function_name": "MongoConnectionManager::connect",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "indexes.py",
+      "function_name": "create_2dsphere_index",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/indexes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "indexes.py",
+      "function_name": "create_compound_index",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/indexes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "indexes.py",
+      "function_name": "create_text_index",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/indexes.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "indexes.py",
+      "function_name": "create_ttl_index",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/indexes.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "geometry.py",
+      "function_name": "compile_geometry",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/geometry.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "jsonb.py",
+      "function_name": "compile_jsonb",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/jsonb.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "null.py",
+      "function_name": "compile_null",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/null.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "set.py",
+      "function_name": "compile_set",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/set.py"
+    },
+    {
+      "complexity": 21,
+      "file_name": "standard.py",
+      "function_name": "compile_standard",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/standard.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "string.py",
+      "function_name": "_regex_escape",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/string.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "string.py",
+      "function_name": "compile_string",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/string.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::__init__",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::_coll",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::drop_collection",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::ensure_ttl_index",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::_db",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::upsert",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "projection_store.py",
+      "function_name": "MongoProjectionStore::upsert_batch",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/projection_store.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "query_builder.py",
+      "function_name": "MongoQueryBuilder::build_project",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/query_builder.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "query_builder.py",
+      "function_name": "MongoQueryBuilder::build_match",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/query_builder.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "query_builder.py",
+      "function_name": "_compile_leaf",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/query_builder.py"
+    },
+    {
+      "complexity": 9,
+      "file_name": "query_builder.py",
+      "function_name": "MongoQueryBuilder::build_sort",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/query_builder.py"
+    },
+    {
+      "complexity": 14,
+      "file_name": "query_builder.py",
+      "function_name": "_compile_node",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::_collection",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::delete",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::__init__",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::_normalise_criteria",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::add",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::get",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::list_all",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 42,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::search",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "serialization.py",
+      "function_name": "model_from_doc",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/serialization.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "serialization.py",
+      "function_name": "model_to_doc",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/serialization.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "serialization.py",
+      "function_name": "_deserialize_value",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/serialization.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "serialization.py",
+      "function_name": "_serialize_value",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mongo_integration.py",
+      "function_name": "mongo_url",
+      "path": "./packages/persistence/mongo/tests/integration/test_mongo_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mongo_integration.py",
+      "function_name": "test_connection_health",
+      "path": "./packages/persistence/mongo/tests/integration/test_mongo_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_mongo_integration.py",
+      "function_name": "test_repository_crud",
+      "path": "./packages/persistence/mongo/tests/integration/test_mongo_integration.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_connection.py",
+      "function_name": "test_client_raises_before_connect",
+      "path": "./packages/persistence/mongo/tests/test_connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_connection.py",
+      "function_name": "test_close_idempotent",
+      "path": "./packages/persistence/mongo/tests/test_connection.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_projection_store.py",
+      "function_name": "test_upsert_batch_requires_id",
+      "path": "./packages/persistence/mongo/tests/test_projection_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_and",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_contains",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_dot_notation",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_eq",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_from_dict",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_gt_gte",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_icontains",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_in",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_match_or",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_sort_empty",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_sort_minus_prefix",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_query_builder.py",
+      "function_name": "test_build_sort_single_asc",
+      "path": "./packages/persistence/mongo/tests/test_query_builder.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_model_from_doc_id_mapping",
+      "path": "./packages/persistence/mongo/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_model_to_doc_id_mapping",
+      "path": "./packages/persistence/mongo/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_serialization.py",
+      "function_name": "test_roundtrip",
+      "path": "./packages/persistence/mongo/tests/test_serialization.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "jobs.py",
       "function_name": "SQLAlchemyBackgroundJobRepository::__init__",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/advanced/jobs.py"
@@ -9781,9 +10921,21 @@
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/event_store.py"
     },
     {
+      "complexity": 0,
+      "file_name": "event_store.py",
+      "function_name": "SQLAlchemyEventStore::get_events_after",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/event_store.py"
+    },
+    {
       "complexity": 1,
       "file_name": "event_store.py",
       "function_name": "SQLAlchemyEventStore::get_by_aggregate",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/event_store.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "event_store.py",
+      "function_name": "SQLAlchemyEventStore::get_all_streaming",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/core/event_store.py"
     },
     {
@@ -10133,6 +11285,24 @@
       "file_name": "geometry.py",
       "function_name": "SpatialModelMixin::geom",
       "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/mixins/geometry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "projections.py",
+      "function_name": "SQLAlchemyProjectionCheckpointStore::__init__",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/projections.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "projections.py",
+      "function_name": "SQLAlchemyProjectionCheckpointStore::get_position",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/projections.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "projections.py",
+      "function_name": "SQLAlchemyProjectionCheckpointStore::save_position",
+      "path": "./packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy/projections.py"
     },
     {
       "complexity": 1,
@@ -14375,6 +15545,36 @@
       "file_name": "test_boundaries.py",
       "function_name": "test_primitives_isolation",
       "path": "./tests/architecture/test_boundaries.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_phase1_boundaries.py",
+      "function_name": "test_filtering_no_infrastructure",
+      "path": "./tests/architecture/test_phase1_boundaries.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_phase1_boundaries.py",
+      "function_name": "test_messaging_no_persistence_or_features",
+      "path": "./tests/architecture/test_phase1_boundaries.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_phase1_boundaries.py",
+      "function_name": "test_mongo_no_messaging_or_observability",
+      "path": "./tests/architecture/test_phase1_boundaries.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_phase1_boundaries.py",
+      "function_name": "test_observability_no_persistence",
+      "path": "./tests/architecture/test_phase1_boundaries.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_phase1_boundaries.py",
+      "function_name": "test_projections_no_filtering",
+      "path": "./tests/architecture/test_phase1_boundaries.py"
     }
   ],
   "targets": [

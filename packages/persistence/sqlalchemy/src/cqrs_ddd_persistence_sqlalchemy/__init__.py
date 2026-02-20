@@ -23,6 +23,10 @@ from .exceptions import (
     TransactionError,
     UnitOfWorkError,
 )
+from .projections import (
+    ProjectionCheckpoint,
+    SQLAlchemyProjectionCheckpointStore,
+)
 from .specifications import (
     SQLAlchemyHookResult,
     SQLAlchemyOperator,
@@ -55,6 +59,9 @@ __all__ = [
     "OutboxMessage",
     "StoredEventModel",
     "OutboxStatus",
+    # Projections
+    "ProjectionCheckpoint",
+    "SQLAlchemyProjectionCheckpointStore",
     # Specifications / Compiler
     "build_sqla_filter",
     "apply_query_options",
