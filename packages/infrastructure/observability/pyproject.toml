@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-observability"
+version = "0.1.0"
+description = "Tracing, metrics, structured logging, correlation ID, health checks for CQRS/DDD"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[project.optional-dependencies]
+opentelemetry = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0"]
+prometheus = ["prometheus-client"]
+sentry = ["sentry-sdk"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_observability*"]

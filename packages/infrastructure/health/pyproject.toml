@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-health"
+version = "0.1.0"
+description = "Health check implementations for CQRS-DDD infrastructure"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Myron Gourlis", email = "myrgourlis@gmail.com" }]
+dependencies = ["cqrs-ddd-core"]
+
+[project.optional-dependencies]
+sqlalchemy = ["sqlalchemy[asyncio]>=2.0"]
+redis = ["redis>=4.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_health*"]
