@@ -5,10 +5,12 @@ from __future__ import annotations
 import contextlib
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from redlock import AsyncRedlock
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.locking import ActiveLock
 from cqrs_ddd_core.primitives.exceptions import (
     ConcurrencyError,
@@ -231,6 +233,36 @@ class RedlockLockStrategy:
         Returns:
             Lock composite token: "key:redlock_id" for releasing the lock
         """
+        registry = get_hook_registry()
+        return cast(
+            "str",
+            await registry.execute_all(
+                f"redis.lock.acquire.{resource.resource_type}",
+                {
+                    "resource": str(resource),
+                    "resource_type": resource.resource_type,
+                    "resource_id": resource.resource_id,
+                    "timeout": timeout,
+                    "ttl": ttl,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._acquire_internal(
+                    resource,
+                    timeout=timeout,
+                    ttl=ttl,
+                    session_id=session_id,
+                ),
+            ),
+        )
+
+    async def _acquire_internal(
+        self,
+        resource: ResourceIdentifier,
+        *,
+        timeout: float = 10.0,
+        ttl: float = 30.0,
+        session_id: str | None = None,
+    ) -> str:
         key = self._make_key(resource)
         ttl_ms = int(ttl * 1000)
 
@@ -267,7 +299,7 @@ class RedlockLockStrategy:
                 f"Technical failure acquiring lock on {key}: {exc}"
             ) from exc
 
-    async def release(self, _resource: ResourceIdentifier, token: str) -> None:
+    async def release(self, resource: ResourceIdentifier, token: str) -> None:
         """
         Release the lock using token validation and reference counting.
 
@@ -280,6 +312,19 @@ class RedlockLockStrategy:
             decrements the reference count. The Redis lock is only released
             when the ref_count reaches zero.
         """
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"redis.lock.release.{resource.resource_type}",
+            {
+                "resource": str(resource),
+                "resource_type": resource.resource_type,
+                "resource_id": resource.resource_id,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._release_internal(token),
+        )
+
+    async def _release_internal(self, token: str) -> None:
         try:
             key, redlock_id = token.rsplit(":", 1)
         except ValueError:

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
+
 # Note: ICheckpointStore protocol is defined in cqrs_ddd_projections
 # We import it dynamically to avoid circular dependencies
 
@@ -41,4 +44,13 @@ class RedisCheckpointStore:
 
     async def save_position(self, projection_name: str, position: int) -> None:
         """Save checkpoint position in Redis."""
-        await self._redis.set(self._get_key(projection_name), str(position))
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"redis.checkpoint.save.{projection_name}",
+            {
+                "projection.name": projection_name,
+                "projection.position": position,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._redis.set(self._get_key(projection_name), str(position)),
+        )

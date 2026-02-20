@@ -6,6 +6,8 @@ import json
 import logging
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.cache import ICacheService
 
 if TYPE_CHECKING:
@@ -24,13 +26,19 @@ class RedisCacheService(ICacheService):
         self._redis = redis_client
 
     async def get(self, key: str, cls: type[Any] | None = None) -> Any | None:
+        registry = get_hook_registry()
+        return await registry.execute_all(
+            "redis.cache.get",
+            {"cache.key": key, "correlation_id": get_correlation_id()},
+            lambda: self._get_internal(key, cls),
+        )
+
+    async def _get_internal(self, key: str, cls: type[Any] | None = None) -> Any | None:
         try:
             val = await self._redis.get(key)
             if not val:
                 return None
-
             if cls and hasattr(cls, "model_validate_json"):
-                # Pydantic V2 optimized loading
                 return cls.model_validate_json(val)
             return json.loads(val)
         except Exception as e:  # noqa: BLE001
@@ -38,13 +46,23 @@ class RedisCacheService(ICacheService):
             return None
 
     async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
+        registry = get_hook_registry()
+        await registry.execute_all(
+            "redis.cache.set",
+            {
+                "cache.key": key,
+                "cache.ttl": ttl,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._set_internal(key, value, ttl),
+        )
+
+    async def _set_internal(self, key: str, value: Any, ttl: int | None = None) -> None:
         try:
             if hasattr(value, "model_dump_json"):
-                # Pydantic V2 optimized dumping
                 val = value.model_dump_json()
             else:
                 val = json.dumps(value, default=str)
-
             if ttl:
                 await self._redis.setex(key, ttl, val)
             else:

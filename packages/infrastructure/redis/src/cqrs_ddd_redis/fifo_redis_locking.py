@@ -6,8 +6,10 @@ import asyncio
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.locking import ActiveLock
 from cqrs_ddd_core.primitives.exceptions import (
     LockAcquisitionError,
@@ -84,6 +86,37 @@ class FifoRedisLockStrategy:
             self._lock_metadata.pop(k, None)
 
     async def acquire(
+        self,
+        resource: ResourceIdentifier,
+        *,
+        timeout: float = 10.0,
+        ttl: float = 30.0,
+        session_id: str | None = None,
+    ) -> str:
+        """Acquire a lock using the Fair (FCFS) algorithm."""
+        registry = get_hook_registry()
+        return cast(
+            "str",
+            await registry.execute_all(
+                f"redis.lock.acquire.{resource.resource_type}",
+                {
+                    "resource": str(resource),
+                    "resource_type": resource.resource_type,
+                    "resource_id": resource.resource_id,
+                    "timeout": timeout,
+                    "ttl": ttl,
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._acquire_internal(
+                    resource,
+                    timeout=timeout,
+                    ttl=ttl,
+                    session_id=session_id,
+                ),
+            ),
+        )
+
+    async def _acquire_internal(
         self,
         resource: ResourceIdentifier,
         *,
@@ -241,6 +274,20 @@ class FifoRedisLockStrategy:
         return bool(result == 1)
 
     async def release(self, resource: ResourceIdentifier, token: str) -> None:
+        """Release the lock."""
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"redis.lock.release.{resource.resource_type}",
+            {
+                "resource": str(resource),
+                "resource_type": resource.resource_type,
+                "resource_id": resource.resource_id,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._release_internal(resource, token),
+        )
+
+    async def _release_internal(self, resource: ResourceIdentifier, token: str) -> None:
         """Release the lock."""
         lock_key = self._lock_key(resource)
         queue_key = self._queue_key(resource)
