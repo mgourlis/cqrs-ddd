@@ -30,6 +30,8 @@ jobs:
           pip install -e "./packages/persistence/sqlalchemy[geometry]"
           pip install -e ./packages/infrastructure/redis
           pip install -e "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]"
+          pip install -e "./packages/infrastructure/observability[opentelemetry,prometheus,sentry]"
+          pip install -e "./packages/infrastructure/health[sqlalchemy,redis]"
           pip install -e ./packages/engines/projections
           pip install ".[dev, geometry]"
 

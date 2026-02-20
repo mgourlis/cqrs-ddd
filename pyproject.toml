@@ -48,7 +48,8 @@ file-storage-azure = ["azure-storage-blob>=12.19.0"]
 messaging-rabbitmq = ["aio-pika>=9.3.0"]
 messaging-kafka = ["aiokafka>=0.10.0"]
 messaging-sqs = ["aiobotocore>=2.9.0"]
-observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0"]
+observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0", "prometheus-client", "sentry-sdk"]
+health = ["sqlalchemy[asyncio]>=2.0.0", "redis>=5.0.0"]
 
 # Geometry support (for in-memory and SQLAlchemy operators)
 geometry = [
@@ -85,7 +86,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/infrastructure/redis/src", "packages/infrastructure/messaging/src", "packages/advanced/src", "packages/specifications/src", "packages/engines/projections/src"]
+src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/infrastructure/redis/src", "packages/infrastructure/messaging/src", "packages/infrastructure/observability/src", "packages/infrastructure/health/src", "packages/advanced/src", "packages/specifications/src", "packages/engines/projections/src"]
 
 [tool.ruff.lint]
 select = [
@@ -135,6 +136,8 @@ known-first-party = [
     "cqrs_ddd_persistence_sqlalchemy",
     "cqrs_ddd_redis",
     "cqrs_ddd_messaging",
+    "cqrs_ddd_observability",
+    "cqrs_ddd_health",
     "cqrs_ddd_projections",
 ]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
@@ -154,7 +157,7 @@ plugins = ["pydantic.mypy"]
 explicit_package_bases = false
 namespace_packages = false
 exclude = ["(?x)(^|/)tests/", "(^|/)build/"]
-mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/infrastructure/redis/src:packages/infrastructure/messaging/src:packages/specifications/src:packages/engines/projections/src"
+mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/infrastructure/redis/src:packages/infrastructure/messaging/src:packages/infrastructure/observability/src:packages/infrastructure/health/src:packages/specifications/src:packages/engines/projections/src"
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -180,6 +183,8 @@ include = [
     "packages/persistence/sqlalchemy/src",
     "packages/infrastructure/redis/src",
     "packages/infrastructure/messaging/src",
+    "packages/infrastructure/observability/src",
+    "packages/infrastructure/health/src",
     "packages/advanced/src",
     "packages/specifications/src",
     "packages/engines/projections/src",
@@ -205,6 +210,8 @@ testpaths = [
     "packages/persistence/sqlalchemy/tests",
     "packages/infrastructure/redis/tests",
     "packages/infrastructure/messaging/tests",
+    "packages/infrastructure/observability/tests",
+    "packages/infrastructure/health/tests",
     "packages/advanced/tests",
     "packages/specifications/tests",
     "packages/engines/projections/tests",
@@ -219,6 +226,8 @@ source = [
     "packages/persistence/sqlalchemy/src/cqrs_ddd_persistence_sqlalchemy",
     "packages/infrastructure/redis/src/cqrs_ddd_redis",
     "packages/infrastructure/messaging/src/cqrs_ddd_messaging",
+    "packages/infrastructure/observability/src/cqrs_ddd_observability",
+    "packages/infrastructure/health/src/cqrs_ddd_health",
     "packages/advanced/src/cqrs_ddd_advanced_core",
     "packages/specifications/src/cqrs_ddd_specifications",
     "packages/engines/projections/src/cqrs_ddd_projections",
