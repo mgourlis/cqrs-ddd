@@ -131,6 +131,14 @@ dmypy.json
 *.db
 *.sqlite
 .env.*.local
+.complexipy_cache/
+.ruff_cache/
+.cursor/
+.gemini/
+.cursorrules
+pyrightconfig.json
+system-prompt.md
+uv.lock
 
 docs/
 *.prompt.md
