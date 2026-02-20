@@ -19,7 +19,7 @@ async def create_compound_index(
 ) -> str:
     """Create a compound index. keys: [(field, 1|(-1)), ...]. Returns index name."""
     coll = connection.client.get_database(database).get_collection(collection)
-    return await coll.create_index(keys, name=name, unique=unique)
+    return str(await coll.create_index(keys, name=name, unique=unique))
 
 
 async def create_text_index(
@@ -32,7 +32,7 @@ async def create_text_index(
 ) -> str:
     """Create a text index. fields: [(field_name, 'text'), ...]."""
     coll = connection.client.get_database(database).get_collection(collection)
-    return await coll.create_index(fields, name=name)
+    return str(await coll.create_index(fields, name=name))
 
 
 async def create_ttl_index(
@@ -46,10 +46,12 @@ async def create_ttl_index(
 ) -> str:
     """Create a TTL index for ephemeral data."""
     coll = connection.client.get_database(database).get_collection(collection)
-    return await coll.create_index(
-        [(field, 1)],
-        expireAfterSeconds=expire_after_seconds,
-        name=name or f"ttl_{field}",
+    return str(
+        await coll.create_index(
+            [(field, 1)],
+            expireAfterSeconds=expire_after_seconds,
+            name=name or f"ttl_{field}",
+        )
     )
 
 
@@ -63,7 +65,9 @@ async def create_2dsphere_index(
 ) -> str:
     """Create a 2dsphere geospatial index."""
     coll = connection.client.get_database(database).get_collection(collection)
-    return await coll.create_index(
-        [(field, "2dsphere")],
-        name=name or f"geo_{field}",
+    return str(
+        await coll.create_index(
+            [(field, "2dsphere")],
+            name=name or f"geo_{field}",
+        )
     )

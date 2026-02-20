@@ -51,7 +51,5 @@ class PaginationParser:
     @staticmethod
     def encode_cursor(data: dict[str, Any]) -> str:
         """Encode cursor dict to base64 string."""
-        encoded = base64.b64encode(
-            json.dumps(data, sort_keys=True).encode("utf-8")
-        )
+        encoded = base64.b64encode(json.dumps(data, sort_keys=True).encode("utf-8"))
         return encoded.decode("ascii")
