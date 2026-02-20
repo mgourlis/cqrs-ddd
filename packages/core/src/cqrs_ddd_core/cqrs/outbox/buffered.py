@@ -7,6 +7,8 @@ import contextlib
 import logging
 from typing import TYPE_CHECKING, Any, cast
 
+from ...correlation import get_correlation_id
+from ...instrumentation import get_hook_registry
 from ...ports.background_worker import IBackgroundWorker
 from ...ports.messaging import IMessagePublisher
 from ...ports.outbox import OutboxMessage
@@ -86,7 +88,20 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
 
     async def publish(self, topic: str, message: Any, **kwargs: Any) -> None:
         """Save message to outbox and schedule real-time trigger."""
-        # Extract tracing IDs from kwargs
+        registry = get_hook_registry()
+        attributes = {
+            "topic": topic,
+            "message_type": type(message),
+            "correlation_id": kwargs.get("correlation_id") or get_correlation_id(),
+        }
+        await registry.execute_all(
+            "outbox.buffered.publish",
+            attributes,
+            lambda: self._publish_internal(topic, message, **kwargs),
+        )
+
+    async def _publish_internal(self, topic: str, message: Any, **kwargs: Any) -> None:
+        # Extract tracing IDs from kwargs.
         correlation_id = kwargs.pop("correlation_id", "")
         causation_id = kwargs.pop("causation_id", None)
 
@@ -102,24 +117,22 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
         outbox_msg = OutboxMessage(
             event_type=topic,
             payload=payload,
-            metadata=kwargs,  # Remaining metadata after extracting tracing IDs
+            metadata=kwargs,
             correlation_id=correlation_id,
             causation_id=causation_id,
         )
-        # Ensure tracing IDs are in metadata for OutboxService when publishing
         outbox_msg.metadata["correlation_id"] = correlation_id
         if causation_id is not None:
             outbox_msg.metadata["causation_id"] = causation_id
 
-        # Get current UoW for transactional consistency
         uow = get_current_uow()
-
-        # Save in same transaction as command/aggregate
         await self._storage.save_messages([outbox_msg], uow=uow)
-
-        # Schedule a trigger after commit
         if uow is not None and hasattr(uow, "on_commit"):
-            uow.on_commit(self.trigger)
+
+            async def _trigger_async() -> None:
+                self.trigger()
+
+            uow.on_commit(_trigger_async)
 
     def trigger(self) -> None:
         """Wake up the background loop to process messages."""
@@ -182,8 +195,9 @@ class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
                 await asyncio.sleep(1.0)
 
     async def _debounce(self) -> None:
-        start_time = asyncio.get_event_loop().time()
-        while (asyncio.get_event_loop().time() - start_time) < self.max_delay:
+        loop = asyncio.get_event_loop()
+        start_time = loop.time()
+        while (loop.time() - start_time) < self.max_delay:
             self._trigger_event.clear()
             try:
                 await asyncio.wait_for(

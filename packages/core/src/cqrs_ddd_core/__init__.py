@@ -13,6 +13,17 @@ from .adapters.memory import (
     InMemoryRepository,
     InMemoryUnitOfWork,
 )
+from .correlation import (
+    CorrelationIdPropagator,
+    generate_correlation_id,
+    get_causation_id,
+    get_context_vars,
+    get_correlation_id,
+    set_causation_id,
+    set_context_vars,
+    set_correlation_id,
+    with_correlation_context,
+)
 
 # ── CQRS ─────────────────────────────────────────────────────────
 from .cqrs import (
@@ -50,6 +61,14 @@ if HAS_GEO:
     from .domain import SpatialMixin  # noqa: F401
 
 # ── Middleware ───────────────────────────────────────────────────
+from .instrumentation import (
+    HookRegistration,
+    HookRegistry,
+    InstrumentationHook,
+    fire_and_forget_hook,
+    get_hook_registry,
+    set_hook_registry,
+)
 from .middleware import (
     EventStorePersistenceMiddleware,
     LoggingMiddleware,
@@ -126,6 +145,15 @@ __all__: list[str] = [
     "get_current_uow",
     "UnitOfWork",
     "route_to",
+    "CorrelationIdPropagator",
+    "generate_correlation_id",
+    "get_correlation_id",
+    "set_correlation_id",
+    "get_causation_id",
+    "set_causation_id",
+    "get_context_vars",
+    "set_context_vars",
+    "with_correlation_context",
     # Ports
     "IEventDispatcher",
     "IEventStore",
@@ -145,6 +173,12 @@ __all__: list[str] = [
     "OutboxMiddleware",
     "ValidatorMiddleware",
     "build_pipeline",
+    "InstrumentationHook",
+    "HookRegistration",
+    "HookRegistry",
+    "fire_and_forget_hook",
+    "get_hook_registry",
+    "set_hook_registry",
     # Validation
     "CompositeValidator",
     "PydanticValidator",

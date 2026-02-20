@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from ..instrumentation import fire_and_forget_hook, get_hook_registry
+
 if TYPE_CHECKING:
     from .command import Command
     from .query import Query
@@ -39,6 +41,15 @@ class MessageRegistry:
     def register_command(self, name: str, command_class: type[Command[Any]]) -> None:
         """Register a command class under *name*."""
         self._commands[name] = command_class
+        fire_and_forget_hook(
+            get_hook_registry(),
+            "message_registry.register",
+            {
+                "message_type": "command",
+                "name": name,
+                "class_name": command_class.__name__,
+            },
+        )
 
     def get_command(self, command_type: str) -> type[Command[Any]] | None:
         """Look up a command class by type name."""
@@ -69,6 +80,11 @@ class MessageRegistry:
     def register_query(self, name: str, query_class: type[Query[Any]]) -> None:
         """Register a query class under *name*."""
         self._queries[name] = query_class
+        fire_and_forget_hook(
+            get_hook_registry(),
+            "message_registry.register",
+            {"message_type": "query", "name": name, "class_name": query_class.__name__},
+        )
 
     def get_query(self, query_type: str) -> type[Query[Any]] | None:
         """Look up a query class by type name."""

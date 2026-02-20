@@ -6,6 +6,9 @@ import logging
 import time
 from typing import TYPE_CHECKING, Any
 
+from ..correlation import get_correlation_id
+from ..instrumentation import get_hook_registry
+
 if TYPE_CHECKING:
     from ..ports.locking import ILockStrategy
     from ..primitives.locking import ResourceIdentifier
@@ -93,14 +96,30 @@ class CriticalSection:
         )
 
         try:
+            registry = get_hook_registry()
             for resource in self._resources:
-                token = await self._lock_strategy.acquire(
-                    resource,
-                    timeout=self._timeout,
-                    ttl=self._ttl,
-                    session_id=self._session_id,
+
+                async def _acquire_single(res: ResourceIdentifier = resource) -> None:
+                    token = await self._lock_strategy.acquire(
+                        res,
+                        timeout=self._timeout,
+                        ttl=self._ttl,
+                        session_id=self._session_id,
+                    )
+                    self._acquired.append((res, token))
+
+                await registry.execute_all(
+                    f"lock.acquire.{resource.resource_type}",
+                    {
+                        "resource": str(resource),
+                        "resource_type": resource.resource_type,
+                        "resource_id": resource.resource_id,
+                        "timeout": self._timeout,
+                        "ttl": self._ttl,
+                        "correlation_id": get_correlation_id(),
+                    },
+                    _acquire_single,
                 )
-                self._acquired.append((resource, token))
 
             duration = time.time() - start
             logger.info(

@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from ...correlation import get_correlation_id
 from ...domain.event_registry import EventTypeRegistry
+from ...instrumentation import get_hook_registry
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -150,7 +152,18 @@ class BaseEventConsumer:
 
             # Dispatch locally
             logger.debug("Consumer hydrated and dispatching %s", event_type)
-            await self._dispatcher.dispatch([event])
+            registry = get_hook_registry()
+            attributes = {
+                "event.type": event_type,
+                "message_type": type(event),
+                "correlation_id": get_correlation_id()
+                or getattr(event, "correlation_id", None),
+            }
+            await registry.execute_all(
+                f"consumer.consume.{event_type}",
+                attributes,
+                lambda: self._dispatcher.dispatch([event]),
+            )
 
         except Exception:
             logger.exception(

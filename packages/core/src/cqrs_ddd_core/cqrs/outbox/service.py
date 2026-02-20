@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
+from ...correlation import get_correlation_id
+from ...instrumentation import get_hook_registry
 from ...primitives.exceptions import ConcurrencyError
 from ...primitives.locking import ResourceIdentifier
 
@@ -44,6 +46,22 @@ class OutboxService:
         self.max_retries = max_retries
 
     async def process_batch(self, batch_size: int = 50) -> int:
+        """Process pending messages with instrumentation."""
+        registry = get_hook_registry()
+        attributes = {
+            "outbox.batch_size": batch_size,
+            "correlation_id": get_correlation_id(),
+        }
+        return cast(
+            "int",
+            await registry.execute_all(
+                "outbox.process_batch",
+                attributes,
+                lambda: self._process_batch_internal(batch_size),
+            ),
+        )
+
+    async def _process_batch_internal(self, batch_size: int = 50) -> int:
         """
         Process up to *batch_size* pending messages using two-phase locking.
 
@@ -124,6 +142,22 @@ class OutboxService:
                     )
 
     async def retry_failed(self, batch_size: int = 50) -> int:
+        """Retry pending failed messages with instrumentation."""
+        registry = get_hook_registry()
+        attributes = {
+            "outbox.retry.batch_size": batch_size,
+            "correlation_id": get_correlation_id(),
+        }
+        return cast(
+            "int",
+            await registry.execute_all(
+                "outbox.retry_failed",
+                attributes,
+                lambda: self._retry_failed_internal(batch_size),
+            ),
+        )
+
+    async def _retry_failed_internal(self, batch_size: int = 50) -> int:
         """
         Re-attempt publishing for failed messages that haven't
         exceeded ``max_retries``.

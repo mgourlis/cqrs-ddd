@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..instrumentation import fire_and_forget_hook, get_hook_registry
+
 
 class DomainEvent(BaseModel):
     """Base class for all Domain Events.
@@ -56,4 +58,16 @@ def enrich_event_metadata(
     if not updates:
         return event
 
-    return event.model_copy(update=updates)
+    enriched = event.model_copy(update=updates)
+    fire_and_forget_hook(
+        get_hook_registry(),
+        "event.enrich_metadata",
+        {
+            "event.type": type(event).__name__,
+            "event.id": str(event.event_id),
+            "correlation_id": enriched.correlation_id,
+            "causation_id": enriched.causation_id,
+            "message_type": type(event),
+        },
+    )
+    return enriched

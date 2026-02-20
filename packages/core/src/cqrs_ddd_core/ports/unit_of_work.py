@@ -7,6 +7,9 @@ from abc import ABC, abstractmethod
 from collections import deque
 from typing import TYPE_CHECKING, Any
 
+from ..correlation import get_correlation_id
+from ..instrumentation import get_hook_registry
+
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
@@ -92,8 +95,17 @@ class UnitOfWork(ABC):
         2. Then trigger_commit_hooks() — ensures DB is flushed before hooks fire
         3. If exception: rollback() and skip hooks
         """
+        registry = get_hook_registry()
         if exc_type is None:
-            await self.commit()
+            await registry.execute_all(
+                "uow.commit",
+                {"outcome": "success", "correlation_id": get_correlation_id()},
+                self.commit,
+            )
             await self.trigger_commit_hooks()
         else:
-            await self.rollback()
+            await registry.execute_all(
+                "uow.rollback",
+                {"outcome": "error", "correlation_id": get_correlation_id()},
+                self.rollback,
+            )

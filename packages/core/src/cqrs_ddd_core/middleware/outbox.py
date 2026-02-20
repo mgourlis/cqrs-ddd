@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from ..correlation import get_correlation_id
 from ..cqrs.response import CommandResponse
+from ..instrumentation import get_hook_registry
 from ..ports.middleware import IMiddleware
 
 if TYPE_CHECKING:
@@ -50,18 +52,25 @@ class OutboxMiddleware(IMiddleware):
 
         # If this was a command, publish its events
         if isinstance(result, CommandResponse):
-            for event in result.events:
-                topic = type(event).__name__
-                logger.debug("Publishing event %s to outbox", topic)
-
-                # Extract tracing IDs from enriched DomainEvent
-                # (Mediator has already called enrich_event_metadata)
-                tracing_kwargs = {}
-                if hasattr(event, "correlation_id") and event.correlation_id:
-                    tracing_kwargs["correlation_id"] = event.correlation_id
-                if hasattr(event, "causation_id") and event.causation_id:
-                    tracing_kwargs["causation_id"] = event.causation_id
-
-                await self._outbox.publish(topic, event, **tracing_kwargs)
+            registry = get_hook_registry()
+            await registry.execute_all(
+                "outbox.save_events",
+                {
+                    "outbox.event_count": len(result.events),
+                    "correlation_id": get_correlation_id(),
+                },
+                lambda: self._publish_events(result),
+            )
 
         return result
+
+    async def _publish_events(self, result: CommandResponse[Any]) -> None:
+        for event in result.events:
+            topic = type(event).__name__
+            logger.debug("Publishing event %s to outbox", topic)
+            tracing_kwargs = {}
+            if hasattr(event, "correlation_id") and event.correlation_id:
+                tracing_kwargs["correlation_id"] = event.correlation_id
+            if hasattr(event, "causation_id") and event.causation_id:
+                tracing_kwargs["causation_id"] = event.causation_id
+            await self._outbox.publish(topic, event, **tracing_kwargs)

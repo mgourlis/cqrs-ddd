@@ -19,6 +19,8 @@ dependencies = [
 
 [project.optional-dependencies]
 geometry = ["geojson-pydantic>=1.0"]
+observability = ["cqrs-ddd-observability"]
+health = ["cqrs-ddd-health"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -514,4 +514,7 @@ class TestOutboxWorker:
 
         assert len(on_commit_callback) == 1
         assert callable(on_commit_callback[0])
-        assert getattr(on_commit_callback[0], "__self__", None) is pub
+        # Callback must be awaitable (async wrapper around sync trigger)
+        import asyncio
+
+        assert asyncio.iscoroutinefunction(on_commit_callback[0])

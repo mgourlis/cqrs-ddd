@@ -13,6 +13,9 @@ from typing import (
 )
 
 from cqrs_ddd_core.domain.events import DomainEvent
+from cqrs_ddd_core.instrumentation import get_hook_registry
+
+from ..correlation import get_correlation_id
 
 logger = logging.getLogger(__name__)
 
@@ -60,14 +63,58 @@ class EventDispatcher(Generic[E]):
         if not events:
             return
 
+        registry = get_hook_registry()
         for event in events:
             event_type = type(event)
             handlers = self._handlers.get(cast("type[E]", event_type), [])
             if not handlers:
                 continue
 
-            tasks = [self._invoke(h, event) for h in handlers]
-            await asyncio.gather(*tasks)
+            event_name = event_type.__name__
+            correlation_id = get_correlation_id() or getattr(
+                event, "correlation_id", None
+            )
+            attributes: dict[str, object] = {
+                "event.type": event_name,
+                "event.id": str(event.event_id),
+                "message_type": type(event),
+                "correlation_id": correlation_id,
+            }
+
+            async def _dispatch_handlers(
+                current_handlers: list[EventHandler[E]] = handlers,
+                current_event_name: str = event_name,
+                base_attributes: dict[str, object] = attributes,
+                current_event: DomainEvent = event,
+            ) -> None:
+                tasks = []
+                for handler in current_handlers:
+                    handler_name = type(handler).__name__
+                    operation = f"event.handler.{current_event_name}.{handler_name}"
+                    handler_attrs = {
+                        "handler.type": handler_name,
+                        **base_attributes,
+                    }
+
+                    async def _invoke_handler(
+                        h: EventHandler[E] = handler,
+                    ) -> None:
+                        await self._invoke(h, current_event)
+
+                    tasks.append(
+                        registry.execute_all(
+                            operation,
+                            handler_attrs,
+                            _invoke_handler,
+                        )
+                    )
+                await asyncio.gather(*tasks)
+
+            await registry.execute_all(
+                f"event.dispatch.{event_name}",
+                attributes,
+                _dispatch_handlers,
+            )
 
     async def _invoke(self, handler: EventHandler[E], event: DomainEvent) -> None:
         """Invoke a single handler within the concurrency limit."""

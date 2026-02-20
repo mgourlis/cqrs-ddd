@@ -783,13 +783,19 @@
     {
       "complexity": 0,
       "file_name": "service.py",
+      "function_name": "BackgroundJobService::_schedule_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "service.py",
       "function_name": "BackgroundJobService::get",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
     },
     {
       "complexity": 0,
       "file_name": "service.py",
-      "function_name": "BackgroundJobService::schedule",
+      "function_name": "BackgroundJobService::process_stale_jobs",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
     },
     {
@@ -811,15 +817,21 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
     },
     {
-      "complexity": 3,
+      "complexity": 1,
       "file_name": "service.py",
-      "function_name": "BackgroundJobService::mark_running",
+      "function_name": "BackgroundJobService::schedule",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
     },
     {
       "complexity": 3,
       "file_name": "service.py",
-      "function_name": "BackgroundJobService::process_stale_jobs",
+      "function_name": "BackgroundJobService::_process_stale_jobs_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "service.py",
+      "function_name": "BackgroundJobService::mark_running",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/background_jobs/service.py"
     },
     {
@@ -1009,6 +1021,12 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
     },
     {
+      "complexity": 0,
+      "file_name": "event_sourced_mediator.py",
+      "function_name": "EventSourcedMediator::_dispatch_command",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
+    },
+    {
       "complexity": 1,
       "file_name": "event_sourced_mediator.py",
       "function_name": "EventSourcedMediator::configure_event_sourced_type",
@@ -1023,7 +1041,7 @@
     {
       "complexity": 2,
       "file_name": "event_sourced_mediator.py",
-      "function_name": "EventSourcedMediator::_dispatch_command",
+      "function_name": "EventSourcedMediator::_dispatch_command_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/cqrs/event_sourced_mediator.py"
     },
     {
@@ -1339,7 +1357,7 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
     },
     {
-      "complexity": 4,
+      "complexity": 5,
       "file_name": "loader.py",
       "function_name": "EventSourcedLoader::maybe_snapshot",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/loader.py"
@@ -1377,6 +1395,12 @@
     {
       "complexity": 0,
       "file_name": "persistence_orchestrator.py",
+      "function_name": "EventSourcedPersistenceOrchestrator::persist_events",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "persistence_orchestrator.py",
       "function_name": "EventSourcedPersistenceOrchestrator::register_non_event_sourced_type",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
     },
@@ -1395,7 +1419,7 @@
     {
       "complexity": 1,
       "file_name": "persistence_orchestrator.py",
-      "function_name": "EventSourcedPersistenceOrchestrator::persist_events",
+      "function_name": "EventSourcedPersistenceOrchestrator::_persist_events_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/persistence_orchestrator.py"
     },
     {
@@ -1429,27 +1453,51 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
     },
     {
+      "complexity": 0,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::retrieve",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
       "complexity": 1,
       "file_name": "repository.py",
       "function_name": "EventSourcedRepository::__init__",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
     },
     {
-      "complexity": 3,
+      "complexity": 1,
       "file_name": "repository.py",
-      "function_name": "EventSourcedRepository::retrieve",
+      "function_name": "EventSourcedRepository::persist",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
     },
     {
-      "complexity": 4,
+      "complexity": 3,
       "file_name": "repository.py",
-      "function_name": "EventSourcedRepository::persist",
+      "function_name": "EventSourcedRepository::_persist_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "repository.py",
+      "function_name": "EventSourcedRepository::_retrieve_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/repository.py"
     },
     {
       "complexity": 0,
       "file_name": "upcasting_reader.py",
       "function_name": "UpcastingEventReader::__init__",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::_get_by_aggregate_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "upcasting_reader.py",
+      "function_name": "UpcastingEventReader::_get_events_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/event_sourcing/upcasting_reader.py"
     },
     {
@@ -1551,6 +1599,24 @@
     {
       "complexity": 0,
       "file_name": "dispatcher.py",
+      "function_name": "PersistenceDispatcher::apply",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dispatcher.py",
+      "function_name": "PersistenceDispatcher::fetch",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dispatcher.py",
+      "function_name": "PersistenceDispatcher::fetch_domain",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "dispatcher.py",
       "function_name": "PersistenceHandlerEntry::__init__",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
     },
@@ -1617,19 +1683,19 @@
     {
       "complexity": 2,
       "file_name": "dispatcher.py",
+      "function_name": "PersistenceDispatcher::_apply_internal",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "dispatcher.py",
       "function_name": "PersistenceDispatcher::_fetch_by_ids",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
     },
     {
       "complexity": 2,
       "file_name": "dispatcher.py",
-      "function_name": "PersistenceDispatcher::apply",
-      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
-    },
-    {
-      "complexity": 2,
-      "file_name": "dispatcher.py",
-      "function_name": "PersistenceDispatcher::fetch_domain",
+      "function_name": "PersistenceDispatcher::_fetch_domain_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
     },
     {
@@ -1641,7 +1707,7 @@
     {
       "complexity": 5,
       "file_name": "dispatcher.py",
-      "function_name": "PersistenceDispatcher::fetch",
+      "function_name": "PersistenceDispatcher::_fetch_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/persistence/dispatcher.py"
     },
     {
@@ -2133,6 +2199,30 @@
     {
       "complexity": 0,
       "file_name": "manager.py",
+      "function_name": "SagaManager::handle",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "SagaManager::process_tcc_timeouts",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "SagaManager::process_timeouts",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
+      "function_name": "SagaManager::recover_pending_sagas",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "manager.py",
       "function_name": "SagaManager::set_recovery_trigger",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
     },
@@ -2181,7 +2271,7 @@
     {
       "complexity": 3,
       "file_name": "manager.py",
-      "function_name": "SagaManager::handle",
+      "function_name": "SagaManager::_handle_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
     },
     {
@@ -2193,13 +2283,13 @@
     {
       "complexity": 6,
       "file_name": "manager.py",
-      "function_name": "SagaManager::recover_pending_sagas",
+      "function_name": "SagaManager::_recover_pending_sagas_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
     },
     {
       "complexity": 7,
       "file_name": "manager.py",
-      "function_name": "SagaManager::process_tcc_timeouts",
+      "function_name": "SagaManager::_process_tcc_timeouts_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
     },
     {
@@ -2211,7 +2301,7 @@
     {
       "complexity": 13,
       "file_name": "manager.py",
-      "function_name": "SagaManager::process_timeouts",
+      "function_name": "SagaManager::_process_timeouts_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/sagas/manager.py"
     },
     {
@@ -2557,9 +2647,21 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/scheduling/service.py"
     },
     {
-      "complexity": 3,
+      "complexity": 0,
+      "file_name": "service.py",
+      "function_name": "CommandSchedulerService::_dispatch_scheduled_command",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/scheduling/service.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "service.py",
       "function_name": "CommandSchedulerService::process_due_commands",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/scheduling/service.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "service.py",
+      "function_name": "CommandSchedulerService::_process_due_commands_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/scheduling/service.py"
     },
     {
@@ -2707,6 +2809,12 @@
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/undo/service.py"
     },
     {
+      "complexity": 0,
+      "file_name": "service.py",
+      "function_name": "UndoService::undo",
+      "path": "./packages/advanced/src/cqrs_ddd_advanced_core/undo/service.py"
+    },
+    {
       "complexity": 2,
       "file_name": "service.py",
       "function_name": "UndoService::redo",
@@ -2715,7 +2823,7 @@
     {
       "complexity": 3,
       "file_name": "service.py",
-      "function_name": "UndoService::undo",
+      "function_name": "UndoService::_undo_internal",
       "path": "./packages/advanced/src/cqrs_ddd_advanced_core/undo/service.py"
     },
     {
@@ -5253,13 +5361,19 @@
     {
       "complexity": 0,
       "file_name": "event_store.py",
-      "function_name": "InMemoryEventStore::append",
+      "function_name": "InMemoryEventStore::_append_batch_internal",
       "path": "./packages/core/src/cqrs_ddd_core/adapters/memory/event_store.py"
     },
     {
       "complexity": 0,
       "file_name": "event_store.py",
-      "function_name": "InMemoryEventStore::append_batch",
+      "function_name": "InMemoryEventStore::_append_internal",
+      "path": "./packages/core/src/cqrs_ddd_core/adapters/memory/event_store.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "event_store.py",
+      "function_name": "InMemoryEventStore::append",
       "path": "./packages/core/src/cqrs_ddd_core/adapters/memory/event_store.py"
     },
     {
@@ -5278,6 +5392,12 @@
       "complexity": 0,
       "file_name": "event_store.py",
       "function_name": "InMemoryEventStore::get_events",
+      "path": "./packages/core/src/cqrs_ddd_core/adapters/memory/event_store.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "event_store.py",
+      "function_name": "InMemoryEventStore::append_batch",
       "path": "./packages/core/src/cqrs_ddd_core/adapters/memory/event_store.py"
     },
     {
@@ -5456,6 +5576,66 @@
     },
     {
       "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "CorrelationIdPropagator::__init__",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "generate_correlation_id",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "get_causation_id",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "get_context_vars",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "get_correlation_id",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "set_causation_id",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "set_correlation_id",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "correlation.py",
+      "function_name": "with_correlation_context",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "correlation.py",
+      "function_name": "set_context_vars",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "correlation.py",
+      "function_name": "CorrelationIdPropagator::__call__",
+      "path": "./packages/core/src/cqrs_ddd_core/correlation.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "command.py",
       "function_name": "Command::get_critical_resources",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/command.py"
@@ -5509,7 +5689,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/consumers/base.py"
     },
     {
-      "complexity": 5,
+      "complexity": 6,
       "file_name": "base.py",
       "function_name": "BaseEventConsumer::_handle_message",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/consumers/base.py"
@@ -5539,7 +5719,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/event_dispatcher.py"
     },
     {
-      "complexity": 4,
+      "complexity": 7,
       "file_name": "event_dispatcher.py",
       "function_name": "EventDispatcher::dispatch",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/event_dispatcher.py"
@@ -5581,18 +5761,6 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
     },
     {
-      "complexity": 2,
-      "file_name": "mediator.py",
-      "function_name": "Mediator::query",
-      "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
-    },
-    {
-      "complexity": 2,
-      "file_name": "mediator.py",
-      "function_name": "Mediator::send",
-      "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
-    },
-    {
       "complexity": 3,
       "file_name": "mediator.py",
       "function_name": "Mediator::_propagate_ids",
@@ -5605,9 +5773,21 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
     },
     {
+      "complexity": 4,
+      "file_name": "mediator.py",
+      "function_name": "Mediator::send",
+      "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
+    },
+    {
       "complexity": 5,
       "file_name": "mediator.py",
       "function_name": "Mediator::autoload_event_handlers",
+      "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "mediator.py",
+      "function_name": "Mediator::query",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/mediator.py"
     },
     {
@@ -5715,6 +5895,12 @@
     {
       "complexity": 1,
       "file_name": "buffered.py",
+      "function_name": "BufferedOutbox::publish",
+      "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/buffered.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "buffered.py",
       "function_name": "BufferedOutbox::start",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/buffered.py"
     },
@@ -5739,7 +5925,7 @@
     {
       "complexity": 7,
       "file_name": "buffered.py",
-      "function_name": "BufferedOutbox::publish",
+      "function_name": "BufferedOutbox::_publish_internal",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/buffered.py"
     },
     {
@@ -5755,15 +5941,27 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/service.py"
     },
     {
-      "complexity": 12,
+      "complexity": 0,
       "file_name": "service.py",
       "function_name": "OutboxService::process_batch",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/service.py"
     },
     {
-      "complexity": 12,
+      "complexity": 0,
       "file_name": "service.py",
       "function_name": "OutboxService::retry_failed",
+      "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/service.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "service.py",
+      "function_name": "OutboxService::_process_batch_internal",
+      "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/service.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "service.py",
+      "function_name": "OutboxService::_retry_failed_internal",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/outbox/service.py"
     },
     {
@@ -5797,7 +5995,7 @@
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/publishers/routing.py"
     },
     {
-      "complexity": 8,
+      "complexity": 15,
       "file_name": "routing.py",
       "function_name": "TopicRoutingPublisher::publish",
       "path": "./packages/core/src/cqrs_ddd_core/cqrs/publishers/routing.py"
@@ -6020,6 +6218,114 @@
     },
     {
       "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::clear_cache",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistry::__init__",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistry::register",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "InstrumentationHook::__call__",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "set_hook_registry",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "instrumentation.py",
+      "function_name": "set_instrumentation_hook",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::_matches_predicate",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistry::clear",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistry::clear_caches",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "instrumentation.py",
+      "function_name": "get_hook_registry",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "instrumentation.py",
+      "function_name": "get_instrumentation_hook",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::__init__",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::_matches_message_type",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "instrumentation.py",
+      "function_name": "_on_fire_and_forget_done",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "instrumentation.py",
+      "function_name": "fire_and_forget_hook",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::_matches_operation",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistration::matches",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "instrumentation.py",
+      "function_name": "HookRegistry::execute_all",
+      "path": "./packages/core/src/cqrs_ddd_core/instrumentation.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "concurrency.py",
       "function_name": "ConcurrencyGuardMiddleware::__init__",
       "path": "./packages/core/src/cqrs_ddd_core/middleware/concurrency.py"
@@ -6049,9 +6355,15 @@
       "path": "./packages/core/src/cqrs_ddd_core/middleware/outbox.py"
     },
     {
-      "complexity": 11,
+      "complexity": 1,
       "file_name": "outbox.py",
       "function_name": "OutboxMiddleware::__call__",
+      "path": "./packages/core/src/cqrs_ddd_core/middleware/outbox.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "outbox.py",
+      "function_name": "OutboxMiddleware::_publish_events",
       "path": "./packages/core/src/cqrs_ddd_core/middleware/outbox.py"
     },
     {
@@ -6776,6 +7088,36 @@
     },
     {
       "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_context_helpers_roundtrip",
+      "path": "./packages/core/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_correlation_propagator_injects_into_pydantic_like_message",
+      "path": "./packages/core/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_correlation_propagator_sets_context_from_message",
+      "path": "./packages/core/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_generate_correlation_id_format",
+      "path": "./packages/core/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_correlation.py",
+      "function_name": "test_with_correlation_context_preserves_task_context",
+      "path": "./packages/core/tests/test_correlation.py"
+    },
+    {
+      "complexity": 0,
       "file_name": "test_cqrs_primitives.py",
       "function_name": "test_command_immutability",
       "path": "./packages/core/tests/test_cqrs_primitives.py"
@@ -6857,6 +7199,42 @@
       "file_name": "test_domain_primitives.py",
       "function_name": "test_value_object_immutability",
       "path": "./packages/core/tests/test_domain_primitives.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "RecordingHook::__call__",
+      "path": "./packages/core/tests/test_instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "RecordingHook::__init__",
+      "path": "./packages/core/tests/test_instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "test_hook_registry_disabled_registration_and_cache_clear",
+      "path": "./packages/core/tests/test_instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "test_hook_registry_executes_in_priority_order",
+      "path": "./packages/core/tests/test_instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "test_hook_registry_wildcard_and_message_type_filtering",
+      "path": "./packages/core/tests/test_instrumentation.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_instrumentation.py",
+      "function_name": "test_set_instrumentation_hook_backward_compatibility",
+      "path": "./packages/core/tests/test_instrumentation.py"
     },
     {
       "complexity": 0,
@@ -8019,6 +8397,12 @@
     {
       "complexity": 0,
       "file_name": "checkpoint.py",
+      "function_name": "InMemoryCheckpointStore::_save_position_internal",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checkpoint.py",
       "function_name": "InMemoryCheckpointStore::clear",
       "path": "./packages/engines/projections/src/cqrs_ddd_projections/checkpoint.py"
     },
@@ -8185,6 +8569,12 @@
       "path": "./packages/engines/projections/src/cqrs_ddd_projections/registry.py"
     },
     {
+      "complexity": 0,
+      "file_name": "replay.py",
+      "function_name": "ReplayEngine::replay",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
+    },
+    {
       "complexity": 1,
       "file_name": "replay.py",
       "function_name": "ReplayEngine::__init__",
@@ -8217,7 +8607,7 @@
     {
       "complexity": 6,
       "file_name": "replay.py",
-      "function_name": "ReplayEngine::replay",
+      "function_name": "ReplayEngine::_replay_internal",
       "path": "./packages/engines/projections/src/cqrs_ddd_projections/replay.py"
     },
     {
@@ -8237,6 +8627,12 @@
       "file_name": "sink.py",
       "function_name": "EventSinkRunner::start",
       "path": "./packages/engines/projections/src/cqrs_ddd_projections/sink.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "worker.py",
+      "function_name": "ProjectionWorker::_process_event_with_retry",
+      "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
     },
     {
       "complexity": 0,
@@ -8307,7 +8703,7 @@
     {
       "complexity": 8,
       "file_name": "worker.py",
-      "function_name": "ProjectionWorker::_process_event_with_retry",
+      "function_name": "ProjectionWorker::_process_event_with_retry_internal",
       "path": "./packages/engines/projections/src/cqrs_ddd_projections/worker.py"
     },
     {
@@ -8431,7 +8827,7 @@
       "path": "./packages/features/filtering/src/cqrs_ddd_filtering/pagination.py"
     },
     {
-      "complexity": 7,
+      "complexity": 6,
       "file_name": "pagination.py",
       "function_name": "PaginationParser::parse",
       "path": "./packages/features/filtering/src/cqrs_ddd_filtering/pagination.py"
@@ -8455,6 +8851,30 @@
       "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
     },
     {
+      "complexity": 3,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_sort",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_sort_item",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 4,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_sort_string",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
+      "complexity": 5,
+      "file_name": "parser.py",
+      "function_name": "FilterParser::_parse_sort_list",
+      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
+    },
+    {
       "complexity": 5,
       "file_name": "parser.py",
       "function_name": "FilterParser::parse",
@@ -8464,12 +8884,6 @@
       "complexity": 7,
       "file_name": "parser.py",
       "function_name": "FilterParser::_parse_fields",
-      "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
-    },
-    {
-      "complexity": 34,
-      "file_name": "parser.py",
-      "function_name": "FilterParser::_parse_sort",
       "path": "./packages/features/filtering/src/cqrs_ddd_filtering/parser.py"
     },
     {
@@ -8579,6 +8993,132 @@
       "file_name": "test_parser.py",
       "function_name": "test_whitelist_rejects_unknown_field",
       "path": "./packages/features/filtering/tests/test_parser.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checks.py",
+      "function_name": "DatabaseHealthCheck::__init__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checks.py",
+      "function_name": "MessageBrokerHealthCheck::__init__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "checks.py",
+      "function_name": "RedisHealthCheck::__init__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "checks.py",
+      "function_name": "DatabaseHealthCheck::__call__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "checks.py",
+      "function_name": "RedisHealthCheck::__call__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 11,
+      "file_name": "checks.py",
+      "function_name": "MessageBrokerHealthCheck::__call__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::__init__",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::heartbeat",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::register",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::get_instance",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 1,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::status",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::_check_heartbeats",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 8,
+      "file_name": "registry.py",
+      "function_name": "HealthRegistry::check_all",
+      "path": "./packages/infrastructure/health/src/cqrs_ddd_health/registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checks.py",
+      "function_name": "test_broker_health_check_fail",
+      "path": "./packages/infrastructure/health/tests/test_checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checks.py",
+      "function_name": "test_broker_health_check_falls_back_to_is_connected",
+      "path": "./packages/infrastructure/health/tests/test_checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checks.py",
+      "function_name": "test_broker_health_check_uses_health_check_when_available",
+      "path": "./packages/infrastructure/health/tests/test_checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checks.py",
+      "function_name": "test_database_health_check_ok",
+      "path": "./packages/infrastructure/health/tests/test_checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_checks.py",
+      "function_name": "test_redis_health_check_ok",
+      "path": "./packages/infrastructure/health/tests/test_checks.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "test_check_all_and_status",
+      "path": "./packages/infrastructure/health/tests/test_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "test_heartbeat_timeout_marks_down",
+      "path": "./packages/infrastructure/health/tests/test_registry.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_registry.py",
+      "function_name": "test_singleton",
+      "path": "./packages/infrastructure/health/tests/test_registry.py"
     },
     {
       "complexity": 0,
@@ -9555,12 +10095,6 @@
     {
       "complexity": 0,
       "file_name": "context.py",
-      "function_name": "ObservabilityContext::get",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "context.py",
       "function_name": "ObservabilityContext::get_correlation_id",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
     },
@@ -9577,57 +10111,39 @@
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
     },
     {
-      "complexity": 0,
+      "complexity": 1,
+      "file_name": "context.py",
+      "function_name": "ObservabilityContext::get",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
+    },
+    {
+      "complexity": 1,
       "file_name": "context.py",
       "function_name": "ObservabilityContext::set",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/context.py"
     },
     {
-      "complexity": 0,
-      "file_name": "correlation.py",
-      "function_name": "CorrelationIdPropagator::__init__",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/correlation.py"
-    },
-    {
-      "complexity": 12,
-      "file_name": "correlation.py",
-      "function_name": "CorrelationIdPropagator::__call__",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/correlation.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "health.py",
-      "function_name": "HealthRegistry::__init__",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
-    },
-    {
-      "complexity": 0,
-      "file_name": "health.py",
-      "function_name": "HealthRegistry::register",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
-    },
-    {
       "complexity": 1,
-      "file_name": "health.py",
-      "function_name": "HealthRegistry::get_instance",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+      "file_name": "hooks.py",
+      "function_name": "install_framework_hooks",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/hooks.py"
     },
     {
-      "complexity": 1,
-      "file_name": "health.py",
-      "function_name": "HealthRegistry::status",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
-    },
-    {
-      "complexity": 8,
-      "file_name": "health.py",
-      "function_name": "HealthRegistry::check_all",
-      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/health.py"
+      "complexity": 5,
+      "file_name": "hooks.py",
+      "function_name": "ObservabilityInstrumentationHook::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/hooks.py"
     },
     {
       "complexity": 1,
       "file_name": "metrics.py",
       "function_name": "MetricsMiddleware::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/metrics.py"
+    },
+    {
+      "complexity": 2,
+      "file_name": "metrics.py",
+      "function_name": "_detect_kind",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/metrics.py"
     },
     {
@@ -9637,7 +10153,43 @@
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/metrics.py"
     },
     {
-      "complexity": 6,
+      "complexity": 0,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::_hash_value",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::__init__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 3,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::_extract_payload",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 7,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::__call__",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 10,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::_get_active_span",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 12,
+      "file_name": "payload_tracing.py",
+      "function_name": "PayloadTracingMiddleware::_sanitize_value",
+      "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/payload_tracing.py"
+    },
+    {
+      "complexity": 7,
       "file_name": "sentry.py",
       "function_name": "SentryMiddleware::__call__",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/sentry.py"
@@ -9649,7 +10201,7 @@
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/structured_logging.py"
     },
     {
-      "complexity": 2,
+      "complexity": 3,
       "file_name": "structured_logging.py",
       "function_name": "StructuredLoggingMiddleware::__call__",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/structured_logging.py"
@@ -9661,40 +10213,64 @@
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/tracing.py"
     },
     {
-      "complexity": 7,
+      "complexity": 6,
       "file_name": "tracing.py",
       "function_name": "TracingMiddleware::__call__",
       "path": "./packages/infrastructure/observability/src/cqrs_ddd_observability/tracing.py"
     },
     {
       "complexity": 0,
-      "file_name": "test_correlation.py",
-      "function_name": "test_propagator_does_not_raise",
-      "path": "./packages/infrastructure/observability/tests/test_correlation.py"
+      "file_name": "test_hooks.py",
+      "function_name": "_FakeHook::__call__",
+      "path": "./packages/infrastructure/observability/tests/test_hooks.py"
     },
     {
       "complexity": 0,
-      "file_name": "test_correlation.py",
-      "function_name": "test_propagator_sets_context_from_message",
-      "path": "./packages/infrastructure/observability/tests/test_correlation.py"
+      "file_name": "test_hooks.py",
+      "function_name": "test_install_framework_hooks_registers_hook",
+      "path": "./packages/infrastructure/observability/tests/test_hooks.py"
     },
     {
       "complexity": 0,
-      "file_name": "test_health.py",
-      "function_name": "test_check_all",
-      "path": "./packages/infrastructure/observability/tests/test_health.py"
+      "file_name": "test_hooks.py",
+      "function_name": "test_instrumentation_hook_calls_next_handler",
+      "path": "./packages/infrastructure/observability/tests/test_hooks.py"
     },
     {
       "complexity": 0,
-      "file_name": "test_health.py",
-      "function_name": "test_singleton",
-      "path": "./packages/infrastructure/observability/tests/test_health.py"
+      "file_name": "test_payload_tracing.py",
+      "function_name": "_FakeSpan::__init__",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
     },
     {
       "complexity": 0,
-      "file_name": "test_health.py",
-      "function_name": "test_status_contains_timestamp",
-      "path": "./packages/infrastructure/observability/tests/test_health.py"
+      "file_name": "test_payload_tracing.py",
+      "function_name": "_FakeSpan::add_event",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_payload_tracing.py",
+      "function_name": "_FakeSpan::set_attribute",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_payload_tracing.py",
+      "function_name": "test_payload_tracing_no_active_span_is_noop",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_payload_tracing.py",
+      "function_name": "test_payload_tracing_redacts_and_hashes_fields",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "test_payload_tracing.py",
+      "function_name": "test_payload_tracing_uses_allowlist_and_truncation",
+      "path": "./packages/infrastructure/observability/tests/test_payload_tracing.py"
     },
     {
       "complexity": 0,
@@ -9715,6 +10291,18 @@
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "RedisCacheService::get",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "cache.py",
+      "function_name": "RedisCacheService::set",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
+    },
+    {
       "complexity": 1,
       "file_name": "cache.py",
       "function_name": "RedisCacheService::delete",
@@ -9729,13 +10317,13 @@
     {
       "complexity": 6,
       "file_name": "cache.py",
-      "function_name": "RedisCacheService::get",
+      "function_name": "RedisCacheService::_get_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
       "complexity": 7,
       "file_name": "cache.py",
-      "function_name": "RedisCacheService::set",
+      "function_name": "RedisCacheService::_set_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/cache.py"
     },
     {
@@ -9801,7 +10389,19 @@
     {
       "complexity": 0,
       "file_name": "fifo_redis_locking.py",
+      "function_name": "FifoRedisLockStrategy::acquire",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fifo_redis_locking.py",
       "function_name": "FifoRedisLockStrategy::close",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "fifo_redis_locking.py",
+      "function_name": "FifoRedisLockStrategy::release",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
@@ -9819,13 +10419,13 @@
     {
       "complexity": 2,
       "file_name": "fifo_redis_locking.py",
-      "function_name": "FifoRedisLockStrategy::_execute_fair_acquire_script",
+      "function_name": "FifoRedisLockStrategy::_acquire_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
       "complexity": 2,
       "file_name": "fifo_redis_locking.py",
-      "function_name": "FifoRedisLockStrategy::acquire",
+      "function_name": "FifoRedisLockStrategy::_execute_fair_acquire_script",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
@@ -9849,7 +10449,7 @@
     {
       "complexity": 7,
       "file_name": "fifo_redis_locking.py",
-      "function_name": "FifoRedisLockStrategy::release",
+      "function_name": "FifoRedisLockStrategy::_release_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/fifo_redis_locking.py"
     },
     {
@@ -9874,6 +10474,18 @@
       "complexity": 0,
       "file_name": "redlock_locking.py",
       "function_name": "RedlockLockStrategy::_store_lock_metadata",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::acquire",
+      "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
+    },
+    {
+      "complexity": 0,
+      "file_name": "redlock_locking.py",
+      "function_name": "RedlockLockStrategy::release",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
@@ -9915,13 +10527,13 @@
     {
       "complexity": 5,
       "file_name": "redlock_locking.py",
-      "function_name": "RedlockLockStrategy::release",
+      "function_name": "RedlockLockStrategy::_release_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
       "complexity": 7,
       "file_name": "redlock_locking.py",
-      "function_name": "RedlockLockStrategy::acquire",
+      "function_name": "RedlockLockStrategy::_acquire_internal",
       "path": "./packages/infrastructure/redis/src/cqrs_ddd_redis/redlock_locking.py"
     },
     {
@@ -10339,7 +10951,13 @@
       "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/set.py"
     },
     {
-      "complexity": 21,
+      "complexity": 2,
+      "file_name": "standard.py",
+      "function_name": "_validate_range_operand",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/standard.py"
+    },
+    {
+      "complexity": 8,
       "file_name": "standard.py",
       "function_name": "compile_standard",
       "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/operators/standard.py"
@@ -10471,9 +11089,21 @@
       "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
     },
     {
-      "complexity": 42,
+      "complexity": 5,
       "file_name": "repository.py",
       "function_name": "MongoRepository::search",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 6,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::_build_pipeline",
+      "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
+    },
+    {
+      "complexity": 13,
+      "file_name": "repository.py",
+      "function_name": "MongoRepository::_extract_search_context",
       "path": "./packages/persistence/mongo/src/cqrs_ddd_persistence_mongo/repository.py"
     },
     {

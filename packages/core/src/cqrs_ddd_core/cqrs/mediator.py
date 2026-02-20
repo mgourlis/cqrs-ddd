@@ -6,6 +6,11 @@ import logging
 from contextvars import ContextVar
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
+from ..correlation import (
+    generate_correlation_id,
+    get_correlation_id,
+    set_correlation_id,
+)
 from ..ports.bus import ICommandBus, IQueryBus
 
 if TYPE_CHECKING:
@@ -98,12 +103,15 @@ class Mediator(ICommandBus, IQueryBus):
             return await self._dispatch_command(command)
 
         # Root command — new UoW scope
-        # Ensure correlation_id exists for tracking
-        if not command.correlation_id:
-            import uuid
-
-            # Use model_copy to keep Command immutable if it's Pydantic
-            command = command.model_copy(update={"correlation_id": str(uuid.uuid4())})
+        # Ensure correlation_id exists for tracking.
+        # Prefer the context ContextVar, then the command's own field,
+        # then generate a new one and propagate it to both.
+        cid = command.correlation_id or get_correlation_id()
+        if not cid:
+            cid = generate_correlation_id()
+        if command.correlation_id != cid:
+            command = command.model_copy(update={"correlation_id": cid})
+        set_correlation_id(cid)
 
         async with self._uow_factory() as uow:
             token = _current_uow.set(uow)
@@ -140,20 +148,32 @@ class Mediator(ICommandBus, IQueryBus):
                 self._event_dispatcher.register(event_type, handler_instance)
 
     async def query(self, query: Query[TResult]) -> QueryResponse[TResult]:
-        """Dispatch a *query* (no UoW, no middleware)."""
-        # Ensure correlation_id exists for tracking
-        if not query.correlation_id:
-            import uuid
-
-            query = query.model_copy(update={"correlation_id": str(uuid.uuid4())})
+        """Dispatch a *query* through the middleware pipeline (no UoW)."""
+        cid = query.correlation_id or get_correlation_id()
+        if not cid:
+            cid = generate_correlation_id()
+        if query.correlation_id != cid:
+            query = query.model_copy(update={"correlation_id": cid})
+        set_correlation_id(cid)
 
         handler_cls = self._registry.get_query_handler(type(query))
         if handler_cls is None:
             raise ValueError(f"No handler registered for query {type(query).__name__}")
         handler = cast("QueryHandler[TResult]", self._handler_factory(handler_cls))
-        result = await handler.handle(query)
 
-        # Propagate IDs to response
+        async def _innermost(q: Query[TResult]) -> QueryResponse[TResult]:
+            return await handler.handle(q)
+
+        if self._middleware_registry is not None:
+            from ..middleware.pipeline import build_pipeline
+
+            middlewares = self._middleware_registry.get_ordered_middlewares()
+            pipeline = build_pipeline(middlewares, _innermost)
+        else:
+            pipeline = _innermost
+
+        result = await pipeline(query)
+
         propagated = self._propagate_ids(query, result)
         return cast("QueryResponse[TResult]", propagated)
 

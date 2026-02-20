@@ -8,6 +8,8 @@ from typing import TYPE_CHECKING, Generic
 from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import TypeVar
 
+from ..correlation import get_correlation_id
+
 if TYPE_CHECKING:
     from ..primitives.locking import ResourceIdentifier
 
@@ -24,12 +26,17 @@ class Command(BaseModel, Generic[TResult]):
     - Can be validated, logged, and persisted via middleware
 
     For commands that need pessimistic locking, override `get_critical_resources()`.
+
+    The ``correlation_id`` is automatically inherited from the current context
+    (see :func:`~cqrs_ddd_core.correlation.get_correlation_id`). If no
+    correlation ID is active in the context, it defaults to ``None`` and the
+    Mediator will generate one at dispatch time.
     """
 
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
     command_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    correlation_id: str | None = None
+    correlation_id: str | None = Field(default_factory=get_correlation_id)
 
     def get_critical_resources(self) -> list[ResourceIdentifier]:
         """
