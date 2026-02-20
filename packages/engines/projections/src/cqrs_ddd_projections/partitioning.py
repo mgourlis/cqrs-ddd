@@ -6,6 +6,8 @@ from __future__ import annotations
 import hashlib
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 from .worker import ProjectionWorker
@@ -77,7 +79,17 @@ class PartitionedProjectionWorker(IBackgroundWorker):
             "projection",
             f"partition_{self._partition_index}",
         )
-        self._lock_token = await self._lock_strategy.acquire(resource)
+        registry = get_hook_registry()
+        self._lock_token = await registry.execute_all(
+            f"projection.partition.{self._partition_index}",
+            {
+                "partition_index": self._partition_index,
+                "partition_count": self._partition_count,
+                "resource": str(resource),
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._lock_strategy.acquire(resource),
+        )
         await self._worker.start()
 
     async def stop(self) -> None:

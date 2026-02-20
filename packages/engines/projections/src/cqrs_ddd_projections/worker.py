@@ -8,6 +8,8 @@ import contextlib
 import logging
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 from .error_handling import ProjectionErrorPolicy
@@ -121,6 +123,24 @@ class ProjectionWorker(IBackgroundWorker):
         return self._partition_filter(stored)
 
     async def _process_event_with_retry(
+        self, stored: StoredEvent, event_position: int
+    ) -> None:
+        """Process a single event with retry logic for transient failures."""
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"projection.process.{self._projection_name}",
+            {
+                "projection.name": self._projection_name,
+                "projection.position": event_position,
+                "event.id": str(stored.event_id),
+                "event.type": stored.event_type,
+                "correlation_id": get_correlation_id()
+                or getattr(stored, "correlation_id", None),
+            },
+            lambda: self._process_event_with_retry_internal(stored, event_position),
+        )
+
+    async def _process_event_with_retry_internal(
         self, stored: StoredEvent, event_position: int
     ) -> None:
         """Process a single event with retry logic for transient failures."""

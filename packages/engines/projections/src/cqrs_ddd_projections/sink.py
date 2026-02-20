@@ -6,6 +6,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 
 from .error_handling import ProjectionErrorPolicy
@@ -71,9 +73,24 @@ class EventSinkRunner(IBackgroundWorker):
                 return
 
             handlers = self._projection_registry.get_handlers(event_type)
+            registry = get_hook_registry()
             for handler in handlers:
                 try:
-                    await handler.handle(domain_event)
+
+                    async def _handle_event(h: Any = handler) -> None:
+                        await h.handle(domain_event)
+
+                    await registry.execute_all(
+                        f"projection_sink.write.{self._projection_name}",
+                        {
+                            "projection.name": self._projection_name,
+                            "event.type": event_type,
+                            "handler.type": type(handler).__name__,
+                            "correlation_id": get_correlation_id()
+                            or getattr(domain_event, "correlation_id", None),
+                        },
+                        _handle_event,
+                    )
                 except Exception as e:  # noqa: BLE001
                     await self._error_policy.handle_failure(domain_event, e, 1)
             self._offset += 1

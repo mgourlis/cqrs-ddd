@@ -5,6 +5,9 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
+from cqrs_ddd_core.correlation import get_correlation_id
+from cqrs_ddd_core.instrumentation import get_hook_registry
+
 from .error_handling import ProjectionErrorPolicy
 
 if TYPE_CHECKING:
@@ -49,12 +52,35 @@ class ReplayEngine:
     ) -> None:
         """Replay projection from position using streaming API.
         Optionally call on_drop() to clear read model first."""
+        registry = get_hook_registry()
+        await registry.execute_all(
+            f"replay.start.{projection_name}",
+            {
+                "projection.name": projection_name,
+                "from_position": from_position,
+                "correlation_id": get_correlation_id(),
+            },
+            lambda: self._replay_internal(
+                projection_name,
+                from_position=from_position,
+                on_drop=on_drop,
+                progress_callback=progress_callback,
+            ),
+        )
+
+    async def _replay_internal(
+        self,
+        projection_name: str,
+        *,
+        from_position: int = 0,
+        on_drop: Callable[[], Any] | None = None,
+        progress_callback: Callable[[int, int, float], Any] | None = None,
+    ) -> None:
         await self._execute_on_drop(on_drop)
         await self._checkpoint_store.save_position(projection_name, from_position)
 
         position = from_position
         processed = 0
-
         async for batch in self._event_store.get_all_streaming(
             batch_size=self._batch_size
         ):
