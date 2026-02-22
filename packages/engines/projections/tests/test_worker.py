@@ -88,5 +88,5 @@ async def test_worker_processes_events_and_checkpoints(
     await asyncio.sleep(0.05)
     await worker.stop()
     pos = await checkpoint.get_position("test")
-    # Worker should have processed 1 event and checkpointed at position 1
-    assert pos == 1
+    # Worker should have processed 1 event and checkpointed at its actual position
+    assert pos == 0  # Event had position=0, so checkpoint should be 0

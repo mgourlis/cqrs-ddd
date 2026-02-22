@@ -88,6 +88,35 @@ class IEventStore(Protocol):
         """
         ...
 
+    async def get_events_from_position(
+        self,
+        position: int,
+        *,
+        limit: int | None = None,
+    ) -> AsyncIterator[StoredEvent]:
+        """Stream events starting from a specific position.
+
+        Used by ProjectionWorker to resume after crash.
+
+        Args:
+            position: Starting position (exclusive).
+            limit: Optional batch size limit per internal batch.
+
+        Yields:
+            StoredEvent objects with incrementing positions.
+        """
+        ...
+
+    async def get_latest_position(self) -> int | None:
+        """Get the highest event position in the store.
+
+        Used for catch-up subscription mode.
+
+        Returns:
+            Latest position number, or None if no events exist.
+        """
+        ...
+
     def get_all_streaming(
         self, batch_size: int = 1000
     ) -> AsyncIterator[list[StoredEvent]]:

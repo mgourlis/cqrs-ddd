@@ -19,6 +19,10 @@ if TYPE_CHECKING:
     from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
+_TERMINAL_STATUSES = frozenset(
+    {BackgroundJobStatus.COMPLETED, BackgroundJobStatus.CANCELLED}
+)
+
 
 class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
     """In-memory implementation of ``IBackgroundJobRepository`` for testing."""
@@ -87,17 +91,80 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
             if job.status != BackgroundJobStatus.RUNNING:
                 continue
 
-            # Ensure updated_at is UTC
             updated = job.updated_at
             if updated.tzinfo is None:
                 updated = updated.replace(tzinfo=timezone.utc)
 
             elapsed = (now - updated).total_seconds()
-
-            # Use override if provided, else default to 1 hour
             timeout = timeout_seconds if timeout_seconds is not None else 3600
 
             if elapsed > timeout:
                 stale.append(job)
 
         return stale
+
+    async def find_by_status(
+        self,
+        statuses: builtins.list[BackgroundJobStatus],
+        limit: int = 50,
+        offset: int = 0,
+        _uow: UnitOfWork | None = None,
+    ) -> builtins.list[BaseBackgroundJob]:
+        """Return jobs matching given statuses, ordered by updated_at desc."""
+        status_set = set(statuses)
+
+        def _sort_key(j: BaseBackgroundJob) -> datetime:
+            # Normalize to UTC-aware so that mixed naive/aware jobs sort correctly.
+            ts = j.updated_at
+            return ts if ts.tzinfo is not None else ts.replace(tzinfo=timezone.utc)
+
+        matched = sorted(
+            (j for j in self._jobs.values() if j.status in status_set),
+            key=_sort_key,
+            reverse=True,
+        )
+        return matched[offset : offset + limit]
+
+    async def count_by_status(
+        self,
+        _uow: UnitOfWork | None = None,
+    ) -> builtins.dict[str, int]:
+        """Return a mapping of status value → job count (omits zero-count statuses)."""
+        counts: builtins.dict[str, int] = {}
+        for job in self._jobs.values():
+            key = job.status.value
+            counts[key] = counts.get(key, 0) + 1
+        return counts
+
+    async def is_cancellation_requested(
+        self,
+        job_id: str,
+        _uow: UnitOfWork | None = None,
+    ) -> bool:
+        """Return True if the job's stored status is CANCELLED."""
+        job = self._jobs.get(job_id)
+        return job is not None and job.status == BackgroundJobStatus.CANCELLED
+
+    async def purge_completed(
+        self,
+        before: datetime,
+        _uow: UnitOfWork | None = None,
+    ) -> int:
+        """Delete COMPLETED and CANCELLED jobs with updated_at older than before."""
+        if before.tzinfo is None:
+            before = before.replace(tzinfo=timezone.utc)
+
+        to_delete = [
+            job_id
+            for job_id, job in self._jobs.items()
+            if job.status in _TERMINAL_STATUSES
+            and (
+                job.updated_at.replace(tzinfo=timezone.utc)
+                if job.updated_at.tzinfo is None
+                else job.updated_at
+            )
+            < before
+        ]
+        for job_id in to_delete:
+            del self._jobs[job_id]
+        return len(to_delete)

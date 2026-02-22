@@ -13,6 +13,7 @@ authors = [
     { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
 ]
 dependencies = [
+    "cqrs-ddd-advanced-core",
     "cqrs-ddd-core",
     "redlock-ng>=1.0.1",
     "redis>=5.0.0",

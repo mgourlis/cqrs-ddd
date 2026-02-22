@@ -25,9 +25,5 @@ class TransactionError(SQLAlchemyPersistenceError):
     """Raised when transaction operations fail."""
 
 
-class OptimisticConcurrencyError(SQLAlchemyPersistenceError):
-    """Raised when optimistic concurrency check fails (version mismatch)."""
-
-
 class MappingError(SQLAlchemyPersistenceError):
     """Raised when mapping between domain entities and DB models fails."""

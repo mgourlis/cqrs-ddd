@@ -19,11 +19,23 @@ from .persistence import (
     SQLAlchemyQuerySpecificationPersistence,
     SQLAlchemyRetrievalPersistence,
 )
+from .position_store import SQLAlchemyProjectionPositionStore
+from .projection_query import (
+    SQLAlchemyProjectionDualPersistence,
+    SQLAlchemyProjectionQueryPersistence,
+    SQLAlchemyProjectionSpecPersistence,
+)
+from .projection_store import SQLAlchemyProjectionStore
 from .saga import SQLAlchemySagaRepository
 from .scheduling import SQLAlchemyCommandScheduler
 from .snapshots import SQLAlchemySnapshotStore
 
 __all__ = [
+    "SQLAlchemyProjectionPositionStore",
+    "SQLAlchemyProjectionStore",
+    "SQLAlchemyProjectionQueryPersistence",
+    "SQLAlchemyProjectionSpecPersistence",
+    "SQLAlchemyProjectionDualPersistence",
     "SQLAlchemySagaRepository",
     "SQLAlchemyBackgroundJobRepository",
     "SQLAlchemyCommandScheduler",

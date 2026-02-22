@@ -20,13 +20,17 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "cqrs-ddd-advanced-core",
     "cqrs-ddd-core",
     "cqrs-ddd-specifications",
+    "cqrs-ddd-projections",
     "motor>=3.3.0",
 ]
 
 [project.optional-dependencies]
 advanced = ["cqrs-ddd-advanced-core"]
+dispatcher = ["cqrs-ddd-advanced-core"]
+dev = ["mongomock-motor>=0.0.0", "pytest-cov>=4.0", "testcontainers>=4.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

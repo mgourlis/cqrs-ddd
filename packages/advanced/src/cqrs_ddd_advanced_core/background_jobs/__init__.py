@@ -1,7 +1,9 @@
-"""Background Job Management — entity, events, service, worker, handler."""
+"""Background Job Management — entity, events, services, worker, handler."""
 
 from __future__ import annotations
 
+from ..exceptions import CancellationRequestedError
+from .admin_service import BackgroundJobAdminService, JobStatistics
 from .entity import BackgroundJobStatus, BaseBackgroundJob
 from .events import (
     JobCancelled,
@@ -26,8 +28,11 @@ __all__ = [
     "JobFailed",
     "JobRetried",
     "JobCancelled",
-    # Service
+    # Exceptions
+    "CancellationRequestedError",
     "BackgroundJobService",
+    "BackgroundJobAdminService",
+    "JobStatistics",
     # Worker
     "JobSweeperWorker",
     # Handler

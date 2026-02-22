@@ -1,7 +1,13 @@
-"""Pydantic model <-> BSON document round-trip (datetime, UUID, Decimal)."""
+"""Pydantic model <-> BSON document round-trip (datetime, UUID, Decimal).
+
+.. deprecated::
+    Prefer :class:`cqrs_ddd_persistence_mongo.core.model_mapper.MongoDBModelMapper`
+    for BSON type preservation (mode='python', Decimal128). See docs/mongodb_model_mapper.md.
+"""
 
 from __future__ import annotations
 
+import warnings
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, TypeVar, cast
@@ -47,9 +53,19 @@ def model_to_doc(model: BaseModel, *, use_id_field: str = "id") -> dict[str, Any
     """Convert a Pydantic model to a BSON-ready document.
 
     Uses ``use_id_field`` as the document _id key if present (e.g. "id" -> "_id").
+
+    .. deprecated::
+        Use ``MongoDBModelMapper(entity_cls).to_doc(entity)`` for BSON preservation.
+        See docs/mongodb_model_mapper.md.
     """
+    warnings.warn(
+        "model_to_doc is deprecated. Use MongoDBModelMapper(entity_cls).to_doc(entity) "
+        "instead. See docs/mongodb_model_mapper.md.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     try:
-        data = model.model_dump(mode="json")
+        data = model.model_dump()
     except Exception as e:
         raise MongoPersistenceError(str(e)) from e
     data = cast("dict[str, Any]", _serialize_value(data))
@@ -69,7 +85,17 @@ def model_from_doc(
     """Convert a BSON document to a Pydantic model instance.
 
     Maps ``_id`` to ``id_field`` (e.g. "id") for the model.
+
+    .. deprecated::
+        Use ``MongoDBModelMapper(cls).from_doc(doc)`` instead.
+        See docs/mongodb_model_mapper.md.
     """
+    warnings.warn(
+        "model_from_doc is deprecated. Use MongoDBModelMapper(cls).from_doc(doc) "
+        "instead. See docs/mongodb_model_mapper.md.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if not isinstance(doc, dict):
         raise MongoPersistenceError("Document must be a dict")
     doc = dict(doc)

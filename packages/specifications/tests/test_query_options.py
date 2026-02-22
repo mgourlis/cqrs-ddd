@@ -56,6 +56,26 @@ def test_with_ordering():
     assert opts.order_by == ["-created_at", "name"]
 
 
+def test_with_select_fields():
+    opts = QueryOptions().with_select_fields("id", "name", "email")
+    assert opts.select_fields == ["id", "name", "email"]
+    assert opts.specification is None  # unchanged
+
+
+def test_with_distinct():
+    opts = QueryOptions().with_distinct()
+    assert opts.distinct is True
+
+    opts_false = QueryOptions().with_distinct(False)
+    assert opts_false.distinct is False
+
+
+def test_with_group_by():
+    opts = QueryOptions().with_group_by("category", "status")
+    assert opts.group_by == ["category", "status"]
+    assert opts.specification is None  # unchanged
+
+
 # -- Merge ------------------------------------------------------------------
 
 

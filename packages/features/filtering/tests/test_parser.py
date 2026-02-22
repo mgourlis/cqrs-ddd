@@ -8,10 +8,12 @@ from cqrs_ddd_filtering.exceptions import FieldNotAllowedError
 from cqrs_ddd_filtering.parser import FilterParser
 from cqrs_ddd_filtering.syntax import JsonFilterSyntax
 from cqrs_ddd_filtering.whitelist import FieldWhitelist
+from cqrs_ddd_specifications import build_default_registry
 
 
 def test_parse_colon_filter() -> None:
-    parser = FilterParser()
+    registry = build_default_registry()
+    parser = FilterParser(registry)
     spec, options = parser.parse({"filter": "status:eq:active"})
     assert spec is not None
     assert options.limit is None
@@ -24,7 +26,8 @@ def test_parse_with_whitelist() -> None:
         sortable_fields={"created_at"},
         projectable_fields={"id", "status"},
     )
-    parser = FilterParser()
+    registry = build_default_registry()
+    parser = FilterParser(registry)
     spec, options = parser.parse(
         {"filter": "status:eq:active", "sort": "created_at", "limit": "10"},
         whitelist=whitelist,
@@ -35,13 +38,15 @@ def test_parse_with_whitelist() -> None:
 
 def test_whitelist_rejects_unknown_field() -> None:
     whitelist = FieldWhitelist(filterable_fields={"status": {"eq"}})
-    parser = FilterParser()
+    registry = build_default_registry()
+    parser = FilterParser(registry)
     with pytest.raises(FieldNotAllowedError):
         parser.parse({"filter": "other:eq:1"}, whitelist=whitelist)
 
 
 def test_json_syntax() -> None:
-    parser = FilterParser(default_syntax=JsonFilterSyntax())
+    registry = build_default_registry()
+    parser = FilterParser(registry, default_syntax=JsonFilterSyntax())
     spec_dict = {"and": [{"field": "status", "op": "eq", "value": "active"}]}
     spec, _ = parser.parse({"filter": spec_dict})
     assert spec is not None

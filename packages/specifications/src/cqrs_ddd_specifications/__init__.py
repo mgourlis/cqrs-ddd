@@ -17,7 +17,7 @@ from .exceptions import (
 )
 from .hooks import HookResult, ResolutionContext, ResolutionHook
 from .operators import SpecificationOperator
-from .operators_memory import DEFAULT_REGISTRY
+from .operators_memory import build_default_registry
 from .query_options import QueryOptions
 from .utils import cast_value, geojson_to_str, parse_interval, parse_list_value
 
@@ -41,7 +41,7 @@ __all__ = [
     # Evaluator / strategy
     "MemoryOperator",
     "MemoryOperatorRegistry",
-    "DEFAULT_REGISTRY",
+    "build_default_registry",
     # Exceptions
     "SpecificationError",
     "ValidationError",

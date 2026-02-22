@@ -9,7 +9,7 @@ pytest.importorskip("testcontainers")
 from pydantic import BaseModel
 
 from cqrs_ddd_persistence_mongo.connection import MongoConnectionManager
-from cqrs_ddd_persistence_mongo.repository import MongoRepository
+from cqrs_ddd_persistence_mongo.core.repository import MongoRepository
 
 
 class ReadModel(BaseModel):
@@ -38,7 +38,7 @@ async def test_connection_health(mongo_url: str) -> None:
 async def test_repository_crud(mongo_url: str) -> None:
     mgr = MongoConnectionManager(url=mongo_url)
     await mgr.connect()
-    repo = MongoRepository(mgr, "test_coll", ReadModel)
+    repo = MongoRepository(mgr, "test_coll", ReadModel, database="test_db")
     try:
         e = ReadModel(id="1", name="a", value=10)
         out_id = await repo.add(e)

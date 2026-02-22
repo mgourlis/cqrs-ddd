@@ -22,6 +22,26 @@ class ConcurrencyError(CQRSDDDError):
     Handlers catch this to trigger automated conflict resolution loops."""
 
 
+class OptimisticConcurrencyError(ConcurrencyError):
+    """Raised when concurrent modification is detected via version mismatch.
+
+    This is a technical concurrency error (version mismatch in database) as opposed to
+    DomainConcurrencyError which represents semantic business conflicts.
+
+    Both SQLAlchemy and MongoDB implementations raise this exception when
+    optimistic locking detects concurrent modifications.
+
+    Example:
+        try:
+            await repo.add(order)
+        except OptimisticConcurrencyError:
+            # Retry with fresh data
+            fresh = await repo.get(order.id)
+            merged = merge_strategy.merge(fresh, order)
+            await repo.add(merged)
+    """
+
+
 class DomainConcurrencyError(ConcurrencyError, DomainError):
     """Raised when domain logic detects a semantic conflict.
 

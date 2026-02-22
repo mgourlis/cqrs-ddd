@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_specifications.ast import AttributeSpecification
 from cqrs_ddd_specifications.base import AndSpecification
+from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
 from cqrs_ddd_specifications.operators import SpecificationOperator
 
 from .exceptions import SecurityConstraintError
@@ -19,6 +20,7 @@ class SecurityConstraintInjector:
 
     def __init__(
         self,
+        registry: MemoryOperatorRegistry,
         *,
         get_tenant_id: Callable[[], str | None] | None = None,
         get_owner_id: Callable[[], str | None] | None = None,
@@ -26,6 +28,24 @@ class SecurityConstraintInjector:
         owner_field: str = "owner_id",
         require_tenant: bool = True,
     ) -> None:
+        """
+        Initialize SecurityConstraintInjector.
+        
+        Args:
+            registry: MemoryOperatorRegistry for creating specifications.
+            get_tenant_id: Callable that returns current tenant ID.
+            get_owner_id: Callable that returns current owner ID.
+            tenant_field: Field name for tenant constraint.
+            owner_field: Field name for owner constraint.
+            require_tenant: Raise error if tenant_id is None.
+        """
+        if registry is None:
+            raise ValueError(
+                "registry parameter is required. "
+                "Use build_default_registry() from cqrs_ddd_specifications.operators_memory "
+                "to create one."
+            )
+        self._registry = registry
         self._get_tenant_id = get_tenant_id
         self._get_owner_id = get_owner_id
         self._tenant_field = tenant_field
@@ -43,6 +63,7 @@ class SecurityConstraintInjector:
                         self._tenant_field,
                         SpecificationOperator.EQ,
                         tenant,
+                        registry=self._registry,
                     )
                 )
             elif self._require_tenant:
@@ -55,6 +76,7 @@ class SecurityConstraintInjector:
                         self._owner_field,
                         SpecificationOperator.EQ,
                         owner,
+                        registry=self._registry,
                     )
                 )
         if not constraints:

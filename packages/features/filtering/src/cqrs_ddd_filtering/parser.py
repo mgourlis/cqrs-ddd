@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from cqrs_ddd_specifications.ast import SpecificationFactory
+from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
 
 from .syntax import ColonSeparatedSyntax, FilterSyntax
 
@@ -25,7 +26,25 @@ class QueryOptions(NamedTuple):
 class FilterParser:
     """Parse API params into specification tree + QueryOptions."""
 
-    def __init__(self, default_syntax: FilterSyntax | None = None) -> None:
+    def __init__(
+        self,
+        registry: MemoryOperatorRegistry,
+        default_syntax: FilterSyntax | None = None,
+    ) -> None:
+        """
+        Initialize FilterParser with required registry.
+        
+        Args:
+            registry: MemoryOperatorRegistry for specification evaluation.
+            default_syntax: Optional filter syntax parser (defaults to ColonSeparatedSyntax).
+        """
+        if registry is None:
+            raise ValueError(
+                "registry parameter is required. "
+                "Use build_default_registry() from cqrs_ddd_specifications.operators_memory "
+                "to create one."
+            )
+        self._registry = registry
         self._syntax = default_syntax or ColonSeparatedSyntax()
 
     def parse(
@@ -45,7 +64,9 @@ class FilterParser:
             self._validate_spec_dict(spec_dict, whitelist)
         allowed = list(whitelist.filterable_fields.keys()) if whitelist else None
         spec: Any = (
-            SpecificationFactory.from_dict(spec_dict, allowed_fields=allowed)
+            SpecificationFactory.from_dict(
+                spec_dict, allowed_fields=allowed, registry=self._registry
+            )
             if spec_dict
             else None
         )

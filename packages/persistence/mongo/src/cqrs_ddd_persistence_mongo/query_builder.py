@@ -75,7 +75,8 @@ class MongoQueryBuilder:
     def build_match(self, spec: Any) -> dict[str, Any]:
         """Build $match stage from a specification.
 
-        Accepts either a specification instance (with to_dict()) or a dict AST.
+        Accepts either a specification instance (with to_dict()), a dict AST
+        (with attr/op/conditions), or a raw MongoDB filter dict (e.g. {"field": {"$gte": 5}}).
         """
         if hasattr(spec, "to_dict"):
             data = spec.to_dict()
@@ -85,6 +86,9 @@ class MongoQueryBuilder:
             raise MongoQueryError("spec must be BaseSpecification or dict")
         if not data:
             return {}
+        # Raw MongoDB filter: top-level keys are field names, no "attr"/"op"/"conditions"
+        if not any(k in data for k in ("attr", "op", "conditions")):
+            return data
         return _compile_node(data)
 
     def build_sort(

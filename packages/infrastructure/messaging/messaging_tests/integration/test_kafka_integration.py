@@ -28,6 +28,7 @@ def kafka_bootstrap_servers() -> str:
         yield kafka.get_bootstrap_server()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_kafka_publish_consume(kafka_bootstrap_servers: str) -> None:
     conn = KafkaConnectionManager(bootstrap_servers=kafka_bootstrap_servers)
@@ -61,6 +62,7 @@ async def test_kafka_publish_consume(kafka_bootstrap_servers: str) -> None:
         await pub.close()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_kafka_health_check(kafka_bootstrap_servers: str) -> None:
     conn = KafkaConnectionManager(bootstrap_servers=kafka_bootstrap_servers)

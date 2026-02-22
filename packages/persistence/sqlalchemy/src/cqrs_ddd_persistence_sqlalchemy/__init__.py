@@ -12,6 +12,8 @@ from .core.models import (
     StoredEventModel,
 )
 from .core.outbox import SQLAlchemyOutboxStorage
+from .advanced.position_store import SQLAlchemyProjectionPositionStore
+from .advanced.projection_store import SQLAlchemyProjectionStore
 from .core.repository import SQLAlchemyRepository
 from .core.uow import SQLAlchemyUnitOfWork
 from .exceptions import (
@@ -59,7 +61,9 @@ __all__ = [
     "OutboxMessage",
     "StoredEventModel",
     "OutboxStatus",
-    # Projections
+    # Projections (IProjectionWriter / IProjectionPositionStore)
+    "SQLAlchemyProjectionStore",
+    "SQLAlchemyProjectionPositionStore",
     "ProjectionCheckpoint",
     "SQLAlchemyProjectionCheckpointStore",
     # Specifications / Compiler

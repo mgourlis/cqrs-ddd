@@ -2,13 +2,14 @@
 In-memory operator implementations.
 
 Provides concrete MemoryOperator subclasses for each SpecificationOperator
-and a ready-to-use default registry.
+and a factory function to create registries.
 
 Usage::
 
-    from cqrs_ddd_specifications.operators.memory import DEFAULT_REGISTRY
+    from cqrs_ddd_specifications.operators_memory import build_default_registry
 
-    result = DEFAULT_REGISTRY.evaluate(SpecificationOperator.EQ, actual, expected)
+    registry = build_default_registry()
+    result = registry.evaluate(SpecificationOperator.EQ, actual, expected)
 """
 
 from __future__ import annotations
@@ -76,7 +77,21 @@ from .string import (
 
 
 def build_default_registry() -> MemoryOperatorRegistry:
-    """Create a registry with all built-in operators."""
+    """
+    Create a registry with all built-in operators.
+    
+    This factory function creates a fresh MemoryOperatorRegistry instance
+    populated with all built-in operators. Use this to create registries
+    for dependency injection.
+    
+    Returns:
+        MemoryOperatorRegistry: A new registry instance with all operators.
+    
+    Example:
+        >>> registry = build_default_registry()
+        >>> registry.evaluate(SpecificationOperator.EQ, "active", "active")
+        True
+    """
     registry = MemoryOperatorRegistry()
     registry.register_all(
         # Standard comparison
@@ -135,10 +150,7 @@ def build_default_registry() -> MemoryOperatorRegistry:
     return registry
 
 
-DEFAULT_REGISTRY: MemoryOperatorRegistry = build_default_registry()
-
 __all__ = [
-    "DEFAULT_REGISTRY",
     "build_default_registry",
     "MemoryOperatorRegistry",
 ]

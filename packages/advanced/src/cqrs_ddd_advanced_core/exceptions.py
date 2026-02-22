@@ -68,6 +68,14 @@ class JobStateError(DomainError):
     """
 
 
+class CancellationRequestedError(DomainError):
+    """Raised inside ``execute()`` when cancellation is detected via checkpoint.
+
+    Signals the handler to stop cleanly without marking the job FAILED.
+    The handler catches this and ensures the job ends in CANCELLED state.
+    """
+
+
 __all__ = [
     "EventHandlerError",
     "EventSourcedAggregateRequiredError",
@@ -75,6 +83,7 @@ __all__ = [
     "InvalidEventHandlerError",
     "MissingEventHandlerError",
     "StrictValidationViolationError",
+    "CancellationRequestedError",
     "HandlerNotRegisteredError",
     "JobStateError",
     "MergeStrategyRegistryMissingError",

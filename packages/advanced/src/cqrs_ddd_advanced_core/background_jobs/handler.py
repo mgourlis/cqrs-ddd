@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Generic, TypeVar
 from cqrs_ddd_core.cqrs.handler import EventHandler
 from cqrs_ddd_core.domain.events import DomainEvent
 
+from ..exceptions import CancellationRequestedError
 from .entity import BackgroundJobStatus, BaseBackgroundJob
 
 if TYPE_CHECKING:
@@ -30,8 +31,16 @@ class BackgroundJobEventHandler(EventHandler[TEvent], Generic[TEvent]):
         2. ``before_processing()`` hook (optional)
         3. ``start_processing()``
         4. ``execute()``
-        5a. Success → ``complete()``
-        5b. Failure → ``on_failure()`` hook → ``fail()``
+        5a. Success → reload from repo, ``complete()`` if not cancelled
+        5b. CancellationRequestedError → ``on_cancellation()`` hook →
+            ensure CANCELLED state, return
+        5c. Other failure → ``on_failure()`` hook → ``fail()``
+
+    Cooperative cancellation:
+
+        Long-running ``execute()`` implementations should periodically call
+        :meth:`checkpoint_cancellation` to detect admin-initiated cancellation
+        and stop early.
     """
 
     def __init__(
@@ -61,6 +70,33 @@ class BackgroundJobEventHandler(EventHandler[TEvent], Generic[TEvent]):
         self, event: TEvent, job: BaseBackgroundJob, error: Exception
     ) -> None:
         """Called after a job execution error — before ``fail()``."""
+
+    async def on_cancellation(self, event: TEvent, job: BaseBackgroundJob) -> None:
+        """Called when the job is stopped by cooperative cancellation.
+
+        Override to release resources, delete temp files, or send
+        notifications. Runs before the job is persisted as CANCELLED.
+        """
+
+    # -- cooperative cancellation -----------------------------------------
+
+    async def checkpoint_cancellation(self, job_id: str) -> None:
+        """Poll the repository and raise if the job has been cancelled.
+
+        Call this periodically inside :meth:`execute` (e.g. between batches)
+        to enable cooperative cancellation of long-running work::
+
+            for batch in batches:
+                await self.checkpoint_cancellation(job.id)
+                await process(batch)
+                job.update_progress(processed)
+                await self._persistence.add(job)
+
+        Raises:
+            CancellationRequestedError: if the persisted status is CANCELLED.
+        """
+        if await self._persistence.is_cancellation_requested(job_id):
+            raise CancellationRequestedError(f"Job {job_id} was cancelled")
 
     # -- main entry -------------------------------------------------------
 
@@ -92,8 +128,23 @@ class BackgroundJobEventHandler(EventHandler[TEvent], Generic[TEvent]):
         # 4. Execute
         try:
             result = await self.execute(event, job)
+
+            # Guard against concurrent cancellation: reload fresh state.
+            latest = await self._persistence.get(job_id)
+            if latest and latest.status == BackgroundJobStatus.CANCELLED:
+                logger.info(
+                    "Job %s cancelled during execution — skipping completion",
+                    job_id,
+                )
+                return
+
             job.complete(result)
             await self._persistence.add(job)
+
+        except CancellationRequestedError:
+            await self.on_cancellation(event, job)
+            await self._handle_cancellation(job_id)
+
         except Exception as exc:
             logger.exception("Background job %s failed", job_id)
             await self.on_failure(event, job, exc)
@@ -107,3 +158,19 @@ class BackgroundJobEventHandler(EventHandler[TEvent], Generic[TEvent]):
                 job.fail(str(exc))
                 await self._persistence.add(job)
             raise
+
+    # -- internal ---------------------------------------------------------
+
+    async def _handle_cancellation(self, job_id: str) -> None:
+        """Ensure the job is persisted in CANCELLED state after cooperative cancel."""
+        latest = await self._persistence.get(job_id)
+        if not latest:
+            return
+        if latest.status == BackgroundJobStatus.CANCELLED:
+            logger.info("Job %s cooperatively cancelled", job_id)
+            return
+        # Admin cancel was detected but status hasn't been persisted yet
+        # (e.g. in-memory object diverged); force it.
+        latest.cancel()
+        await self._persistence.add(latest)
+        logger.info("Job %s cooperatively cancelled (persisted)", job_id)

@@ -1,8 +1,19 @@
-# cqrs-ddd-core
+# CQRS-DDD Core - Complete Implementation Guide
 
-The pure-Python foundation of the CQRS-DDD Toolkit. Zero infrastructure dependencies — only `pydantic` and `typing-extensions`.
+**Package:** `cqrs-ddd-core`  
+**Version:** 0.1.0  
+**Purpose:** Pure Python foundation for Domain-Driven Design and CQRS
 
-This package provides domain primitives, the CQRS dispatch pipeline, protocol-based ports for all infrastructure concerns, an in-memory adapter suite for testing, and two cross-cutting mechanisms that underpin the entire framework: **instrumentation hooks** and **correlation context**.
+The pure-Python foundation of the CQRS-DDD Toolkit. **Zero infrastructure dependencies** — only `pydantic` and `typing-extensions`.
+
+This package provides:
+- **Domain primitives** - AggregateRoot, DomainEvent, ValueObject, Mixins, Specification
+- **CQRS dispatch pipeline** - Mediator, Commands, Queries, Handlers, EventDispatcher
+- **Protocol-based ports** - IRepository, IEventStore, IOutboxStorage, UnitOfWork
+- **In-memory adapters** - Full test suite without databases
+- **Middleware pipeline** - Pluggable command/query processing
+- **Instrumentation hooks** - Observable without specific observability stack
+- **Correlation context** - Automatic distributed tracing
 
 ## Installation
 
@@ -14,8 +25,8 @@ Optional extras:
 
 ```bash
 pip install cqrs-ddd-core[geometry]       # SpatialMixin / GeoJSON support
-pip install cqrs-ddd-core[observability]   # OpenTelemetry hook adapter
-pip install cqrs-ddd-core[health]          # Health check registry
+pip install cqrs-ddd-core[observability]  # OpenTelemetry hook adapter
+pip install cqrs-ddd-core[health]         # Health check registry
 ```
 
 ---
@@ -37,6 +48,20 @@ cqrs_ddd_core/
 ├── correlation.py      # ContextVar-based correlation / causation ID propagation
 └── instrumentation.py  # HookRegistry, InstrumentationHook protocol, fire_and_forget_hook
 ```
+
+## Detailed Documentation
+
+Each folder has its own detailed README with implementation details and usage examples:
+
+| Folder | Description | README |
+|--------|-------------|--------|
+| **domain/** | Aggregate roots, domain events, value objects, mixins, specifications | [domain/README.md](src/cqrs_ddd_core/domain/README.md) |
+| **cqrs/** | Mediator, commands, queries, handlers, event dispatcher, registry | [cqrs/README.md](src/cqrs_ddd_core/cqrs/README.md) |
+| **ports/** | Protocol definitions for all infrastructure abstractions | [ports/README.md](src/cqrs_ddd_core/ports/README.md) |
+| **adapters/** | In-memory implementations for testing (repositories, UoW, event store, etc.) | [adapters/README.md](src/cqrs_ddd_core/adapters/README.md) |
+| **middleware/** | Pluggable middleware pipeline (logging, validation, outbox, locking) | [middleware/README.md](src/cqrs_ddd_core/middleware/README.md) |
+| **primitives/** | Exception hierarchy, ID generators, resource locking primitives | [primitives/README.md](src/cqrs_ddd_core/primitives/README.md) |
+| **validation/** | Pydantic validators, composite validators, validation results | [validation/README.md](src/cqrs_ddd_core/validation/README.md) |
 
 ---
 
@@ -529,3 +554,179 @@ Prefer package-specific exceptions over bare `ValueError` / `RuntimeError`.
 | `fire_and_forget_hook(r, op, attrs)` | Safe fire-and-forget hook from sync code |
 | `set_instrumentation_hook(h)` | Backward-compat: register a single hook |
 | `get_instrumentation_hook()` | Backward-compat: get the first registered hook |
+
+---
+
+## Domain Layer - Implementation Details
+
+### AggregateRoot
+
+Base class for all aggregates with event collection and versioning:
+
+```python
+from uuid import UUID
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
+
+class Order(AggregateRoot[UUID]):
+    """Order aggregate with business logic."""
+    
+    customer_id: str
+    status: str = "pending"
+    total: float = 0.0
+    
+    def add_item(self, item: OrderItem) -> None:
+        """Business logic in domain method."""
+        if self.status != "pending":
+            raise ValueError("Cannot modify confirmed order")
+        
+        # Update state (Pydantic frozen workaround)
+        items = self._items.copy()
+        items.append(item)
+        object.__setattr__(self, "_items", items)
+        
+        # Recalculate total
+        new_total = sum(i.price * i.quantity for i in items)
+        object.__setattr__(self, "total", new_total)
+        
+        # Record event
+        event = ItemAdded(aggregate_id=str(self.id), item_id=item.id)
+        self._domain_events.append(event)
+```
+
+**Key Features:**
+- Event collection via `_domain_events` private attribute
+- Versioning via `_version` for optimistic concurrency
+- Generic ID type support (str, int, UUID)
+- ID auto-generation via `IIDGenerator` protocol
+
+### DomainEvent
+
+Immutable fact with full tracing context:
+
+```python
+from cqrs_ddd_core.domain.events import DomainEvent
+
+class OrderCreated(DomainEvent):
+    aggregate_id: str  # Required for event sourcing
+    aggregate_type: str = "Order"
+    customer_id: str
+    total: float
+
+# Enrich with correlation
+enriched = enrich_event_metadata(event, correlation_id="req-123")
+```
+
+### ValueObject
+
+Immutable value with structural equality:
+
+```python
+from cqrs_ddd_core.domain.value_object import ValueObject
+
+class Money(ValueObject):
+    amount: float
+    currency: str
+
+price1 = Money(amount=100.0, currency="USD")
+price2 = Money(amount=100.0, currency="USD")
+print(price1 == price2)  # True
+```
+
+---
+
+## CQRS Layer - Implementation Details
+
+### Mediator
+
+Central dispatch with UoW scope management:
+
+```python
+from cqrs_ddd_core.cqrs.mediator import Mediator, get_current_uow
+
+mediator = Mediator(registry=registry, uow_factory=uow_factory)
+response = await mediator.send(command)
+
+# Nested commands share UoW
+uow = get_current_uow()  # Inherited from parent
+```
+
+### Commands & Queries
+
+```python
+from cqrs_ddd_core.cqrs.command import Command
+from cqrs_ddd_core.cqrs.query import Query
+
+class CreateOrderCommand(Command[str]):
+    customer_id: str
+
+class GetOrderQuery(Query[OrderDTO]):
+    order_id: str
+```
+
+---
+
+## Ports & Adapters
+
+### In-Memory Testing
+
+```python
+from cqrs_ddd_core.adapters.memory import InMemoryRepository, InMemoryUnitOfWork
+
+uow = InMemoryUnitOfWork()
+uow.orders = InMemoryRepository[Order, str]()
+
+# Fast unit tests without database
+async with uow:
+    await uow.orders.add(order)
+    await uow.commit()
+```
+
+---
+
+## Best Practices
+
+### ✅ DO: Domain Logic in Aggregates
+
+```python
+class Order(AggregateRoot[UUID]):
+    def confirm(self) -> None:
+        if self.status != "pending":
+            raise InvalidOrderStateError(...)
+        object.__setattr__(self, "status", "confirmed")
+        self._domain_events.append(OrderConfirmed(...))
+```
+
+### ❌ DON'T: Anemic Domain Model
+
+```python
+# Business logic in services - BAD!
+class OrderService:
+    def confirm(self, order: Order) -> None:
+        order.status = "confirmed"
+```
+
+---
+
+## Summary
+
+**Key Features:**
+- ✅ Zero infrastructure dependencies
+- ✅ Type-safe with full generic support
+- ✅ Event sourcing ready
+- ✅ Protocol-based ports
+- ✅ In-memory adapters for testing
+- ✅ Automatic correlation context
+- ✅ Pluggable instrumentation hooks
+
+**Package Ecosystem:**
+- `cqrs-ddd-core` - Pure Python foundation (this package)
+- `cqrs-ddd-advanced` - Sagas, TCC, background jobs
+- `cqrs-ddd-persistence-sqlalchemy` - SQL persistence
+- `cqrs-ddd-persistence-mongo` - MongoDB persistence
+- `cqrs-ddd-infrastructure-redis` - Redis adapters
+
+---
+
+**Last Updated:** February 22, 2026  
+**Package Version:** 0.1.0  
+**Maintained by:** CQRS-DDD Toolkit Team

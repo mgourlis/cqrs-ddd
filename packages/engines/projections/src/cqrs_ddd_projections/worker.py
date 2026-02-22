@@ -102,18 +102,27 @@ class ProjectionWorker(IBackgroundWorker):
         self, position: int, batch: list[StoredEvent]
     ) -> None:
         """Process a batch of events with retry logic and checkpointing."""
-        for idx, stored in enumerate(batch):
+        last_position = position
+        for stored in batch:
             if not self._running:
                 break
 
             if not self._should_process_event(stored):
                 continue
 
-            event_position = position + idx
+            # Use actual event position from event store (global sequence number)
+            event_position = stored.position
+            if event_position is None:
+                logger.warning(
+                    f"Event {stored.event_id} has no position, skipping"
+                )
+                continue
+
             await self._process_event_with_retry(stored, event_position)
+            last_position = event_position
 
         await self._checkpoint_store.save_position(
-            self._projection_name, position + len(batch)
+            self._projection_name, last_position
         )
 
     def _should_process_event(self, stored: StoredEvent) -> bool:

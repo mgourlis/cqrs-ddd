@@ -13,7 +13,6 @@ from .base import (
 )
 from .exceptions import OperatorNotFoundError, ValidationError
 from .operators import SpecificationOperator
-from .operators_memory import DEFAULT_REGISTRY
 from .utils import cast_value
 
 if TYPE_CHECKING:
@@ -37,9 +36,8 @@ class AttributeSpecification(BaseSpecification[T]):
     Specification that checks a single attribute value.
 
     Delegates in-memory evaluation to a :class:`MemoryOperatorRegistry`
-    (strategy pattern).  By default the global ``DEFAULT_REGISTRY`` is
-    used, but a custom registry can be injected for testing or to add
-    domain-specific operators.
+    (strategy pattern). A registry MUST be explicitly provided via
+    dependency injection for better testability and explicit dependencies.
     """
 
     def __init__(
@@ -48,12 +46,17 @@ class AttributeSpecification(BaseSpecification[T]):
         op: SpecificationOperator | str,
         val: Any,
         *,
-        registry: MemoryOperatorRegistry | None = None,
+        registry: MemoryOperatorRegistry,
     ) -> None:
         self.attr = attr
         self.op = SpecificationOperator(op) if isinstance(op, str) else op
         self.val = val
-        self._registry = registry or DEFAULT_REGISTRY
+        if registry is None:
+            raise ValueError(
+                "registry parameter is required. "
+                "Use build_default_registry() from operators_memory to create one."
+            )
+        self._registry = registry
 
     def is_satisfied_by(self, candidate: T) -> bool:
         actual_val = self._resolve_field(candidate, self.attr)
@@ -111,7 +114,7 @@ class SpecificationFactory(Generic[T]):
         data: dict[str, Any],
         *,
         allowed_fields: Sequence[str] | None = None,
-        registry: MemoryOperatorRegistry | None = None,
+        registry: MemoryOperatorRegistry,
     ) -> ISpecification[T]:
         """
         Create a specification tree from a dictionary.
@@ -125,7 +128,7 @@ class SpecificationFactory(Generic[T]):
             provided, any ``attr`` not in this list raises
             :class:`ValidationError`.
         registry:
-            Optional custom :class:`MemoryOperatorRegistry` injected
+            Required :class:`MemoryOperatorRegistry` to be injected
             into every :class:`AttributeSpecification` leaf.
         """
         SpecificationFactory._validate_node(data, allowed_fields=allowed_fields)
@@ -140,7 +143,7 @@ class SpecificationFactory(Generic[T]):
         text: str,
         *,
         allowed_fields: Sequence[str] | None = None,
-        registry: MemoryOperatorRegistry | None = None,
+        registry: MemoryOperatorRegistry,
     ) -> ISpecification[T]:
         """Parse a JSON string and build a specification tree."""
         try:
@@ -189,7 +192,7 @@ class SpecificationFactory(Generic[T]):
         data: dict[str, Any],
         *,
         allowed_fields: Sequence[str] | None = None,
-        registry: MemoryOperatorRegistry | None = None,
+        registry: MemoryOperatorRegistry,
     ) -> ISpecification[T]:
         op_str = data.get("op", "").lower()
 

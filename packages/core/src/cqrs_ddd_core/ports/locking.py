@@ -1,9 +1,22 @@
-"""ILockStrategy — protocol for pessimistic and distributed locking."""
+"""ILockStrategy — protocol for pessimistic and distributed locking.
+
+Lock TTL guidance:
+- Short-lived operations (e.g. command handlers): default ttl (e.g. 30s) is usually fine.
+- DDL / schema / initialize-once (e.g. creating collections, geospatial or heavy indexes):
+  Use a conservative TTL (e.g. DDL_LOCK_TTL_SECONDS = 300) or run a background
+  heartbeat that calls extend(resource, token, ttl=...) periodically while holding
+  the lock. If the lock TTL is too low (e.g. 60s), slow DDL can expire so another
+  pod acquires the lock and runs the same DDL, causing races or duplicate work.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+# Conservative TTL for DDL / schema / "initialize once" locks (e.g. create collection,
+# create 2dsphere or heavy composite indexes). Use this or a heartbeat via extend().
+DDL_LOCK_TTL_SECONDS: float = 300.0  # 5 minutes
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -82,7 +95,10 @@ class ILockStrategy(Protocol):
         """
         Extend the TTL of an existing lock.
 
-        Useful for long-running operations that need to keep the lock alive.
+        Use for long-running operations (e.g. DDL, schema migration, initialize-once)
+        to keep the lock alive. Either pass a conservative TTL at acquire (see
+        :data:`DDL_LOCK_TTL_SECONDS`) or run a background heartbeat that calls
+        extend() periodically (e.g. every ttl/2 seconds) while the work is in progress.
 
         Args:
             resource: The resource that was locked.

@@ -84,6 +84,75 @@ class QueryOptions:
             select_fields=list(self.select_fields),
         )
 
+    def with_select_fields(self, *fields: str) -> QueryOptions:
+        """
+        Return a copy with updated field projection.
+
+        Args:
+            *fields: Field names to include in results.
+
+        Returns:
+            New QueryOptions with specified fields.
+
+        Example:
+            >>> options = QueryOptions().with_select_fields("id", "name", "email")
+        """
+        return QueryOptions(
+            specification=self.specification,
+            limit=self.limit,
+            offset=self.offset,
+            order_by=list(self.order_by),
+            distinct=self.distinct,
+            group_by=list(self.group_by),
+            select_fields=list(fields),
+        )
+
+    def with_distinct(self, distinct: bool = True) -> QueryOptions:
+        """
+        Return a copy with updated distinct flag.
+
+        Args:
+            distinct: Whether to return only distinct rows (default: True).
+
+        Returns:
+            New QueryOptions with distinct flag set.
+
+        Example:
+            >>> options = QueryOptions().with_distinct()
+        """
+        return QueryOptions(
+            specification=self.specification,
+            limit=self.limit,
+            offset=self.offset,
+            order_by=list(self.order_by),
+            distinct=distinct,
+            group_by=list(self.group_by),
+            select_fields=list(self.select_fields),
+        )
+
+    def with_group_by(self, *fields: str) -> QueryOptions:
+        """
+        Return a copy with updated group by fields.
+
+        Args:
+            *fields: Field names to group results by.
+
+        Returns:
+            New QueryOptions with group by fields.
+
+        Example:
+            >>> options = QueryOptions().with_group_by("category", "status")
+        """
+        return QueryOptions(
+            specification=self.specification,
+            limit=self.limit,
+            offset=self.offset,
+            order_by=list(self.order_by),
+            distinct=self.distinct,
+            group_by=list(fields),
+            select_fields=list(self.select_fields),
+        )
+
     def merge(self, other: QueryOptions) -> QueryOptions:
         """
         Merge two ``QueryOptions`` instances.

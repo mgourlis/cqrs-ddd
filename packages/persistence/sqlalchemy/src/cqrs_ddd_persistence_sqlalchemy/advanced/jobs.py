@@ -7,7 +7,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, cast
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 
 from cqrs_ddd_advanced_core.background_jobs.entity import (
     BackgroundJobStatus as DomainJobStatus,
@@ -22,6 +22,8 @@ if TYPE_CHECKING:
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..core.uow import SQLAlchemyUnitOfWork
+
+_TERMINAL_STATUSES = (JobStatus.COMPLETED, JobStatus.CANCELLED)
 
 
 class SQLAlchemyBackgroundJobRepository(
@@ -83,12 +85,11 @@ class SQLAlchemyBackgroundJobRepository(
         timeout_seconds: int | None = None,
         uow: UnitOfWork | None = None,
     ) -> list[BaseBackgroundJob]:
-        """
-        Fetch jobs that are 'running' but have exceeded their timeout.
+        """Fetch RUNNING jobs that have exceeded their timeout.
 
         Args:
             timeout_seconds: Override the default timeout.
-            If None, uses self.stale_job_timeout_seconds.
+                If None, uses ``self.stale_job_timeout_seconds``.
             uow: Optional UnitOfWork to use.
 
         Returns:
@@ -107,3 +108,99 @@ class SQLAlchemyBackgroundJobRepository(
         )
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
+
+    async def find_by_status(
+        self,
+        statuses: list[DomainJobStatus],
+        limit: int = 50,
+        offset: int = 0,
+        uow: UnitOfWork | None = None,
+    ) -> list[BaseBackgroundJob]:
+        """Return jobs matching any of the given statuses, ordered by updated_at desc.
+
+        Args:
+            statuses: Domain status values to filter by.
+            limit: Maximum number of results.
+            offset: Number of results to skip.
+            uow: Optional UnitOfWork to use.
+        """
+        active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
+        if not active_uow:
+            raise ValueError("No active UnitOfWork or factory found.")
+
+        model_statuses = [JobStatus(s.value) for s in statuses]
+        stmt = (
+            select(BackgroundJobModel)
+            .where(BackgroundJobModel.status.in_(model_statuses))
+            .order_by(BackgroundJobModel.updated_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        result = await active_uow.session.execute(stmt)
+        return [self.from_model(m) for m in result.scalars().all()]
+
+    async def count_by_status(
+        self,
+        uow: UnitOfWork | None = None,
+    ) -> dict[str, int]:
+        """Return a mapping of status value → job count (omits zero-count statuses).
+
+        Args:
+            uow: Optional UnitOfWork to use.
+        """
+        active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
+        if not active_uow:
+            raise ValueError("No active UnitOfWork or factory found.")
+
+        stmt = select(
+            BackgroundJobModel.status,
+            func.count().label("cnt"),
+        ).group_by(BackgroundJobModel.status)
+        result = await active_uow.session.execute(stmt)
+        return {row.status.value: row.cnt for row in result.all()}
+
+    async def is_cancellation_requested(
+        self,
+        job_id: str,
+        uow: UnitOfWork | None = None,
+    ) -> bool:
+        """Check if the job's stored status is CANCELLED (single-column query).
+
+        Args:
+            job_id: ID of the job to check.
+            uow: Optional UnitOfWork to use.
+        """
+        active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
+        if not active_uow:
+            raise ValueError("No active UnitOfWork or factory found.")
+
+        stmt = select(BackgroundJobModel.status).where(BackgroundJobModel.id == job_id)
+        status = await active_uow.session.scalar(stmt)
+        return status == JobStatus.CANCELLED
+
+    async def purge_completed(
+        self,
+        before: datetime,
+        uow: UnitOfWork | None = None,
+    ) -> int:
+        """Delete COMPLETED and CANCELLED jobs with updated_at older than before.
+
+        Args:
+            before: UTC datetime threshold.
+            uow: Optional UnitOfWork to use.
+
+        Returns:
+            Number of jobs deleted.
+        """
+        active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
+        if not active_uow:
+            raise ValueError("No active UnitOfWork or factory found.")
+
+        stmt = delete(BackgroundJobModel).where(
+            BackgroundJobModel.status.in_(_TERMINAL_STATUSES),
+            BackgroundJobModel.updated_at < before,
+        )
+        result = await active_uow.session.execute(stmt)
+        # CursorResult.rowcount; Result type stubs may not expose it
+        n: int = int(getattr(result, "rowcount", 0) or 0)
+        return n

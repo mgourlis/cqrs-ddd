@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import dataclasses
+from collections.abc import AsyncIterator
+
 from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
@@ -56,10 +59,90 @@ class InMemoryEventStore(IEventStore):
         )
 
     async def _append_internal(self, stored_event: StoredEvent) -> None:
-        self._events.append(stored_event)
+        position = len(self._events)
+        if isinstance(stored_event, StoredEvent):
+            existing = getattr(stored_event, "position", None)
+            event_with_position = dataclasses.replace(
+                stored_event,
+                position=position if existing is None else existing,
+            )
+        else:
+            event_with_position = stored_event
+        self._events.append(event_with_position)
 
     async def _append_batch_internal(self, events: list[StoredEvent]) -> None:
-        self._events.extend(events)
+        start = len(self._events)
+        for i, e in enumerate(events):
+            if isinstance(e, StoredEvent):
+                pos = start + i if getattr(e, "position", None) is None else e.position
+                self._events.append(dataclasses.replace(e, position=pos))
+            else:
+                self._events.append(e)
+
+    async def get_events_after(
+        self, position: int, limit: int = 1000
+    ) -> list[StoredEvent]:
+        """Return events after a given position (exclusive), up to limit."""
+        out: list[StoredEvent] = []
+        for i, e in enumerate(self._events):
+            p = getattr(e, "position", None)
+            if p is None:
+                p = i
+            if p > position:
+                out.append(e)
+                if len(out) >= limit:
+                    break
+        return out
+
+    async def get_events_from_position(
+        self,
+        position: int,
+        *,
+        limit: int | None = None,
+    ) -> AsyncIterator[StoredEvent]:
+        """Stream events starting from position (exclusive)."""
+        batch_size = limit if limit is not None else 1000
+        current = position
+        while True:
+            batch = await self.get_events_after(current, batch_size)
+            for e in batch:
+                yield e
+            if len(batch) < batch_size:
+                break
+            last = batch[-1]
+            p = getattr(last, "position", None)
+            current = current + len(batch) if p is None else p
+
+    async def get_latest_position(self) -> int | None:
+        """Return the highest position in the store, or None if empty."""
+        if not self._events:
+            return None
+        positions = [
+            getattr(e, "position", None)
+            for e in self._events
+            if getattr(e, "position", None) is not None
+        ]
+        if not positions:
+            return len(self._events) - 1
+        return max(positions)
+
+    def get_all_streaming(
+        self, batch_size: int = 1000
+    ) -> AsyncIterator[list[StoredEvent]]:
+        """Stream all events in batches."""
+
+        async def _stream() -> AsyncIterator[list[StoredEvent]]:
+            pos = -1
+            while True:
+                batch = await self.get_events_after(pos, batch_size)
+                if not batch:
+                    break
+                yield batch
+                last = batch[-1]
+                p = getattr(last, "position", None)
+                pos = pos + len(batch) if p is None else p
+
+        return _stream()
 
     async def get_events(
         self,

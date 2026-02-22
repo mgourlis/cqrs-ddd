@@ -9,7 +9,11 @@ from typing import Any
 import pytest
 
 from cqrs_ddd_advanced_core.adapters.memory import InMemoryBackgroundJobRepository
+from cqrs_ddd_advanced_core.adapters.asyncio_task_registry import (
+    AsyncioJobTaskRegistry,
+)
 from cqrs_ddd_advanced_core.background_jobs import (
+    BackgroundJobAdminService,
     BackgroundJobEventHandler,
     BackgroundJobService,
     BackgroundJobStatus,
@@ -22,7 +26,10 @@ from cqrs_ddd_advanced_core.background_jobs import (
     JobStarted,
     JobSweeperWorker,
 )
-from cqrs_ddd_advanced_core.exceptions import JobStateError
+from cqrs_ddd_advanced_core.exceptions import (
+    CancellationRequestedError,
+    JobStateError,
+)
 from cqrs_ddd_core.domain.events import DomainEvent
 
 # ============================================================================
@@ -492,6 +499,658 @@ class TestInMemoryBackgroundJobRepository:
 
         result = await persistence.get(job.id)
         assert result is None
+
+    @pytest.mark.asyncio
+    async def test_is_cancellation_requested_true_when_cancelled(self) -> None:
+        """is_cancellation_requested() returns True when job is CANCELLED."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="Task")
+        job.cancel()
+        await persistence.add(job)
+
+        result = await persistence.is_cancellation_requested(job.id)
+
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_is_cancellation_requested_false_when_running(self) -> None:
+        """is_cancellation_requested() returns False when job is RUNNING."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="Task")
+        job.start_processing()
+        await persistence.add(job)
+
+        result = await persistence.is_cancellation_requested(job.id)
+
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_is_cancellation_requested_false_for_missing_job(self) -> None:
+        """is_cancellation_requested() returns False for missing job."""
+        persistence = InMemoryBackgroundJobRepository()
+
+        result = await persistence.is_cancellation_requested("nonexistent")
+
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_find_by_status_returns_paginated_matches(self) -> None:
+        """find_by_status() returns jobs matching statuses, ordered by updated_at desc."""
+        persistence = InMemoryBackgroundJobRepository()
+        job1 = BaseBackgroundJob.create(job_type="A")
+        job1.status = BackgroundJobStatus.FAILED
+        await persistence.add(job1)
+        job2 = BaseBackgroundJob.create(job_type="B")
+        job2.status = BackgroundJobStatus.FAILED
+        await persistence.add(job2)
+        job3 = BaseBackgroundJob.create(job_type="C")
+        job3.status = BackgroundJobStatus.PENDING
+        await persistence.add(job3)
+
+        result = await persistence.find_by_status(
+            [BackgroundJobStatus.FAILED], limit=10, offset=0
+        )
+
+        assert len(result) == 2
+        assert {j.id for j in result} == {job1.id, job2.id}
+
+    @pytest.mark.asyncio
+    async def test_count_by_status_returns_counts_per_status(self) -> None:
+        """count_by_status() returns mapping of status value to count."""
+        persistence = InMemoryBackgroundJobRepository()
+        for _ in range(2):
+            j = BaseBackgroundJob.create(job_type="T")
+            j.status = BackgroundJobStatus.PENDING
+            await persistence.add(j)
+        j3 = BaseBackgroundJob.create(job_type="T")
+        j3.status = BackgroundJobStatus.RUNNING
+        await persistence.add(j3)
+
+        counts = await persistence.count_by_status()
+
+        assert counts.get("PENDING") == 2
+        assert counts.get("RUNNING") == 1
+
+    @pytest.mark.asyncio
+    async def test_purge_completed_deletes_old_terminal_jobs(self) -> None:
+        """purge_completed() deletes COMPLETED/CANCELLED jobs older than before."""
+        persistence = InMemoryBackgroundJobRepository()
+        old = BaseBackgroundJob.create(job_type="T")
+        old.status = BackgroundJobStatus.COMPLETED
+        old.updated_at = datetime.now(timezone.utc) - timedelta(days=10)
+        await persistence.add(old)
+        recent = BaseBackgroundJob.create(job_type="T")
+        recent.status = BackgroundJobStatus.COMPLETED
+        recent.updated_at = datetime.now(timezone.utc)
+        await persistence.add(recent)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=5)
+
+        deleted = await persistence.purge_completed(before=cutoff)
+
+        assert deleted == 1
+        assert await persistence.get(old.id) is None
+        assert await persistence.get(recent.id) is not None
+
+
+# ============================================================================
+# Tests: BackgroundJobAdminService
+# ============================================================================
+
+
+class TestBackgroundJobAdminService:
+    """Test the BackgroundJobAdminService."""
+
+    @pytest.mark.asyncio
+    async def test_get_statistics_returns_counts_and_total(self) -> None:
+        """get_statistics() returns JobStatistics with counts and total."""
+        persistence = InMemoryBackgroundJobRepository()
+        for _ in range(2):
+            j = BaseBackgroundJob.create(job_type="T")
+            j.status = BackgroundJobStatus.PENDING
+            await persistence.add(j)
+        j3 = BaseBackgroundJob.create(job_type="T")
+        j3.status = BackgroundJobStatus.FAILED
+        await persistence.add(j3)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        stats = await admin.get_statistics()
+
+        assert stats.counts.get("PENDING") == 2
+        assert stats.counts.get("FAILED") == 1
+        assert stats.total == 3
+
+    @pytest.mark.asyncio
+    async def test_list_jobs_filters_by_status(self) -> None:
+        """list_jobs() with statuses returns only matching jobs."""
+        persistence = InMemoryBackgroundJobRepository()
+        failed = BaseBackgroundJob.create(job_type="T")
+        failed.status = BackgroundJobStatus.FAILED
+        await persistence.add(failed)
+        pending = BaseBackgroundJob.create(job_type="T")
+        await persistence.add(pending)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.list_jobs(
+            statuses=[BackgroundJobStatus.FAILED], limit=10, offset=0
+        )
+
+        assert len(result) == 1
+        assert result[0].id == failed.id
+
+    @pytest.mark.asyncio
+    async def test_bulk_cancel_cancels_cancellable_jobs(self) -> None:
+        """bulk_cancel() cancels PENDING/RUNNING jobs, skips terminal."""
+        persistence = InMemoryBackgroundJobRepository()
+        p = BaseBackgroundJob.create(job_type="T")
+        await persistence.add(p)
+        r = BaseBackgroundJob.create(job_type="T")
+        r.start_processing()
+        await persistence.add(r)
+        c = BaseBackgroundJob.create(job_type="T")
+        c.status = BackgroundJobStatus.COMPLETED
+        await persistence.add(c)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        cancelled, skipped = await admin.bulk_cancel([p.id, r.id, c.id])
+
+        assert cancelled == 2
+        assert skipped == 1
+        assert (await persistence.get(p.id)).status == BackgroundJobStatus.CANCELLED
+        assert (await persistence.get(r.id)).status == BackgroundJobStatus.CANCELLED
+        assert (await persistence.get(c.id)).status == BackgroundJobStatus.COMPLETED
+
+    @pytest.mark.asyncio
+    async def test_bulk_retry_retries_failed_within_budget(self) -> None:
+        """bulk_retry() retries FAILED jobs within max_retries."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T", max_retries=3)
+        job.fail("err")
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        retried, skipped = await admin.bulk_retry([job.id])
+
+        assert retried == 1
+        assert skipped == 0
+        assert (await persistence.get(job.id)).status == BackgroundJobStatus.RUNNING
+
+    @pytest.mark.asyncio
+    async def test_purge_completed_deletes_old_terminal_jobs(self) -> None:
+        """purge_completed() deletes COMPLETED/CANCELLED before cutoff."""
+        persistence = InMemoryBackgroundJobRepository()
+        old = BaseBackgroundJob.create(job_type="T")
+        old.status = BackgroundJobStatus.CANCELLED
+        old.updated_at = datetime.now(timezone.utc) - timedelta(days=10)
+        await persistence.add(old)
+        admin = BackgroundJobAdminService(repository=persistence)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=5)
+
+        deleted = await admin.purge_completed(before=cutoff)
+
+        assert deleted == 1
+        assert await persistence.get(old.id) is None
+
+    @pytest.mark.asyncio
+    async def test_cancel_running_marks_cancelled_without_kill_strategy(
+        self,
+    ) -> None:
+        """cancel_running() without kill_strategy marks job CANCELLED and returns."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        job.start_processing()
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.cancel_running(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.CANCELLED
+
+    @pytest.mark.asyncio
+    async def test_cancel_running_non_running_returns_as_is(self) -> None:
+        """cancel_running() on PENDING job returns job without changing state."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.cancel_running(job.id)
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.PENDING
+
+    @pytest.mark.asyncio
+    async def test_list_jobs_empty_statuses_returns_all_via_list_all(self) -> None:
+        """list_jobs() with None or empty statuses delegates to list_all()."""
+        persistence = InMemoryBackgroundJobRepository()
+        job1 = BaseBackgroundJob.create(job_type="A")
+        job2 = BaseBackgroundJob.create(job_type="B")
+        await persistence.add(job1)
+        await persistence.add(job2)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.list_jobs(statuses=None)
+
+        assert len(result) == 2
+        assert {j.id for j in result} == {job1.id, job2.id}
+
+    @pytest.mark.asyncio
+    async def test_bulk_cancel_nonexistent_ids_skipped(self) -> None:
+        """bulk_cancel() skips nonexistent job IDs and counts skipped."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        cancelled, skipped = await admin.bulk_cancel([job.id, "nonexistent"])
+
+        assert cancelled == 1
+        assert skipped == 1
+
+    @pytest.mark.asyncio
+    async def test_bulk_cancel_exception_during_cancel_skipped(self) -> None:
+        """bulk_cancel() catches exception from cancel() and skips."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        await persistence.add(job)
+        original_add = persistence.add
+        call_count = [0]
+
+        async def fail_on_second_add(entity: Any) -> str:
+            call_count[0] += 1
+            if call_count[0] == 2:
+                raise RuntimeError("Persistence error")
+            return await original_add(entity)
+
+        persistence.add = fail_on_second_add
+        admin = BackgroundJobAdminService(repository=persistence)
+        job2 = BaseBackgroundJob.create(job_type="T2")
+        await persistence.add(job2)
+
+        cancelled, skipped = await admin.bulk_cancel([job.id, job2.id])
+
+        assert cancelled == 1
+        assert skipped == 1
+
+    @pytest.mark.asyncio
+    async def test_cancel_running_not_found_returns_none(self) -> None:
+        """cancel_running() returns None when job does not exist."""
+        persistence = InMemoryBackgroundJobRepository()
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.cancel_running("nonexistent")
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_cancel_running_with_kill_strategy_stops_gracefully(
+        self,
+    ) -> None:
+        """cancel_running() with kill_strategy returns once job is no longer RUNNING (e.g. CANCELLED)."""
+        persistence = InMemoryBackgroundJobRepository()
+        registry = AsyncioJobTaskRegistry()
+        job = BaseBackgroundJob.create(job_type="T")
+        job.start_processing()
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.cancel_running(
+            job.id, kill_strategy=registry, grace_seconds=2.0
+        )
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.CANCELLED
+
+    @pytest.mark.asyncio
+    async def test_cancel_running_with_kill_strategy_force_kill_marks_failed(
+        self,
+    ) -> None:
+        """When repo still returns RUNNING after grace, force_kill and mark FAILED."""
+        # Stub: get() always returns job with RUNNING so poll never exits and we hit force_kill + fail.
+        class AlwaysRunningRepo:
+            def __init__(self) -> None:
+                self._store: dict[str, BaseBackgroundJob] = {}
+
+            async def add(self, entity: BaseBackgroundJob) -> str:
+                self._store[entity.id] = entity
+                return entity.id
+
+            async def get(self, job_id: str) -> BaseBackgroundJob | None:
+                j = self._store.get(job_id)
+                if not j:
+                    return None
+                return j.model_copy(update={"status": BackgroundJobStatus.RUNNING})
+
+        persistence = AlwaysRunningRepo()
+        registry = AsyncioJobTaskRegistry()
+        job = BaseBackgroundJob.create(job_type="T")
+        job.start_processing()
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        result = await admin.cancel_running(
+            job.id, kill_strategy=registry, grace_seconds=0.6
+        )
+
+        assert result is not None
+        assert result.status == BackgroundJobStatus.FAILED
+        assert "grace period" in (result.error_message or "")
+
+    @pytest.mark.asyncio
+    async def test_bulk_retry_nonexistent_skipped(self) -> None:
+        """bulk_retry() skips nonexistent job IDs."""
+        persistence = InMemoryBackgroundJobRepository()
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        retried, skipped = await admin.bulk_retry(["nonexistent"])
+
+        assert retried == 0
+        assert skipped == 1
+
+    @pytest.mark.asyncio
+    async def test_bulk_retry_non_failed_skipped(self) -> None:
+        """bulk_retry() skips jobs that are not FAILED."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        job.status = BackgroundJobStatus.PENDING
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        retried, skipped = await admin.bulk_retry([job.id])
+
+        assert retried == 0
+        assert skipped == 1
+        assert (await persistence.get(job.id)).status == BackgroundJobStatus.PENDING
+
+    @pytest.mark.asyncio
+    async def test_bulk_retry_exhausted_retries_skipped(self) -> None:
+        """bulk_retry() skips FAILED jobs that have exhausted max_retries."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T", max_retries=1)
+        job.fail("err")
+        job.retry_count = 1
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        retried, skipped = await admin.bulk_retry([job.id])
+
+        assert retried == 0
+        assert skipped == 1
+
+    @pytest.mark.asyncio
+    async def test_bulk_retry_job_state_error_skipped(self) -> None:
+        """bulk_retry() catches JobStateError during add and skips (race condition)."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T", max_retries=3)
+        job.fail("err")
+        await persistence.add(job)
+        original_add = persistence.add
+
+        async def add_raise_on_running(entity: Any) -> str:
+            await original_add(entity)
+            if getattr(entity, "status", None) == BackgroundJobStatus.RUNNING:
+                raise JobStateError("concurrent state change")
+            return entity.id
+
+        persistence.add = add_raise_on_running
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        retried, skipped = await admin.bulk_retry([job.id])
+
+        assert retried == 0
+        assert skipped == 1
+
+    @pytest.mark.asyncio
+    async def test_purge_completed_default_before_uses_now(self) -> None:
+        """purge_completed() with before=None uses current time as threshold."""
+        persistence = InMemoryBackgroundJobRepository()
+        job = BaseBackgroundJob.create(job_type="T")
+        job.status = BackgroundJobStatus.COMPLETED
+        job.updated_at = datetime.now(timezone.utc) + timedelta(seconds=10)
+        await persistence.add(job)
+        admin = BackgroundJobAdminService(repository=persistence)
+
+        deleted = await admin.purge_completed()
+
+        # Job's updated_at is after threshold (now), so not deleted
+        assert deleted == 0
+        assert await persistence.get(job.id) is not None
+
+    @pytest.mark.asyncio
+    async def test_purge_completed_naive_datetime_normalized_to_utc(
+        self,
+    ) -> None:
+        """purge_completed() normalizes naive before to UTC."""
+        persistence = InMemoryBackgroundJobRepository()
+        old = BaseBackgroundJob.create(job_type="T")
+        old.status = BackgroundJobStatus.CANCELLED
+        old.updated_at = datetime.now(timezone.utc) - timedelta(days=10)
+        await persistence.add(old)
+        admin = BackgroundJobAdminService(repository=persistence)
+        naive_cutoff = datetime.now() - timedelta(days=5)
+
+        deleted = await admin.purge_completed(before=naive_cutoff)
+
+        assert deleted == 1
+        assert await persistence.get(old.id) is None
+
+
+# ============================================================================
+# Tests: Cooperative cancellation and on_cancellation
+# ============================================================================
+
+
+class TestHandlerCooperativeCancellation:
+    """Test checkpoint_cancellation and on_cancellation hook."""
+
+    @pytest.mark.asyncio
+    async def test_checkpoint_cancellation_raises_when_cancelled(self) -> None:
+        """checkpoint_cancellation() raises CancellationRequestedError if job cancelled."""
+        persistence = InMemoryBackgroundJobRepository()
+        handler = DummyJobEventHandler(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.cancel()
+        await persistence.add(job)
+
+        with pytest.raises(CancellationRequestedError, match="cancelled"):
+            await handler.checkpoint_cancellation(job.id)
+
+    @pytest.mark.asyncio
+    async def test_checkpoint_cancellation_does_not_raise_when_running(
+        self,
+    ) -> None:
+        """checkpoint_cancellation() does not raise when job is RUNNING."""
+        persistence = InMemoryBackgroundJobRepository()
+        handler = DummyJobEventHandler(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.start_processing()
+        await persistence.add(job)
+
+        await handler.checkpoint_cancellation(job.id)
+        # No raise
+
+    @pytest.mark.asyncio
+    async def test_on_cancellation_hook_called_on_cooperative_cancel(self) -> None:
+        """When execute raises CancellationRequestedError, on_cancellation is called."""
+
+        class CancelCheckpointHandler(DummyJobEventHandler):
+            def __init__(self, persistence: Any) -> None:
+                super().__init__(persistence)
+                self.on_cancellation_called = False
+
+            async def execute(
+                self, event: DomainEvent, job: BaseBackgroundJob
+            ) -> dict[str, Any] | None:
+                job_from_db = await self._persistence.get(job.id)
+                if job_from_db:
+                    job_from_db.cancel()
+                    await self._persistence.add(job_from_db)
+                await self.checkpoint_cancellation(job.id)
+                return None
+
+            async def on_cancellation(
+                self, event: DomainEvent, job: BaseBackgroundJob
+            ) -> None:
+                self.on_cancellation_called = True
+
+        persistence = InMemoryBackgroundJobRepository()
+        handler = CancelCheckpointHandler(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.correlation_id = job.id
+        await persistence.add(job)
+        event = JobCreated(job_type="T", correlation_id=job.id)
+
+        await handler.handle(event)
+
+        assert handler.on_cancellation_called
+        stored = await persistence.get(job.id)
+        assert stored.status == BackgroundJobStatus.CANCELLED
+
+    @pytest.mark.asyncio
+    async def test_cancellation_requested_error_ends_in_cancelled_state(
+        self,
+    ) -> None:
+        """When checkpoint_cancellation raises, job is persisted as CANCELLED."""
+        persistence = InMemoryBackgroundJobRepository()
+
+        class HandlerThatCancelsThenCheckpoints(DummyJobEventHandler):
+            async def execute(
+                self, event: DomainEvent, job: BaseBackgroundJob
+            ) -> dict[str, Any] | None:
+                latest = await self._persistence.get(job.id)
+                if latest:
+                    latest.cancel()
+                    await self._persistence.add(latest)
+                await self.checkpoint_cancellation(job.id)
+                return {"done": True}
+
+        handler = HandlerThatCancelsThenCheckpoints(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.correlation_id = job.id
+        await persistence.add(job)
+        event = JobCreated(job_type="T", correlation_id=job.id)
+        await handler.handle(event)
+
+        stored = await persistence.get(job.id)
+        assert stored.status == BackgroundJobStatus.CANCELLED
+
+    @pytest.mark.asyncio
+    async def test_handle_reload_sees_cancelled_skips_completion(
+        self,
+    ) -> None:
+        """After execute() returns, if reload sees CANCELLED we skip complete()."""
+        persistence = InMemoryBackgroundJobRepository()
+
+        class HandlerThatCancelsDuringExecute(DummyJobEventHandler):
+            async def execute(
+                self, event: DomainEvent, job: BaseBackgroundJob
+            ) -> dict[str, Any] | None:
+                # Simulate admin cancelling during execute: persist CANCELLED.
+                latest = await self._persistence.get(job.id)
+                if latest:
+                    latest.cancel()
+                    await self._persistence.add(latest)
+                return {"would_complete": True}
+
+        handler = HandlerThatCancelsDuringExecute(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.correlation_id = job.id
+        await persistence.add(job)
+        event = JobCreated(job_type="T", correlation_id=job.id)
+        await handler.handle(event)
+
+        stored = await persistence.get(job.id)
+        assert stored.status == BackgroundJobStatus.CANCELLED
+        # We did not call complete(); result_data may be default {} from cancel() or entity init
+
+    @pytest.mark.asyncio
+    async def test_handle_cancellation_persists_when_store_still_running(
+        self,
+    ) -> None:
+        """When CancellationRequestedError is raised and store still RUNNING, _handle_cancellation persists CANCELLED."""
+        persistence = InMemoryBackgroundJobRepository()
+
+        class HandlerThatRaisesCancel(DummyJobEventHandler):
+            async def execute(
+                self, event: DomainEvent, job: BaseBackgroundJob
+            ) -> dict[str, Any] | None:
+                raise CancellationRequestedError("cancelled")
+
+        handler = HandlerThatRaisesCancel(persistence)
+        job = BaseBackgroundJob.create(job_type="T")
+        job.correlation_id = job.id
+        await persistence.add(job)
+        event = JobCreated(job_type="T", correlation_id=job.id)
+        await handler.handle(event)
+
+        stored = await persistence.get(job.id)
+        assert stored.status == BackgroundJobStatus.CANCELLED
+
+
+# ============================================================================
+# Tests: AsyncioJobTaskRegistry
+# ============================================================================
+
+
+class TestAsyncioJobTaskRegistry:
+    """Test AsyncioJobTaskRegistry (IJobKillStrategy)."""
+
+    @pytest.mark.asyncio
+    async def test_register_and_unregister(self) -> None:
+        """register() stores task, unregister() removes it."""
+        registry = AsyncioJobTaskRegistry()
+        task = asyncio.create_task(asyncio.sleep(10))
+
+        registry.register("job-1", task)
+        registry.unregister("job-1")
+
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    @pytest.mark.asyncio
+    async def test_request_stop_cancels_task(self) -> None:
+        """request_stop() cancels the asyncio task."""
+        registry = AsyncioJobTaskRegistry()
+        task = asyncio.create_task(asyncio.sleep(60))
+        registry.register("job-1", task)
+
+        await registry.request_stop("job-1")
+
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    @pytest.mark.asyncio
+    async def test_register_rejects_non_task(self) -> None:
+        """register() with non-Task raises TypeError."""
+        registry = AsyncioJobTaskRegistry()
+
+        with pytest.raises(TypeError, match="asyncio.Task"):
+            registry.register("job-1", "not a task")
+
+    @pytest.mark.asyncio
+    async def test_force_kill_cancels_task(self) -> None:
+        """force_kill() cancels the asyncio task (same as request_stop for asyncio)."""
+        registry = AsyncioJobTaskRegistry()
+        task = asyncio.create_task(asyncio.sleep(60))
+        registry.register("job-1", task)
+
+        await registry.force_kill("job-1")
+
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    @pytest.mark.asyncio
+    async def test_request_stop_unknown_job_id_no_op(self) -> None:
+        """request_stop() for unknown job_id does nothing."""
+        registry = AsyncioJobTaskRegistry()
+        await registry.request_stop("unknown")
+
+    @pytest.mark.asyncio
+    async def test_unregister_unknown_job_id_no_op(self) -> None:
+        """unregister() for unknown job_id does nothing."""
+        registry = AsyncioJobTaskRegistry()
+        registry.unregister("unknown")
 
 
 # ============================================================================

@@ -142,6 +142,41 @@ class SQLAlchemyEventStore(IEventStore):
         models = result.scalars().all()
         return [self._to_dataclass(m) for m in models]
 
+    async def get_events_from_position(
+        self,
+        position: int,
+        *,
+        limit: int | None = None,
+    ) -> AsyncIterator[StoredEvent]:
+        """
+        Stream events starting from a given position (exclusive).
+
+        Used by ProjectionWorker to resume after crash.
+        """
+        batch_size = limit if limit is not None else 1000
+        current = position
+        while True:
+            batch = await self.get_events_after(current, batch_size)
+            for e in batch:
+                yield e
+            if len(batch) < batch_size:
+                break
+            last = batch[-1]
+            current = last.position if last.position is not None else current + len(batch)
+
+    async def get_latest_position(self) -> int | None:
+        """
+        Get the highest event position in the store.
+
+        Used for catch-up subscription mode.
+        """
+        from sqlalchemy import func
+
+        stmt = select(func.max(StoredEventModel.position))
+        result = await self.session.execute(stmt)
+        value = result.scalar()
+        return int(value) if value is not None else None
+
     async def get_all_streaming(
         self, batch_size: int = 1000
     ) -> AsyncIterator[list[StoredEvent]]:

@@ -17,7 +17,9 @@ def test_core_independence() -> None:
 
 def test_persistence_layering() -> None:
     """
-    Persistence layer can import from Core but not from Advanced Core.
+    Persistence core can import from Core but not from Advanced Core.
+    Projection/position stores live in persistence advanced/ and implement
+    IProjectionWriter / IProjectionPositionStore from advanced_core (by design).
     """
     (
         archrule("persistence_layering")

@@ -81,6 +81,7 @@ from .middleware import (
 
 # ── Ports ────────────────────────────────────────────────────────
 from .ports import (
+    DDL_LOCK_TTL_SECONDS,
     ICommandBus,
     IEventDispatcher,
     IEventStore,
@@ -208,6 +209,7 @@ __all__: list[str] = [
     "InMemoryOutboxStorage",
     "InMemoryRepository",
     "InMemoryUnitOfWork",
+    "DDL_LOCK_TTL_SECONDS",
     "ILockStrategy",
     "InMemoryLockStrategy",
 ]
