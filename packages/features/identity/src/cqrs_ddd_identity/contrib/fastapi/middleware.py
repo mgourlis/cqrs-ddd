@@ -24,12 +24,10 @@ if TYPE_CHECKING:
 
     from ...ports import IIdentityProvider
 else:
-    BaseHTTPMiddleware = object
-
-    from starlette.middleware.base import BaseHTTPMiddleware  # noqa: F811
+    from starlette.middleware.base import BaseHTTPMiddleware  # noqa: F401
 
 
-class AuthenticationMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class AuthenticationMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware for authentication.
 
     Order of Operations:

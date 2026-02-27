@@ -464,8 +464,18 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
 
     async def revoke_user_session(self, session_id: str) -> None:
         """Revoke a specific user session."""
+        # python-keycloak may expose this as user_logout_all_session or delete_session
+        revoke = getattr(
+            self._admin,
+            "user_logout_all_session",
+            getattr(self._admin, "delete_session", None),
+        )
+        if revoke is None:
+            raise UserManagementError(
+                "This KeycloakAdmin version does not support revoking a session by id"
+            )
         try:
-            self._admin.user_logout_all_session(session_id)
+            revoke(session_id)
         except KeycloakError as e:
             raise UserManagementError(str(e)) from e
 

@@ -19,5 +19,11 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
-        additional_dependencies: [pydantic, sqlalchemy, pytest, types-redis]
+        additional_dependencies:
+          - pydantic
+          - sqlalchemy
+          - pytest
+          - types-redis
+          - starlette
+          - fastapi
         exclude: ^tests/|/tests/|^test_.*\.py$|/test_.*\.py$|^.*_test\.py$|/.*_test\.py$|/conftest\.py$

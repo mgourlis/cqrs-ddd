@@ -214,12 +214,12 @@ class TokenRefreshAdapter(IIdentityProvider):
 
 
 if TYPE_CHECKING:
-    BaseHTTPMiddleware = object
-else:
     from starlette.middleware.base import BaseHTTPMiddleware
+else:
+    from starlette.middleware.base import BaseHTTPMiddleware  # noqa: F401
 
 
-class TokenRefreshMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
+class TokenRefreshMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware for proactive token refresh.
 
     This middleware intercepts responses and checks if the access token

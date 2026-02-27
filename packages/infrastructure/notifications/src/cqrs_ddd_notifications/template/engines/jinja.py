@@ -10,14 +10,14 @@ from cqrs_ddd_notifications.ports.renderer import ITemplateRenderer, Notificatio
 
 logger = logging.getLogger(__name__)
 
+_JinjaTemplateClass: type[Any] | None = None
 try:
-    from jinja2 import StrictUndefined
-    from jinja2 import Template as JinjaTemplate
+    from jinja2 import StrictUndefined, Template
 
+    _JinjaTemplateClass = Template
     _JINJA2_AVAILABLE = True
 except ImportError:
     _JINJA2_AVAILABLE = False
-    JinjaTemplate = None
 
 
 class JinjaTemplateRenderer(ITemplateRenderer):
@@ -26,7 +26,7 @@ class JinjaTemplateRenderer(ITemplateRenderer):
     """
 
     def __init__(self) -> None:
-        if not _JINJA2_AVAILABLE or JinjaTemplate is None:
+        if not _JINJA2_AVAILABLE or _JinjaTemplateClass is None:
             raise ImportError(
                 "Jinja2 is required. Install with: pip install 'cqrs-ddd-notifications[jinja2]'"
             )
@@ -35,17 +35,18 @@ class JinjaTemplateRenderer(ITemplateRenderer):
         self, template: NotificationTemplate, context: dict[str, Any]
     ) -> RenderedNotification:
         """Render template using Jinja2."""
+        assert _JinjaTemplateClass is not None  # ensured by __init__
         try:
             # Render Subject (if applicable to the channel, like Email)
             subject = None
             if template.subject_template:
-                subject = JinjaTemplate(
+                subject = _JinjaTemplateClass(
                     template.subject_template,
                     undefined=StrictUndefined,
                 ).render(**context)
 
             # Render Body
-            body = JinjaTemplate(
+            body = _JinjaTemplateClass(
                 template.body_template,
                 undefined=StrictUndefined,
             ).render(**context)
