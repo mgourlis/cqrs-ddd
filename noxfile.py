@@ -10,13 +10,15 @@ LOCATIONS = [
     "packages/infrastructure/redis/src",
     "packages/infrastructure/messaging/src",
     "packages/infrastructure/observability/src",
+    "packages/infrastructure/notifications/src",
     "packages/engines/projections/src",
     "packages/features/filtering/src",
+    "packages/features/identity/src",
     "tests",
 ]
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def tests(session: nox.Session) -> None:
     """Run the complete test suite with coverage."""
     # Install packages in dependency order
@@ -28,13 +30,15 @@ def tests(session: nox.Session) -> None:
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/infrastructure/notifications")
     session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
+    session.install("-e", "./packages/features/identity[all]")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", *session.posargs)
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def autoformat(session: nox.Session) -> None:
     """Fix linting issues and format code."""
     session.install("ruff")
@@ -42,7 +46,7 @@ def autoformat(session: nox.Session) -> None:
     session.run("ruff", "format", ".")
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def lint(session: nox.Session) -> None:
     """Run ruff linter and formatter checks."""
     session.install("ruff")
@@ -50,7 +54,7 @@ def lint(session: nox.Session) -> None:
     session.run("ruff", "format", "--check", ".")
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def type_check(session: nox.Session) -> None:
     """Run mypy static type analysis."""
     # Install packages in dependency order
@@ -62,8 +66,10 @@ def type_check(session: nox.Session) -> None:
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/infrastructure/notifications")
     session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
+    session.install("-e", "./packages/features/identity[all]")
     session.install(
         "mypy",
         "pydantic",
@@ -75,14 +81,14 @@ def type_check(session: nox.Session) -> None:
     session.run("mypy", ".")
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def complexity(session: nox.Session) -> None:
     """Measure cognitive complexity using complexipy."""
     session.install("complexipy")
     session.run("complexipy", ".")
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def arch_check(session: nox.Session) -> None:
     """Verify architectural boundaries using pytest-archon."""
     # Install packages in dependency order
@@ -94,20 +100,22 @@ def arch_check(session: nox.Session) -> None:
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
+    session.install("-e", "./packages/infrastructure/notifications")
     session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
+    session.install("-e", "./packages/features/identity[all]")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", "--no-cov", "tests/architecture", *session.posargs)
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def spell_check(session: nox.Session) -> None:
     """Check spelling using cspell via npm."""
     session.run("npm", "install", "-g", "cspell", external=True)
     session.run("cspell", "**/*", "--config", "cspell.json", external=True)
 
 
-@nox.session(python=["3.10", "3.11", "3.12"])
+@nox.session(python=["3.12", "3.13"])
 def dead_code(session: nox.Session) -> None:
     """Scan for unused code using vulture."""
     session.install("vulture")
