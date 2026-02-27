@@ -7,7 +7,7 @@ name = "cqrs-ddd-identity"
 version = "0.1.0"
 description = "Authentication — Who are you? Resolves tokens to Principal VO"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [
     { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
