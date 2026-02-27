@@ -96,11 +96,11 @@ from cqrs_ddd_advanced_core.upcasting import EventUpcaster
 
 class OrderCreatedV1ToV2(EventUpcaster):
     """Upcast OrderCreated from v1 to v2."""
-    
+
     event_type = "OrderCreated"
     source_version = 1
     # target_version auto-computed as 2
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         """Transform v1 → v2."""
         return {
@@ -111,11 +111,11 @@ class OrderCreatedV1ToV2(EventUpcaster):
 
 class OrderCreatedV2ToV3(EventUpcaster):
     """Upcast OrderCreated from v2 to v3."""
-    
+
     event_type = "OrderCreated"
     source_version = 2
     target_version = 3
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         """Transform v2 → v3."""
         return {
@@ -226,7 +226,7 @@ data_v1 = {
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         return {
             **data,
@@ -257,7 +257,7 @@ data_v1 = {
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         return {
             **data,
@@ -286,7 +286,7 @@ data_v1 = {
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         return {
             "order_id": data["order_id"],
@@ -318,7 +318,7 @@ data_v1 = {
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         customer = data.pop("customer")
         return {
@@ -353,7 +353,7 @@ data_v1 = {
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         total = sum(
             Decimal(item["price"]) * item["qty"]
@@ -455,7 +455,7 @@ class OrderCreated(DomainEvent):
     customer_id: str
     amount: Decimal
     currency: str = "EUR"
-    
+
     # version field inherited from DomainEvent
     # Defaults to 1, increment when schema changes
 ```
@@ -467,17 +467,17 @@ import pytest
 
 def test_order_created_v1_to_v2():
     upcaster = OrderCreatedV1ToV2()
-    
+
     # V1 data
     v1_data = {
         "order_id": "order_123",
         "customer_id": "cust_456",
         "amount": "100.00",
     }
-    
+
     # Upcast
     v2_data = upcaster.upcast(v1_data)
-    
+
     # Verify
     assert v2_data["currency"] == "EUR"
     assert v2_data["order_id"] == "order_123"
@@ -488,18 +488,18 @@ def test_order_created_v1_to_v2():
 ```python
 class OrderCreatedV1ToV2(EventUpcaster):
     """Upcast OrderCreated from v1 to v2.
-    
+
     Schema Changes:
     - Added currency field (default: "EUR")
     - Changed amount from float to Decimal
-    
+
     Breaking Changes: None
     Migration Required: No
     """
-    
+
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         return {
             **data,
@@ -530,17 +530,17 @@ registry.register(OrderCreatedV3ToV4())  # Missing v2 → v3!
 ```python
 class OrderCreatedV1ToV2(EventUpcaster):
     """Upcast with conditional logic."""
-    
+
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         # Only apply to specific orders
         if data.get("region") == "US":
             currency = "USD"
         else:
             currency = "EUR"
-        
+
         return {
             **data,
             "currency": currency,
@@ -566,9 +566,9 @@ submit_chain = registry.chain_for("OrderSubmitted")
 ```python
 class BaseOrderUpcaster(EventUpcaster):
     """Base upcaster with shared logic."""
-    
+
     event_type = "OrderCreated"
-    
+
     def add_metadata(self, data: dict[str, Any]) -> dict[str, Any]:
         """Add common metadata fields."""
         return {
@@ -578,7 +578,7 @@ class BaseOrderUpcaster(EventUpcaster):
 
 class OrderCreatedV1ToV2(BaseOrderUpcaster):
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         data = super().add_metadata(data)
         return {

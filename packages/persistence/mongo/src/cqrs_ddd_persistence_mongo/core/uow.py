@@ -9,22 +9,22 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from types import TracebackType
 from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable
+    from types import TracebackType
 
     from motor.motor_asyncio import (
-        AsyncIOMotorClient,
         AsyncIOMotorClientSession,
     )
 
     from ..connection import MongoConnectionManager
 
     AsyncSessionFactory = Any  # Callable[[], AsyncIOMotorClientSession]
+
+import contextlib
 
 from .session_utils import session_in_transaction
 
@@ -158,9 +158,7 @@ class MongoUnitOfWork(UnitOfWork):
         if self._owns_session:
             if self._session_factory:
                 result = self._session_factory()
-                self._session = (
-                    await result if asyncio.iscoroutine(result) else result
-                )
+                self._session = await result if asyncio.iscoroutine(result) else result
             elif self._connection:
                 self._session = await self._create_session()
             else:
@@ -175,10 +173,8 @@ class MongoUnitOfWork(UnitOfWork):
             and self._require_replica_set
             and not session_in_transaction(self._session)
         ):
-            try:
+            with contextlib.suppress(AttributeError, TypeError):
                 self._session.start_transaction()
-            except (AttributeError, TypeError):
-                pass
         return self
 
     async def __aexit__(
@@ -208,7 +204,7 @@ class MongoUnitOfWork(UnitOfWork):
                 await self.rollback()
         finally:
             if self._owns_session and self._session is not None:
-                self._session.end_session()
+                await self._session.end_session()
                 self._session = None
 
     async def commit(self) -> None:

@@ -88,13 +88,13 @@ from cqrs_ddd_advanced_core.undo import UndoExecutor
 
 class AddItemToOrderHandler(CommandHandler):
     """Handler with undo support."""
-    
+
     async def handle(self, command: AddItemToOrder) -> UndoExecutor:
         # Execute command
         order = await self.order_repo.get(command.order_id)
         order.add_item(command.item, command.price)
         await self.order_repo.save(order)
-        
+
         # Return undo executor
         return RemoveItemFromOrderExecutor(
             order_id=command.order_id,
@@ -109,16 +109,16 @@ from cqrs_ddd_advanced_core.undo import UndoExecutor
 
 class RemoveItemFromOrderExecutor(UndoExecutor):
     """Executor to remove item from order."""
-    
+
     order_id: str
     item: str
-    
+
     async def execute(self) -> Command:
         """Execute undo: remove item."""
         order = await self.order_repo.get(self.order_id)
         order.remove_item(self.item)
         await self.order_repo.save(order)
-        
+
         # Return redo executor
         return AddItemToOrderExecutor(
             order_id=self.order_id,
@@ -169,11 +169,11 @@ from cqrs_ddd_advanced_core.undo import UndoExecutor
 
 class UndoExecutor:
     """Base class for undo executors."""
-    
+
     async def execute(self) -> Command | None:
         """Execute undo and return redo command."""
         raise NotImplementedError
-    
+
     async def validate(self) -> bool:
         """Validate if undo is possible."""
         return True
@@ -241,7 +241,7 @@ class ShipOrderHandler(CommandHandler):
         previous_status = order.status
         order.ship(command.tracking_number)
         await self.order_repo.save(order)
-        
+
         # Return undo executor
         return UnshipOrderExecutor(
             order_id=command.order_id,
@@ -252,12 +252,12 @@ class ShipOrderHandler(CommandHandler):
 class UnshipOrderExecutor(UndoExecutor):
     order_id: str
     previous_status: str
-    
+
     async def execute(self) -> Command:
         order = await self.order_repo.get(self.order_id)
         order.unship(self.previous_status)
         await self.order_repo.save(order)
-        
+
         # Return redo command
         return ShipOrder(
             order_id=self.order_id,
@@ -278,13 +278,13 @@ class CreateOrderWithItemsHandler(CommandHandler):
     async def handle(self, command: CreateOrderWithItems):
         # Create order
         order = Order.create(command.order_id, command.customer_id)
-        
+
         # Add items
         for item in command.items:
             order.add_item(item["name"], item["price"])
-        
+
         await self.order_repo.save(order)
-        
+
         # Return composite undo executor
         return CompositeUndoExecutor(
             executors=[
@@ -294,18 +294,18 @@ class CreateOrderWithItemsHandler(CommandHandler):
 
 class CompositeUndoExecutor(UndoExecutor):
     """Execute multiple undo operations in sequence."""
-    
+
     executors: list[UndoExecutor]
-    
+
     async def execute(self) -> Command | None:
         redo_executors = []
-        
+
         # Execute all undo operations
         for executor in reversed(self.executors):
             redo = await executor.execute()
             if redo:
                 redo_executors.append(redo)
-        
+
         # Return composite redo
         return CompositeRedoCommand(executors=redo_executors)
 ```
@@ -315,23 +315,23 @@ class CompositeUndoExecutor(UndoExecutor):
 ```python
 class CancelOrderExecutor(UndoExecutor):
     """Executor to cancel order, but only if not shipped."""
-    
+
     order_id: str
-    
+
     async def validate(self) -> bool:
         """Can only cancel if order not shipped."""
         order = await self.order_repo.get(self.order_id)
         return order.status != OrderStatus.SHIPPED
-    
+
     async def execute(self) -> Command:
         if not await self.validate():
             raise UndoNotPossibleError("Order already shipped")
-        
+
         order = await self.order_repo.get(self.order_id)
         previous_status = order.status
         order.cancel()
         await self.order_repo.save(order)
-        
+
         return UncancelOrderExecutor(
             order_id=self.order_id,
             previous_status=previous_status,
@@ -343,18 +343,18 @@ class CancelOrderExecutor(UndoExecutor):
 ```python
 class ChargeCreditCardExecutor(UndoExecutor):
     """Undo credit card charge with refund."""
-    
+
     order_id: str
     amount: Decimal
     charge_id: str
-    
+
     async def execute(self) -> Command:
         # Refund the charge
         refund_id = await self.payment_service.refund(
             charge_id=self.charge_id,
             amount=self.amount,
         )
-        
+
         # Return redo command (recharge)
         return RechargeCreditCardExecutor(
             order_id=self.order_id,
@@ -364,18 +364,18 @@ class ChargeCreditCardExecutor(UndoExecutor):
 
 class RechargeCreditCardExecutor(UndoExecutor):
     """Redo credit card charge after refund."""
-    
+
     order_id: str
     amount: Decimal
     refund_id: str
-    
+
     async def execute(self) -> Command:
         # Charge again
         charge_id = await self.payment_service.charge(
             customer_id=self.customer_id,
             amount=self.amount,
         )
-        
+
         # Return undo command (refund again)
         return ChargeCreditCardExecutor(
             order_id=self.order_id,
@@ -425,10 +425,10 @@ await undo_service.redo(undo_token)
 ```python
 class UndoAwareRepository:
     """Repository that tracks undo history per aggregate."""
-    
+
     def __init__(self, undo_service: UndoService):
         self.undo_service = undo_service
-    
+
     async def save_with_undo(
         self,
         aggregate: AggregateRoot,
@@ -436,7 +436,7 @@ class UndoAwareRepository:
     ):
         """Save aggregate and register undo executor."""
         await self.delegate.save(aggregate)
-        
+
         if undo_executor:
             await self.undo_service.register(
                 aggregate_id=aggregate.id,
@@ -461,7 +461,7 @@ async def add_item(order_id: str, item: ItemDTO):
             price=item.price,
         ),
     )
-    
+
     return {
         "message": "Item added",
         "undo_token": undo_token.token_id,
@@ -561,11 +561,11 @@ class CancelOrderExecutor(UndoExecutor):
         """Can only cancel if not shipped."""
         order = await self.order_repo.get(self.order_id)
         return order.status in [OrderStatus.PENDING, OrderStatus.CONFIRMED]
-    
+
     async def execute(self) -> Command:
         if not await self.validate():
             raise UndoNotPossibleError("Cannot cancel shipped order")
-        
+
         # ... execute undo ...
 ```
 
@@ -574,7 +574,7 @@ class CancelOrderExecutor(UndoExecutor):
 ```python
 class UndoNotPossibleError(Exception):
     """Raised when undo cannot be performed."""
-    
+
     def __init__(self, token_id: str, reason: str):
         self.token_id = token_id
         self.reason = reason
@@ -603,22 +603,22 @@ async def test_add_item_undo_redo_cycle():
             price=Decimal("50.00"),
         ),
     )
-    
+
     # Verify item added
     order = await order_repo.get("order_123")
     assert len(order.items) == 1
     assert order.items[0].name == "Widget"
-    
+
     # Undo
     await undo_service.undo(undo_token)
-    
+
     # Verify item removed
     order = await order_repo.get("order_123")
     assert len(order.items) == 0
-    
+
     # Redo
     await undo_service.redo(undo_token)
-    
+
     # Verify item added again
     order = await order_repo.get("order_123")
     assert len(order.items) == 1
@@ -630,23 +630,23 @@ async def test_add_item_undo_redo_cycle():
 ```python
 class BoundedUndoService:
     """Undo service with history limit."""
-    
+
     def __init__(self, delegate: UndoService, max_history: int = 100):
         self.delegate = delegate
         self.max_history = max_history
-    
+
     async def execute(self, command: Command):
         """Execute command and trim old history."""
         token = await self.delegate.execute(command)
-        
+
         # Get all tokens for aggregate
         tokens = await self.storage.get_for_aggregate(command.aggregate_id)
-        
+
         # Remove old tokens beyond limit
         if len(tokens) > self.max_history:
             for old_token in tokens[:-self.max_history]:
                 await self.storage.delete(old_token.token_id)
-        
+
         return token
 ```
 
@@ -659,14 +659,14 @@ class BoundedUndoService:
 ```python
 class UndoScope:
     """Define scope for undo operations."""
-    
+
     AGGREGATE = "aggregate"  # Undo affects only one aggregate
     TRANSACTION = "transaction"  # Undo affects entire transaction
     GLOBAL = "global"  # Undo affects multiple aggregates
 
 class ScopedUndoService:
     """Undo service with scope awareness."""
-    
+
     async def undo(self, token: UndoToken, scope: str = UndoScope.AGGREGATE):
         """Undo with specified scope."""
         if scope == UndoScope.AGGREGATE:
@@ -682,7 +682,7 @@ class ScopedUndoService:
 ```python
 class UndoPolicy:
     """Policy for undo behavior."""
-    
+
     def __init__(
         self,
         max_age_hours: int = 24,
@@ -692,18 +692,18 @@ class UndoPolicy:
         self.max_age_hours = max_age_hours
         self.max_redo_count = max_redo_count
         self.require_validation = require_validation
-    
+
     def can_undo(self, token: UndoToken) -> bool:
         """Check if token can be undone."""
         # Check age
         age = (datetime.now(timezone.utc) - token.created_at).total_seconds() / 3600
         if age > self.max_age_hours:
             return False
-        
+
         # Check redo count
         if token.redo_count > self.max_redo_count:
             return False
-        
+
         return True
 
 # Usage

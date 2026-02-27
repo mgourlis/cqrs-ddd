@@ -8,10 +8,10 @@ from typing import Any
 
 import pytest
 
-from cqrs_ddd_advanced_core.adapters.memory import InMemoryBackgroundJobRepository
 from cqrs_ddd_advanced_core.adapters.asyncio_task_registry import (
     AsyncioJobTaskRegistry,
 )
+from cqrs_ddd_advanced_core.adapters.memory import InMemoryBackgroundJobRepository
 from cqrs_ddd_advanced_core.background_jobs import (
     BackgroundJobAdminService,
     BackgroundJobEventHandler,
@@ -806,6 +806,7 @@ class TestBackgroundJobAdminService:
         self,
     ) -> None:
         """When repo still returns RUNNING after grace, force_kill and mark FAILED."""
+
         # Stub: get() always returns job with RUNNING so poll never exits and we hit force_kill + fail.
         class AlwaysRunningRepo:
             def __init__(self) -> None:

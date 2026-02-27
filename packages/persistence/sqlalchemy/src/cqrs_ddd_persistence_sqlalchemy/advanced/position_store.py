@@ -5,13 +5,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from cqrs_ddd_advanced_core.ports.projection import IProjectionPositionStore
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     AsyncSessionFactory = Callable[[], Any]
 
@@ -51,8 +53,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         if session is not None:
             r = await session.execute(
                 text(
-                    f"SELECT position FROM {self._table} "
-                    "WHERE projection_name = :name"
+                    f"SELECT position FROM {self._table} WHERE projection_name = :name"
                 ),
                 {"name": projection_name},
             )
@@ -61,8 +62,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         async with self._session_factory() as session:
             r = await session.execute(
                 text(
-                    f"SELECT position FROM {self._table} "
-                    "WHERE projection_name = :name"
+                    f"SELECT position FROM {self._table} WHERE projection_name = :name"
                 ),
                 {"name": projection_name},
             )
@@ -111,17 +111,13 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         session = self._get_session(uow)
         if session is not None:
             await session.execute(
-                text(
-                    f"DELETE FROM {self._table} WHERE projection_name = :name"
-                ),
+                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),
                 {"name": projection_name},
             )
             return
         async with self._session_factory() as session:
             await session.execute(
-                text(
-                    f"DELETE FROM {self._table} WHERE projection_name = :name"
-                ),
+                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),
                 {"name": projection_name},
             )
             await session.commit()

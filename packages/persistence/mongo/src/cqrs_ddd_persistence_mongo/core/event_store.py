@@ -8,14 +8,15 @@ ensuring atomicity and preventing race conditions.
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 
 from ..exceptions import MongoPersistenceError
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
     from ..connection import MongoConnectionManager
 
 logger = logging.getLogger("cqrs_ddd.mongo.event_store")
@@ -114,7 +115,7 @@ class MongoEventStore(IEventStore):
         if result is None:
             # First time: counter was created with value=0, next is 1
             return 1
-        return result["value"]
+        return cast("int", result["value"])
 
     def _stored_event_to_doc(self, event: StoredEvent) -> dict[str, Any]:
         """Convert StoredEvent to MongoDB document."""
@@ -210,9 +211,7 @@ class MongoEventStore(IEventStore):
             )
             events_with_positions.append(event_with_position)
 
-        docs = [
-            self._stored_event_to_doc(event) for event in events_with_positions
-        ]
+        docs = [self._stored_event_to_doc(event) for event in events_with_positions]
         coll = self._events_collection()
         await coll.insert_many(docs)
 
@@ -308,9 +307,7 @@ class MongoEventStore(IEventStore):
         """
         coll = self._events_collection()
         cursor = (
-            coll.find({"position": {"$gt": position}})
-            .sort("position", 1)
-            .limit(limit)
+            coll.find({"position": {"$gt": position}}).sort("position", 1).limit(limit)
         )
         events = []
 
@@ -367,7 +364,11 @@ class MongoEventStore(IEventStore):
                 yield e
             if len(batch) < batch_size:
                 break
-            current = batch[-1].position if batch[-1].position is not None else current + len(batch)
+            current = (
+                batch[-1].position
+                if batch[-1].position is not None
+                else current + len(batch)
+            )
 
     async def get_latest_position(self) -> int | None:
         """
@@ -383,9 +384,7 @@ class MongoEventStore(IEventStore):
         )
         return doc["position"] if doc else None
 
-    async def stream_events(
-        self, position: int = 0
-    ) -> AsyncIterator[StoredEvent]:
+    async def stream_events(self, position: int = 0) -> AsyncIterator[StoredEvent]:
         """
         Stream events starting from a given position.
 

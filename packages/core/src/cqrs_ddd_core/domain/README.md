@@ -1,6 +1,6 @@
 # Domain Layer - Implementation Details & Usage
 
-**Package:** `cqrs_ddd_core.domain`  
+**Package:** `cqrs_ddd_core.domain`
 **Purpose:** Domain modeling primitives for DDD (Domain-Driven Design)
 
 ---
@@ -33,7 +33,7 @@ from cqrs_ddd_core.domain.aggregate import AggregateRoot
 class AggregateRoot(AggregateRootMixin, BaseModel, Generic[ID]):
     """
     Base class for all aggregate roots.
-    
+
     Features:
     - Generic ID type (str, int, UUID)
     - Event collection (_domain_events)
@@ -41,7 +41,7 @@ class AggregateRoot(AggregateRootMixin, BaseModel, Generic[ID]):
     - ID auto-generation support
     - Event sourcing reconstitution
     """
-    
+
     id: ID
     _id_generator: IIDGenerator | None = PrivateAttr(default=None)
     _domain_events: list[DomainEvent] = PrivateAttr(default_factory=list)
@@ -60,14 +60,14 @@ class Order(AggregateRoot[UUID]):
     customer_id: str
     status: str = "pending"
     total: float = 0.0
-    
+
     def confirm(self) -> None:
         """Business logic with event collection."""
         if self.status != "pending":
             raise ValueError("Can only confirm pending orders")
-        
+
         object.__setattr__(self, "status", "confirmed")
-        
+
         event = OrderConfirmed(
             aggregate_id=str(self.id),
             aggregate_type="Order",
@@ -125,7 +125,7 @@ from cqrs_ddd_core.domain.events import DomainEvent, enrich_event_metadata
 class DomainEvent(BaseModel):
     """
     Base class for all domain events.
-    
+
     Features:
     - Immutable (frozen=True)
     - Auto-generated event_id (UUID)
@@ -133,9 +133,9 @@ class DomainEvent(BaseModel):
     - Schema versioning
     - Tracing context
     """
-    
+
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
-    
+
     event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     occurred_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     version: int = 1
@@ -155,11 +155,11 @@ from cqrs_ddd_core.domain.events import DomainEvent
 
 class OrderCreated(DomainEvent):
     """Event: Order was created."""
-    
+
     # Required for event sourcing
     aggregate_id: str
     aggregate_type: str = "Order"
-    
+
     # Event-specific fields
     customer_id: str
     total: float
@@ -219,20 +219,20 @@ from cqrs_ddd_core.domain.value_object import ValueObject
 class ValueObject(BaseModel):
     """
     Base class for value objects.
-    
+
     Features:
     - Immutable (frozen=True)
     - Structural equality
     - Hashable
     """
-    
+
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
-    
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
             return False
         return self.model_dump() == other.model_dump()
-    
+
     def __hash__(self) -> int:
         return hash(tuple(sorted(self.model_dump().items())))
 ```
@@ -247,7 +247,7 @@ from cqrs_ddd_core.domain.value_object import ValueObject
 class Money(ValueObject):
     amount: float
     currency: str
-    
+
     def add(self, other: "Money") -> "Money":
         """Add two money values (same currency)."""
         if self.currency != other.currency:
@@ -352,11 +352,11 @@ from cqrs_ddd_core.domain.specification import ISpecification
 @runtime_checkable
 class ISpecification(Protocol, Generic[T]):
     """Protocol for the Specification pattern."""
-    
+
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if candidate satisfies specification."""
         ...
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to query dict."""
         ...
@@ -371,14 +371,14 @@ from cqrs_ddd_core.domain.specification import ISpecification
 
 class OrderStatusSpecification(ISpecification[Order]):
     """Specification: Order has specific status."""
-    
+
     def __init__(self, status: str):
         self.status = status
-    
+
     def is_satisfied_by(self, candidate: Order) -> bool:
         """In-memory filtering."""
         return candidate.status == self.status
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Query building."""
         return {"status": self.status}
@@ -400,14 +400,14 @@ results = await repo.search(query)
 ```python
 class AndSpecification(ISpecification[Order]):
     """Combine specifications with AND."""
-    
+
     def __init__(self, spec1: ISpecification[Order], spec2: ISpecification[Order]):
         self.spec1 = spec1
         self.spec2 = spec2
-    
+
     def is_satisfied_by(self, candidate: Order) -> bool:
         return self.spec1.is_satisfied_by(candidate) and self.spec2.is_satisfied_by(candidate)
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {"$and": [self.spec1.to_dict(), self.spec2.to_dict()]}
 
@@ -451,11 +451,11 @@ event_name = registry.get_name(event)  # "OrderCreated"
 ```python
 class Order(AggregateRoot[UUID]):
     status: str = "pending"
-    
+
     def confirm(self) -> None:
         if self.status != "pending":
             raise InvalidOrderStateError("...")
-        
+
         object.__setattr__(self, "status", "confirmed")
         self._domain_events.append(OrderConfirmed(...))
 ```
@@ -505,5 +505,5 @@ class OrderConfirmed(DomainEvent):
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.domain`

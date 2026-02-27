@@ -29,8 +29,10 @@ from typing import TYPE_CHECKING, Any
 
 from .ast import AttributeSpecification
 from .base import AndSpecification, NotSpecification, OrSpecification
+from .operators_memory import build_default_registry
 
 if TYPE_CHECKING:
+    from .evaluator import MemoryOperatorRegistry
     from .operators import SpecificationOperator
 
 try:
@@ -48,7 +50,11 @@ class SpecificationBuilder:
     grouping, and ``end_group()`` to close the current group.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        registry: MemoryOperatorRegistry | None = None,
+    ) -> None:
+        self._registry = registry if registry is not None else build_default_registry()
         self._specs: list[ISpecification[Any]] = []
         self._stack: list[tuple[str, list[ISpecification[Any]]]] = []
         # stack items: (group_operator, specs_list)
@@ -62,7 +68,9 @@ class SpecificationBuilder:
         val: Any = None,
     ) -> SpecificationBuilder:
         """Add a single attribute condition to the current group."""
-        self._current_list().append(AttributeSpecification(attr, op, val))
+        self._current_list().append(
+            AttributeSpecification(attr, op, val, registry=self._registry)
+        )
         return self
 
     def add(self, spec: ISpecification[Any]) -> SpecificationBuilder:

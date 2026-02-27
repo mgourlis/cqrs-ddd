@@ -41,18 +41,22 @@ registry.register_query(CustomerSummaryDTO, CustomerSummaryQueryPersistence)
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import AsyncIterator, Sequence
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from cqrs_ddd_advanced_core.ports.persistence import (
     IQueryPersistence,
     IQuerySpecificationPersistence,
 )
-from cqrs_ddd_core.ports.search_result import SearchResult
 
 if TYPE_CHECKING:
-    from cqrs_ddd_advanced_core.ports.projection import IProjectionReader, IProjectionWriter
+    from collections.abc import AsyncIterator, Sequence
+
+    from cqrs_ddd_advanced_core.ports.projection import (
+        IProjectionReader,
+        IProjectionWriter,
+    )
     from cqrs_ddd_core.domain.specification import ISpecification
+    from cqrs_ddd_core.ports.search_result import SearchResult
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 T_Result = TypeVar("T_Result")
@@ -183,7 +187,7 @@ class ProjectionBackedSpecPersistence(
         # Extract pagination and filter
         if hasattr(criteria, "specification"):
             # QueryOptions-like object
-            spec = criteria.specification  # type: ignore[union-attr]
+            spec = criteria.specification
             limit = getattr(criteria, "limit", 100)
             offset = getattr(criteria, "offset", 0)
         else:
@@ -224,7 +228,7 @@ class ProjectionBackedSpecPersistence(
         return SearchResult(_execute, _stream)
 
 
-class ProjectionBackedDualPersistence(
+class ProjectionBackedDualPersistence(  # type: ignore[misc]
     ProjectionBackedQueryPersistence[T_Result, T_ID],
     ProjectionBackedSpecPersistence[T_Result],
     Generic[T_Result, T_ID],
@@ -234,7 +238,13 @@ class ProjectionBackedDualPersistence(
 
     Implements both IQueryPersistence and IQuerySpecificationPersistence,
     useful for read models that need both access patterns.
+
+    Note: This class has two fetch methods with different signatures,
+    one from each base class. Subclasses must be explicit about which
+    fetch method to call.
     """
+
+    # Type: ignore for incompatible fetch method signatures between base classes
 
     @abstractmethod
     def get_writer(self) -> IProjectionWriter:
@@ -261,12 +271,16 @@ class ProjectionBackedDualPersistence(
         Convenience method for projection handlers that need to update
         a single projection document.
         """
-        if hasattr(data, "model_dump"):
-            data = data.model_dump(mode="json")  # type: ignore[union-attr]
+        if isinstance(data, dict):
+            # Already a dict
+            pass
+        elif hasattr(data, "model_dump"):
+            # Pydantic model - convert to dict
+            data = data.model_dump(mode="json")
         return await self.writer.upsert(
             self.collection,
             id_,
-            data,  # type: ignore[arg-type]
+            data,
             event_position=event_position,
             event_id=event_id,
             uow=uow,

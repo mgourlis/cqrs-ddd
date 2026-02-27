@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 import pytest
+from mongomock_motor import AsyncMongoMockClient
 
 from cqrs_ddd_persistence_mongo.advanced.projection_store import MongoProjectionStore
-from mongomock_motor import AsyncMongoMockClient
 
 
 @dataclass
@@ -45,7 +45,11 @@ async def test_projection_store_upsert_creates_projection(mock_connection):
     )
 
     projection = ProjectionData(id="test-1", name="Test Projection")
-    await store.upsert("test_projections", "test-1", {"name": projection.name, "version": projection.version})
+    await store.upsert(
+        "test_projections",
+        "test-1",
+        {"name": projection.name, "version": projection.version},
+    )
 
     # Verify projection was saved
     db = mock_connection._client["test_db"]
@@ -65,12 +69,20 @@ async def test_projection_store_upsert_updates_projection(mock_connection):
 
     # Create initial projection
     projection = ProjectionData(id="test-1", name="Test Projection v1", version=1)
-    await store.upsert("test_projections", "test-1", {"name": projection.name, "version": projection.version})
+    await store.upsert(
+        "test_projections",
+        "test-1",
+        {"name": projection.name, "version": projection.version},
+    )
 
     # Update projection
     projection.name = "Test Projection v2"
     projection.version = 2
-    await store.upsert("test_projections", "test-1", {"name": projection.name, "version": projection.version})
+    await store.upsert(
+        "test_projections",
+        "test-1",
+        {"name": projection.name, "version": projection.version},
+    )
 
     # Verify update
     db = mock_connection._client["test_db"]
@@ -90,7 +102,9 @@ async def test_projection_store_upsert_with_custom_id_field(mock_connection):
     )
 
     projection = ProjectionData(id="test-1", name="Test Projection")
-    await store.upsert("test_projections", "test-1", {"custom_id": "test-1", "name": projection.name})
+    await store.upsert(
+        "test_projections", "test-1", {"custom_id": "test-1", "name": projection.name}
+    )
 
     # Verify custom ID was used (stored as _id, custom_id key removed)
     db = mock_connection._client["test_db"]
@@ -160,7 +174,11 @@ async def test_projection_store_handles_datetime_fields(mock_connection):
         name="Test Projection",
         updated_at=now,
     )
-    await store.upsert("test_projections", "test-1", {"name": projection.name, "updated_at": projection.updated_at})
+    await store.upsert(
+        "test_projections",
+        "test-1",
+        {"name": projection.name, "updated_at": projection.updated_at},
+    )
 
     # Retrieve and verify datetime
     db = mock_connection._client["test_db"]

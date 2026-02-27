@@ -79,14 +79,14 @@ from .string import (
 def build_default_registry() -> MemoryOperatorRegistry:
     """
     Create a registry with all built-in operators.
-    
+
     This factory function creates a fresh MemoryOperatorRegistry instance
     populated with all built-in operators. Use this to create registries
     for dependency injection.
-    
+
     Returns:
         MemoryOperatorRegistry: A new registry instance with all operators.
-    
+
     Example:
         >>> registry = build_default_registry()
         >>> registry.evaluate(SpecificationOperator.EQ, "active", "active")

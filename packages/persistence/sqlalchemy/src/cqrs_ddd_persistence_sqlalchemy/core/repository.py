@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 from sqlalchemy.orm.exc import StaleDataError
 
 from cqrs_ddd_core.primitives.exceptions import OptimisticConcurrencyError
+
 from ..specifications.compiler import apply_query_options, build_sqla_filter
 from .model_mapper import ModelMapper
 from .uow import SQLAlchemyUnitOfWork

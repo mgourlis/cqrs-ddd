@@ -6,13 +6,12 @@ import asyncio
 
 import pytest
 
-from cqrs_ddd_core.adapters.memory.locking import InMemoryLockStrategy
-
 from cqrs_ddd_advanced_core.projections.manager import ProjectionManager
 from cqrs_ddd_advanced_core.projections.schema import (
     ProjectionSchema,
     ProjectionSchemaRegistry,
 )
+from cqrs_ddd_core.adapters.memory.locking import InMemoryLockStrategy
 
 
 class InMemoryWriter:
@@ -100,7 +99,9 @@ def lock_strategy():
 
 
 @pytest.mark.asyncio
-async def test_manager_initialize_once_creates_collection(writer, registry, lock_strategy):
+async def test_manager_initialize_once_creates_collection(
+    writer, registry, lock_strategy
+):
     manager = ProjectionManager(writer, registry, lock_strategy)
     await manager.initialize_once("orders")
     assert "orders" in writer.ensured
@@ -108,7 +109,9 @@ async def test_manager_initialize_once_creates_collection(writer, registry, lock
 
 
 @pytest.mark.asyncio
-async def test_manager_initialize_once_double_check_skips_if_exists(writer, registry, lock_strategy):
+async def test_manager_initialize_once_double_check_skips_if_exists(
+    writer, registry, lock_strategy
+):
     manager = ProjectionManager(writer, registry, lock_strategy)
     writer._exists.add("orders")
     await manager.initialize_once("orders")
@@ -116,7 +119,9 @@ async def test_manager_initialize_once_double_check_skips_if_exists(writer, regi
 
 
 @pytest.mark.asyncio
-async def test_manager_initialize_all_calls_ensure_for_each(writer, registry, lock_strategy):
+async def test_manager_initialize_all_calls_ensure_for_each(
+    writer, registry, lock_strategy
+):
     manager = ProjectionManager(writer, registry, lock_strategy)
     await manager.initialize_all()
     assert "orders" in writer.ensured
@@ -124,7 +129,9 @@ async def test_manager_initialize_all_calls_ensure_for_each(writer, registry, lo
 
 
 @pytest.mark.asyncio
-async def test_manager_concurrent_initialize_all_single_creation(writer, registry, lock_strategy):
+async def test_manager_concurrent_initialize_all_single_creation(
+    writer, registry, lock_strategy
+):
     """Concurrent initialize_all does not duplicate ensure_collection (lock serializes)."""
     manager = ProjectionManager(writer, registry, lock_strategy)
     await asyncio.gather(

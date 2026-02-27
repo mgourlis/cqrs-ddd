@@ -376,7 +376,7 @@ async for event in await event_store.get_events_from_position(0):
 async def _next_position(self) -> int:
     """
     Atomically increment and return next position.
-    
+
     Uses find_one_and_update with upsert:
     - Atomic: No race conditions
     - No gaps: Sequential even with failures
@@ -397,10 +397,10 @@ async def reconstitute_order(order_id: str, event_store: MongoEventStore) -> Ord
     """Rebuild order from event history."""
     # Get all events for aggregate
     events = await event_store.get_events(order_id)
-    
+
     # Start with empty order
     order = Order(id=order_id)
-    
+
     # Apply each event
     for event in events:
         if event.event_type == "OrderCreated":
@@ -408,7 +408,7 @@ async def reconstitute_order(order_id: str, event_store: MongoEventStore) -> Ord
         elif event.event_type == "OrderShipped":
             order.apply(OrderShipped(**event.payload))
         # ... more event handlers
-    
+
     return order
 ```
 
@@ -438,7 +438,7 @@ async with MongoUnitOfWork(connection=connection) as uow:
     # Modify aggregate
     order.ship()
     await order_repo.add(order, uow=uow)
-    
+
     # Save domain events to outbox
     domain_events = order.pull_domain_events()
     outbox_messages = [
@@ -451,7 +451,7 @@ async with MongoUnitOfWork(connection=connection) as uow:
         for event in domain_events
     ]
     await outbox.save_messages(outbox_messages, uow=uow)
-    
+
     # Both aggregate and outbox committed atomically
     await uow.commit()
 
@@ -460,7 +460,7 @@ async def outbox_publisher():
     while True:
         # Get pending messages
         messages = await outbox.get_pending(limit=100)
-        
+
         for msg in messages:
             try:
                 # Publish to message broker
@@ -469,14 +469,14 @@ async def outbox_publisher():
                     key=msg.message_id,
                     value=msg.payload,
                 )
-                
+
                 # Mark as published
                 await outbox.mark_published([msg.message_id])
-                
+
             except Exception as e:
                 # Mark as failed (will be retried)
                 await outbox.mark_failed(msg.message_id, str(e))
-        
+
         await asyncio.sleep(1)
 ```
 
@@ -547,7 +547,7 @@ class OrderRepository(MongoRepository[Order, str]):
         doc["total_items"] = len(entity.items)
         doc["discounted_total"] = entity.total * 0.9  # 10% discount
         return doc
-    
+
     def _mapper_from_doc(self, doc: dict[str, Any]) -> Order:
         """Custom mapping with derived fields."""
         entity = self._mapper.from_doc(doc)
@@ -591,10 +591,10 @@ async def create_order_handler(cmd: CreateOrderCommand):
     async with MongoUnitOfWork(connection=connection) as uow:
         # Create order
         order = Order.create(cmd.customer_id, cmd.items)
-        
+
         # Save order
         await order_repo.add(order, uow=uow)
-        
+
         # Save events to outbox
         events = order.pull_domain_events()
         await outbox.save_messages([
@@ -606,10 +606,10 @@ async def create_order_handler(cmd: CreateOrderCommand):
             )
             for e in events
         ], uow=uow)
-        
+
         # Atomic commit
         await uow.commit()
-        
+
         # Events will be published by background worker
 ```
 
@@ -628,13 +628,13 @@ async def ship_order_handler(cmd: ShipOrderCommand):
     async with MongoUnitOfWork(connection=connection) as uow:
         # Load from write model
         order = await order_repo.get(cmd.order_id, uow=uow)
-        
+
         # Business logic
         order.ship()
-        
+
         # Save to write model
         await order_repo.add(order, uow=uow)
-        
+
         # Events will update projections asynchronously
         await uow.commit()
 ```
@@ -825,7 +825,7 @@ async def test_repository_add(uow: MongoUnitOfWork):
     order = Order(id="order-1", customer_id="cust-1", total=99.99)
     await order_repo.add(order, uow=uow)
     await uow.commit()
-    
+
     # Verify
     loaded = await order_repo.get("order-1", uow=uow)
     assert loaded.id == "order-1"
@@ -844,7 +844,7 @@ async def test_repository_add(uow: MongoUnitOfWork):
 | `MongoOutboxStorage` | Reliable event publishing | `save_messages`, `get_pending`, `mark_published` |
 | `MongoDBModelMapper` | Entity ↔ Document conversion | `to_doc`, `from_doc` |
 
-**Total Lines:** ~1100  
-**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-core, cqrs-ddd-specifications  
-**Python Version:** 3.11+  
+**Total Lines:** ~1100
+**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-core, cqrs-ddd-specifications
+**Python Version:** 3.11+
 **MongoDB Version:** 4.0+ (replica set required for transactions)

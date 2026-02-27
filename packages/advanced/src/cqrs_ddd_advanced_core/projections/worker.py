@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from cqrs_ddd_core.ports.event_store import StoredEvent
-
 if TYPE_CHECKING:
+    from cqrs_ddd_core.ports.event_store import StoredEvent
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 

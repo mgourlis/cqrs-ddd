@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from cqrs_ddd_persistence_mongo.operators.null import compile_null
-
 
 # Phase 3, Step 8: Null/Empty Operators Tests (6 tests)
 

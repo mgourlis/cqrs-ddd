@@ -138,7 +138,7 @@ from cqrs_ddd_core.ports.event_store import IEventStore
 
 class OrderRepository(EventSourcedRepository[Order, str]):
     """Event-sourced order repository."""
-    
+
     async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Order]:
         # 1. Check for snapshot
         # 2. Load events after snapshot version
@@ -146,7 +146,7 @@ class OrderRepository(EventSourcedRepository[Order, str]):
         # 4. Replay events to rebuild state
         # 5. Return fully hydrated aggregate
         ...
-    
+
     async def persist(self, entity: Order, uow: UnitOfWork) -> str:
         # 1. Collect new events from aggregate
         # 2. Convert to StoredEvent with version, position
@@ -186,7 +186,7 @@ mediator = EventSourcedMediator(
 async def handle_create_order(command: CreateOrder, uow: UnitOfWork):
     order = Order(id=command.order_id)
     order.create(command.customer_id, command.amount, command.currency)
-    
+
     # Just return - events persisted by mediator!
     return CommandResponse(
         result=order.id,
@@ -301,11 +301,11 @@ from cqrs_ddd_core.domain.aggregate import AggregateRoot
 @non_event_sourced
 class CacheEntry(AggregateRoot[str]):
     """Cache entry with events that are NOT persisted."""
-    
+
     def apply_CacheUpdated(self, event: CacheUpdated) -> None:
         self.value = event.new_value
         self.updated_at = event.updated_at
-    
+
     def update(self, new_value: str):
         event = CacheUpdated(
             aggregate_id=self.id,
@@ -426,14 +426,14 @@ class Order(AggregateRoot[str]):
     status: str = "pending"
     total: Decimal = Decimal("0.00")
     items: list[dict] = []
-    
+
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         """Apply OrderCreated event."""
         self.customer_id = event.customer_id
         self.total = event.amount
         self.status = "created"
         self.items = []
-    
+
     def apply_OrderItemAdded(self, event: OrderItemAdded) -> None:
         """Apply OrderItemAdded event."""
         self.items.append({
@@ -443,18 +443,18 @@ class Order(AggregateRoot[str]):
             "unit_price": event.unit_price,
         })
         self.total = event.new_total
-    
+
     def apply_OrderSubmitted(self, event: OrderSubmitted) -> None:
         """Apply OrderSubmitted event."""
         self.status = "submitted"
-    
+
     # Business methods
     def add_item(self, product_id: str, product_name: str, quantity: int, unit_price: Decimal):
         if self.status != "created":
             raise CannotModifyOrder("Order already submitted")
-        
+
         new_total = self.total + (quantity * unit_price)
-        
+
         event = OrderItemAdded(
             aggregate_id=self.id,
             aggregate_type="Order",
@@ -533,7 +533,7 @@ class Order(AggregateRoot[str]):
 async def persist(self, entity: Order, uow: UnitOfWork) -> str:
     events = entity.collect_events()
     current_version = entity.version  # Current aggregate version
-    
+
     for i, event in enumerate(events):
         stored = StoredEvent(
             event_id=str(uuid4()),
@@ -545,7 +545,7 @@ async def persist(self, entity: Order, uow: UnitOfWork) -> str:
             # position assigned by EventStore
         )
         await self._event_store.append(stored)
-    
+
     # Update in-memory version
     object.__setattr__(entity, "_version", current_version + len(events))
 
@@ -555,22 +555,22 @@ async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Order]:
     for agg_id in ids:
         # Load all events for aggregate
         events = await self._event_store.get_events(agg_id)
-        
+
         if events:
             # Create empty aggregate
             order = Order.reconstitute(aggregate_id=agg_id)
-            
+
             # Replay events
             for stored in events:
                 event = hydrate(stored)
                 order.apply_event(event)  # Calls apply_OrderCreated, etc.
-            
+
             # Set version from last event
             last_version = events[-1].version
             object.__setattr__(order, "_version", last_version)
-            
+
             orders.append(order)
-    
+
     return orders
 ```
 
@@ -592,12 +592,12 @@ async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Order]:
     for agg_id in ids:
         # Try to load snapshot
         snapshot = await self._snapshot_store.load(agg_id, uow)
-        
+
         if snapshot:
             # Start from snapshot state
             order = Order.reconstitute(agg_id, **snapshot.state)
             object.__setattr__(order, "_version", snapshot.version)
-            
+
             # Load only events after snapshot
             events = await self._event_store.get_events(
                 agg_id,
@@ -607,12 +607,12 @@ async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Order]:
             # No snapshot, load all events
             order = Order.reconstitute(agg_id)
             events = await self._event_store.get_events(agg_id)
-        
+
         # Replay events
         for stored in events:
             event = hydrate(stored)
             order.apply_event(event)
-        
+
         # Update version
         if events:
             last_version = events[-1].version
@@ -680,15 +680,15 @@ async def handle_add_item_to_order(
     orders = await order_repository.retrieve([order_id], uow)
     if not orders:
         raise OrderNotFound(order_id)
-    
+
     order = orders[0]
-    
+
     # Execute business logic
     order.add_item(product_id, product_name, quantity, unit_price)
-    
+
     # Persist
     await order_repository.persist(order, uow)
-    
+
     return order.id
 ```
 
@@ -721,7 +721,7 @@ mediator = EventSourcedMediator(
 async def handle_create_order(command: CreateOrder, uow: UnitOfWork):
     order = Order(id=command.order_id)
     order.create(command.customer_id, command.amount, command.currency)
-    
+
     # Just return - events persisted by mediator!
     return CommandResponse(
         result=order.id,
@@ -833,12 +833,12 @@ await event_store.append(stored)
 async def run(self, projection_name: str):
     # Resume from last position
     last_position = await self.position_store.get_position(projection_name)
-    
+
     # Stream events after position
     async for event in self.event_store.get_events_from_position(last_position or 0):
         # Handle event
         await self.handle_event(event, uow)
-        
+
         # Save position (in same UoW)
         await self.position_store.save_position(
             projection_name,
@@ -855,10 +855,10 @@ async def run(self, projection_name: str):
 class OrderSummaryHandler:
     def __init__(self, writer: IProjectionWriter):
         self.writer = writer
-    
+
     async def handle(self, event: StoredEvent, uow: UnitOfWork):
         data = json.loads(event.payload)
-        
+
         # Upsert with event_id for idempotency
         await self.writer.upsert(
             collection="order_summaries",
@@ -888,17 +888,17 @@ class OrderSummaryHandler:
 if event_position is not None:
     # Load existing
     existing = await self.get(collection, doc_id, uow=uow)
-    
+
     if existing:
         existing_version = existing.get("_version", 0)
-        
+
         # Optimistic concurrency check
         if existing_version >= event_position:
             logger.debug(
                 f"Skipping stale update: {event_position} <= {existing_version}"
             )
             return False  # Skip older/duplicate event
-    
+
     # Set version fields
     data["_version"] = event_position
     data["_last_event_id"] = event_id
@@ -950,7 +950,7 @@ class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     from_version = 1
     to_version = 2
-    
+
     def upcast(self, payload: dict) -> dict:
         # Migrate payload
         return {
@@ -1033,7 +1033,7 @@ class Order(AggregateRoot[str]):
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.customer_id = event.customer_id
         self.status = "created"
-    
+
     def apply_OrderSubmitted(self, event: OrderSubmitted) -> None:
         self.status = "submitted"
 
@@ -1072,7 +1072,7 @@ class OrderCreated(DomainEvent):
     customer_id: str
     amount: Decimal
     currency: str = "EUR"
-    
+
     # version field is inherited from DomainEvent base class
     # Defaults to 1, increment when schema changes
 

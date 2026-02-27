@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from cqrs_ddd_persistence_mongo.operators.set import compile_set
-
 
 # Phase 3, Step 9: Set Operators Tests (5 tests)
 

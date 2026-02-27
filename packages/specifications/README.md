@@ -406,19 +406,19 @@ class CustomerSpecs:
     @staticmethod
     def active():
         return AttributeSpecification("status", "==", "active")
-    
+
     @staticmethod
     def premium():
         return AttributeSpecification("tier", "==", "premium")
-    
+
     @staticmethod
     def from_country(country_code: str):
         return AttributeSpecification("country", "==", country_code)
 
 # Compose reusable specs
 active_premium_us = (
-    CustomerSpecs.active() 
-    & CustomerSpecs.premium() 
+    CustomerSpecs.active()
+    & CustomerSpecs.premium()
     & CustomerSpecs.from_country("US")
 )
 
@@ -431,19 +431,19 @@ result = await customer_repo.search(active_premium_us)
 def build_search_spec(filters: dict) -> ISpecification:
     """Build specification from API query params."""
     builder = SpecificationBuilder()
-    
+
     if "status" in filters:
         builder.where("status", "==", filters["status"])
-    
+
     if "min_price" in filters:
         builder.where("price", ">=", filters["min_price"])
-    
+
     if "max_price" in filters:
         builder.where("price", "<=", filters["max_price"])
-    
+
     if "tags" in filters:
         builder.where("tags", "contains_any", filters["tags"])
-    
+
     return builder.build()
 
 # Usage in FastAPI endpoint
@@ -462,7 +462,7 @@ async def search_products(
             "tags": tags,
         }.items() if v is not None
     }
-    
+
     spec = build_search_spec(filters)
     return await product_repo.search(spec)
 ```
@@ -591,22 +591,22 @@ class IProjectionReader(Protocol):
 ```python
 class OrderSummaryQuery(ProjectionBackedSpecPersistence[OrderSummaryDTO]):
     collection = "order_summaries"
-    
+
     def to_dto(self, doc: dict) -> OrderSummaryDTO:
         return OrderSummaryDTO(**doc)
-    
+
     def build_filter(self, spec: ISpecification) -> dict[str, Any]:
         """Convert specification to simple filter dict."""
         spec_dict = spec.to_dict()
-        
+
         # Example: {"field": "status", "op": "==", "value": "active"}
         # Convert to: {"status": "active"}
         if spec_dict.get("op") == "==":
             return {spec_dict["field"]: spec_dict["value"]}
-        
+
         # More complex logic for ranges, sets, etc.
         return self._compile_spec_to_filter(spec_dict)
-    
+
     async def fetch(self, criteria, uow=None):
         # Extract pagination from QueryOptions
         if hasattr(criteria, "specification"):
@@ -617,10 +617,10 @@ class OrderSummaryQuery(ProjectionBackedSpecPersistence[OrderSummaryDTO]):
             spec = criteria
             limit = 100
             offset = 0
-        
+
         # Convert spec → filter dict
         filter_dict = self.build_filter(spec)
-        
+
         # Call low-level reader
         docs = await self.reader.find(
             self.collection,
@@ -629,7 +629,7 @@ class OrderSummaryQuery(ProjectionBackedSpecPersistence[OrderSummaryDTO]):
             offset=offset,
             uow=uow,
         )
-        
+
         return [self.to_dto(doc) for doc in docs]
 ```
 
@@ -681,11 +681,11 @@ from cqrs_ddd_specifications import SpecificationBuilder
 # Reconstruct from dict
 def spec_from_dict(data: dict) -> ISpecification:
     builder = SpecificationBuilder()
-    
+
     if data["op"] == "and":
         for cond in data["conditions"]:
             builder.where(cond["field"], cond["op"], cond["value"])
-    
+
     return builder.build()
 ```
 
@@ -753,7 +753,7 @@ def jsonb_contains_sqlalchemy(field, value):
     """Generate SQLAlchemy JSONB contains expression."""
     from sqlalchemy import cast
     from sqlalchemy.dialects.postgresql import JSONB
-    
+
     return cast(field, JSONB).contains(value)
 
 @register_hook("mongo", "jsonb_contains")
@@ -774,7 +774,7 @@ class OrderSpecs:
     @staticmethod
     def pending():
         return AttributeSpecification("status", "==", "pending")
-    
+
     @staticmethod
     def high_value(threshold=1000):
         return AttributeSpecification("total", ">=", threshold)
@@ -832,12 +832,12 @@ class PaginatedSpecification(ISpecification):
 # ✅ GOOD: Fast unit tests
 def test_order_filter():
     spec = OrderSpecs.pending()
-    
+
     orders = [
         Order(id=1, status="pending"),
         Order(id=2, status="confirmed"),
     ]
-    
+
     matching = [o for o in orders if evaluate_specification(spec, o)]
     assert len(matching) == 1
     assert matching[0].id == 1
@@ -1017,6 +1017,6 @@ await user_repo.search(options)
 
 ---
 
-**Last Updated:** February 21, 2026  
-**Status:** Production Ready ✅  
+**Last Updated:** February 21, 2026
+**Status:** Production Ready ✅
 **Version:** 1.0.0

@@ -183,46 +183,46 @@ The `SagaState` aggregate tracks the complete lifecycle:
 class SagaState(AuditableMixin, AggregateRoot[str]):
     # Schema version
     state_version: int = 1
-    
+
     # Identity
     saga_type: str = ""              # Saga class name
     status: SagaStatus = PENDING     # PENDING | RUNNING | SUSPENDED | COMPLETED | FAILED | COMPENSATING | COMPENSATED
     correlation_id: str | None       # Links all events in transaction
-    
+
     # Step tracking
     current_step: str = "init"       # Current step name
     step_history: list[StepRecord]   # Full audit trail
-    
+
     # TCC (first-class field)
     tcc_steps: list[TCCStepRecord]   # Try-Confirm/Cancel steps
-    
+
     # Idempotency
     processed_event_ids: list[str]   # Prevent duplicate processing
-    
+
     # Pending commands
     pending_commands: list[dict]     # Queued commands (crash-safety)
-    
+
     # Compensation
     compensation_stack: list[CompensationRecord]  # LIFO rollback
     failed_compensations: list[dict]              # Failed rollbacks
-    
+
     # Suspension
     suspended_at: datetime | None
     suspension_reason: str | None
     timeout_at: datetime | None      # Auto-expiry for suspended
-    
+
     # Retries
     retry_count: int = 0
     max_retries: int = 3
-    
+
     # Error tracking
     error: str | None
-    
+
     # Timestamps
     completed_at: datetime | None
     failed_at: datetime | None
     created_at / updated_at  # From AuditableMixin
-    
+
     # Metadata
     metadata: dict[str, Any]         # Custom context
 ```
@@ -243,13 +243,13 @@ OrderSaga = (
     # Configuration
     .with_state_class(OrderSagaState)
     .with_max_retries(5)
-    
+
     # Event → Command mapping
     .on(OrderCreated,
         send=lambda e: ReserveItems(order_id=e.order_id),
         step="reserving",
         compensate=lambda e: CancelReservation(order_id=e.order_id))
-    
+
     # Multi-command dispatch
     .on(PaymentCharged,
         send_all=lambda e: [
@@ -258,24 +258,24 @@ OrderSaga = (
         ],
         step="confirming",
         complete=True)
-    
+
     # Suspend for human-in-the-loop
     .on(NeedsReview,
         suspend="Manual review required",
         suspend_timeout=timedelta(hours=24))
-    
+
     # Resume from suspension
     .on(ReviewApproved,
         send=lambda e: ContinueOrder(order_id=e.order_id),
         resume=True)
-    
+
     # Fail saga
     .on(PaymentDeclined,
         fail="Payment permanently declined")
-    
+
     # Custom handler for complex logic
     .on(OrderCancelled, handler=my_cancel_handler)
-    
+
     .build()
 )
 ```
@@ -304,48 +304,48 @@ class OrderSagaState(SagaState):
 class OrderSaga(Saga[OrderSagaState]):
     # CRITICAL: Must declare listened events explicitly
     listens_to = [OrderCreated, ItemsReserved, PaymentCharged, OrderCancelled]
-    
+
     state_class = OrderSagaState
-    
+
     def __init__(self, state: OrderSagaState, message_registry=None):
         super().__init__(state, message_registry)
-        
+
         # Register event handlers
         self.on(OrderCreated, handler=self.handle_order_created)
         self.on(ItemsReserved, send=self._send_payment, step="charging")
         self.on(PaymentCharged, handler=self.handle_payment_charged)
         self.on(OrderCancelled, handler=self.handle_cancelled)
-    
+
     async def handle_order_created(self, event: OrderCreated):
         """Complex handler with conditional logic."""
         if self.state.items_reserved:
             # Already reserved (idempotency check)
             return
-        
+
         self.dispatch(ReserveItems(order_id=event.order_id))
         self.add_compensation(
             CancelReservation(order_id=event.order_id),
             "Release inventory on failure",
         )
         self.state.current_step = "reserving"
-    
+
     def _send_payment(self, event: ItemsReserved) -> ChargePayment:
         """Command factory."""
         return ChargePayment(
             order_id=event.order_id,
             amount=event.total,
         )
-    
+
     async def handle_payment_charged(self, event: PaymentCharged):
         """Mark completed."""
         self.state.payment_id = event.payment_id
         self.dispatch(ConfirmOrder(order_id=event.order_id))
         self.complete()
-    
+
     async def handle_cancelled(self, event: OrderCancelled):
         """Fail with compensation."""
         await self.fail(f"Order cancelled: {event.reason}", compensate=True)
-    
+
     async def on_timeout(self):
         """Custom timeout handler."""
         # Override default behavior
@@ -442,7 +442,7 @@ OrderTCCSaga = (
         reservation_type=ReservationType.TIME_BASED,
         timeout=timedelta(minutes=15),
     ))
-    
+
     # Wire events to TCC lifecycle
     .on_tcc_begin(OrderCreated)               # OrderCreated → begin_tcc()
     .on_tcc_tried("inventory", InventoryReserved)
@@ -453,7 +453,7 @@ OrderTCCSaga = (
     .on_tcc_failed("payment", PaymentFailed)
     .on_tcc_cancelled("inventory", InventoryReleased)
     .on_tcc_cancelled("payment", PaymentVoided)
-    
+
     .build()
 )
 ```
@@ -768,11 +768,11 @@ async def test_order_saga():
     # Setup in-memory repo
     repo = InMemorySagaRepository()
     manager = SagaManager(repo, registry, command_bus, msg_registry)
-    
+
     # Execute saga
     event = OrderCreated(order_id="order_123", correlation_id="tx_1")
     await manager.handle(event)
-    
+
     # Verify state
     state = await repo.find_by_correlation_id("tx_1", "OrderSaga")
     assert state.status == SagaStatus.COMPLETED

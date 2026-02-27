@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from cqrs_ddd_projections.ports import ICheckpointStore
 
@@ -81,7 +81,7 @@ class MongoCheckpointStore(ICheckpointStore):
         doc = await coll.find_one({"_id": projection_name})
         if doc is None:
             return None
-        return doc.get("position")
+        return cast("int | None", doc.get("position"))
 
     async def save_position(self, projection_name: str, position: int) -> None:
         """Save or update checkpoint position in database.

@@ -11,7 +11,11 @@ def test_within_operator():
     field = "location"
     op = SpecificationOperator.WITHIN.value
     val = {"$geometry": {"type": "Polygon", "coordinates": [[[]]]}}
-    expected = {"location": {"$geoWithin": {"$geometry": {"type": "Polygon", "coordinates": [[[]]]}}}}
+    expected = {
+        "location": {
+            "$geoWithin": {"$geometry": {"type": "Polygon", "coordinates": [[[]]]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -21,7 +25,11 @@ def test_intersects_operator():
     field = "location"
     op = SpecificationOperator.INTERSECTS.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -65,7 +73,9 @@ def test_distance_lt_simple_value():
     field = "location"
     op = SpecificationOperator.DISTANCE_LT.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$near": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {"$near": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -85,7 +95,11 @@ def test_touches_operator():
     field = "location"
     op = SpecificationOperator.TOUCHES.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -95,7 +109,11 @@ def test_crosses_operator():
     field = "location"
     op = SpecificationOperator.CROSSES.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -105,7 +123,11 @@ def test_overlaps_operator():
     field = "location"
     op = SpecificationOperator.OVERLAPS.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -115,7 +137,11 @@ def test_disjoint_operator():
     field = "location"
     op = SpecificationOperator.DISJOINT.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -125,7 +151,11 @@ def test_geom_equals_operator():
     field = "location"
     op = SpecificationOperator.GEOM_EQUALS.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -135,7 +165,11 @@ def test_bbox_intersects_operator():
     field = "location"
     op = SpecificationOperator.BBOX_INTERSECTS.value
     val = {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
-    expected = {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    expected = {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -145,7 +179,9 @@ def test_contains_geom_valid_dict():
     field = "location"
     op = SpecificationOperator.CONTAINS_GEOM.value
     val = {"type": "Point", "coordinates": [1, 1]}
-    expected = {"$expr": {"$geoWithin": [{"type": "Point", "coordinates": [1, 1]}, "$location"]}}
+    expected = {
+        "$expr": {"$geoWithin": [{"type": "Point", "coordinates": [1, 1]}, "$location"]}
+    }
     result = compile_geometry(field, op, val)
     assert result == expected
 
@@ -191,7 +227,12 @@ def test_contains_geom_non_dict():
         pytest.param(
             "location",
             SpecificationOperator.WITHIN.value,
-            {"$geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]}},
+            {
+                "$geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                }
+            },
             id="within_polygon",
         ),
         # Test INTERSECTS with LineString
@@ -220,13 +261,29 @@ def test_geometry_various_types(field, op, val):
 def test_geometry_with_mongodb_operator_symbols():
     """Test geometry with MongoDB-style operator values."""
     # Test that it works with string values matching SpecificationOperator enum
-    result = compile_geometry("location", "within", {"$geometry": {"type": "Point", "coordinates": [1, 1]}})
-    assert result == {"location": {"$geoWithin": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    result = compile_geometry(
+        "location", "within", {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+    )
+    assert result == {
+        "location": {
+            "$geoWithin": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
 
-    result = compile_geometry("location", "intersects", {"$geometry": {"type": "Point", "coordinates": [1, 1]}})
-    assert result == {"location": {"$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}}}
+    result = compile_geometry(
+        "location",
+        "intersects",
+        {"$geometry": {"type": "Point", "coordinates": [1, 1]}},
+    )
+    assert result == {
+        "location": {
+            "$geoIntersects": {"$geometry": {"type": "Point", "coordinates": [1, 1]}}
+        }
+    }
 
-    result = compile_geometry("location", "distance_lt", {"coordinates": [1, 1], "maxDistance": 1000})
+    result = compile_geometry(
+        "location", "distance_lt", {"coordinates": [1, 1], "maxDistance": 1000}
+    )
     assert result == {
         "location": {
             "$near": {
@@ -240,11 +297,15 @@ def test_geometry_with_mongodb_operator_symbols():
 def test_distance_lt_edge_cases():
     """Test DISTANCE_LT operator edge cases."""
     # Missing coordinates - falls back to simple near
-    result = compile_geometry("location", SpecificationOperator.DISTANCE_LT.value, {"maxDistance": 1000})
+    result = compile_geometry(
+        "location", SpecificationOperator.DISTANCE_LT.value, {"maxDistance": 1000}
+    )
     assert result == {"location": {"$near": {"maxDistance": 1000}}}
 
     # Missing maxDistance - falls back to simple near
-    result = compile_geometry("location", SpecificationOperator.DISTANCE_LT.value, {"coordinates": [1, 1]})
+    result = compile_geometry(
+        "location", SpecificationOperator.DISTANCE_LT.value, {"coordinates": [1, 1]}
+    )
     assert result == {"location": {"$near": {"coordinates": [1, 1]}}}
 
 

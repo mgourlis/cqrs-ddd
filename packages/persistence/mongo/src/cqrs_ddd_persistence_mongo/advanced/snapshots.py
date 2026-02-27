@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_advanced_core.ports.snapshots import ISnapshotStore
 
 from ..exceptions import MongoPersistenceError
+
+# Re-export type for use in signature
+if TYPE_CHECKING:
+    from ..connection import MongoConnectionManager
 
 
 def _doc_id(aggregate_type: str, aggregate_id: Any) -> str:
@@ -56,7 +60,8 @@ class MongoSnapshotStore(ISnapshotStore):
         )
         self._collection_name = collection or self.COLLECTION
 
-    def _coll(self):
+    def _coll(self) -> Any:
+        """Get the MongoDB collection."""
         return self._client[self._database][self._collection_name]
 
     async def save_snapshot(

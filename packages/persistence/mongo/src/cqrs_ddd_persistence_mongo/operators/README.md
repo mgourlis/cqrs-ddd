@@ -673,7 +673,7 @@ filter_dict = query_builder.build_match(spec)
 | `compile_jsonb` | `@>`, `?` | `$all`, `$exists`, dot notation |
 | `compile_geometry` | `st_within`, `st_intersects`, `st_near` | `$geoWithin`, `$geoIntersects`, `$near` |
 
-**Total Lines:** ~400  
-**Dependencies:** cqrs-ddd-specifications, pymongo 4.0+  
-**Python Version:** 3.11+  
+**Total Lines:** ~400
+**Dependencies:** cqrs-ddd-specifications, pymongo 4.0+
+**Python Version:** 3.11+
 **MongoDB Version:** 4.0+

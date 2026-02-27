@@ -82,7 +82,7 @@ from cqrs_ddd_advanced_core.ports.scheduling import ICommandScheduler
 
 class ICommandScheduler(Protocol):
     """Port for command scheduling persistence."""
-    
+
     async def schedule(
         self,
         command: Command[Any],
@@ -91,27 +91,27 @@ class ICommandScheduler(Protocol):
         metadata: dict[str, Any] | None = None,
     ) -> str:
         """Schedule a command for future execution.
-        
+
         Returns:
             Schedule ID for tracking/cancellation.
         """
         ...
-    
+
     async def get_due_commands(self) -> list[tuple[str, Command[Any]]]:
         """Get all commands ready for execution.
-        
+
         Returns:
             List of (schedule_id, command) tuples.
         """
         ...
-    
+
     async def delete_executed(self, schedule_id: str) -> None:
         """Delete an executed command."""
         ...
-    
+
     async def cancel(self, schedule_id: str) -> bool:
         """Cancel a scheduled command.
-        
+
         Returns:
             True if cancelled, False if not found or already executed.
         """
@@ -227,7 +227,7 @@ async def create_order(command: CreateOrder, scheduler: CommandSchedulerService)
     # Create order
     order = Order.create(command.order_id, command.customer_id)
     await order_repo.save(order)
-    
+
     # Schedule reminder in 24 hours
     await scheduler._scheduler.schedule(
         command=SendPaymentReminder(order_id=order.id),
@@ -247,7 +247,7 @@ async def handle_order_created(event: OrderCreated, scheduler: CommandSchedulerS
         execute_at=datetime.now(timezone.utc) + timedelta(minutes=30),
         metadata={"reason": "auto_cancel_unpaid"},
     )
-    
+
     # Store schedule_id in case we need to cancel
     order = await order_repo.get(event.order_id)
     order.auto_cancel_schedule_id = schedule_id
@@ -256,7 +256,7 @@ async def handle_order_created(event: OrderCreated, scheduler: CommandSchedulerS
 async def handle_order_paid(event: OrderPaid, scheduler: ICommandScheduler):
     # Cancel auto-cancel when order is paid
     order = await order_repo.get(event.order_id)
-    
+
     if order.auto_cancel_schedule_id:
         await scheduler.cancel(order.auto_cancel_schedule_id)
         order.auto_cancel_schedule_id = None
@@ -300,15 +300,15 @@ async def lifespan(app: FastAPI):
     # Setup scheduler
     scheduler = SQLAlchemyCommandScheduler(session)
     service = CommandSchedulerService(scheduler, mediator.send)
-    
+
     # Setup worker
     worker = CommandSchedulerWorker(service, poll_interval=60.0)
-    
+
     # Start worker
     await worker.start()
-    
+
     yield
-    
+
     # Stop worker
     await worker.stop()
 
@@ -333,10 +333,10 @@ async def create_order(
         command=SendReminder(order_id=command.order_id),
         execute_at=datetime.now(timezone.utc) + timedelta(hours=24),
     )
-    
+
     # Wake worker immediately (no need to wait for poll)
     worker.trigger()
-    
+
     return {"schedule_id": schedule_id}
 ```
 
@@ -475,17 +475,17 @@ async def test_scheduled_reminder():
     # Setup in-memory scheduler
     scheduler = InMemoryCommandScheduler()
     service = CommandSchedulerService(scheduler, mock_mediator_send)
-    
+
     # Schedule command
     schedule_id = await scheduler.schedule(
         command=SendReminder(order_id="order_123"),
         execute_at=datetime.now(timezone.utc) + timedelta(hours=1),
     )
-    
+
     # Verify scheduled
     due = await scheduler.get_due_commands()
     assert len(due) == 0  # Not due yet
-    
+
     # Fast-forward time (mock datetime)
     # ... or use testable implementation
 ```
@@ -501,10 +501,10 @@ Implement custom logic for scheduling decisions:
 ```python
 class SmartScheduler:
     """Scheduler with business hours awareness."""
-    
+
     def __init__(self, delegate: ICommandScheduler):
         self.delegate = delegate
-    
+
     async def schedule(
         self,
         command: Command[Any],
@@ -516,7 +516,7 @@ class SmartScheduler:
             # Move to Monday
             days_until_monday = 7 - execute_at.weekday()
             execute_at += timedelta(days=days_until_monday)
-        
+
         # Skip non-business hours
         if execute_at.hour < 9:
             execute_at = execute_at.replace(hour=9, minute=0, second=0)
@@ -524,7 +524,7 @@ class SmartScheduler:
             # Move to next business day
             execute_at += timedelta(days=1)
             execute_at = execute_at.replace(hour=9, minute=0, second=0)
-        
+
         return await self.delegate.schedule(command, execute_at, **kwargs)
 ```
 

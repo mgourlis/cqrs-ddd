@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 pytest.importorskip("testcontainers")
@@ -30,7 +32,13 @@ def mongo_url() -> str:
 async def test_connection_health(mongo_url: str) -> None:
     mgr = MongoConnectionManager(url=mongo_url)
     await mgr.connect()
-    assert await mgr.health_check() is True
+    # Container may need a moment to accept connections; allow short retries
+    for _ in range(5):
+        if await mgr.health_check():
+            break
+        await asyncio.sleep(1.0)
+    else:
+        assert await mgr.health_check() is True
     mgr.close()
 
 

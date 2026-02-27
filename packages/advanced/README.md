@@ -370,15 +370,15 @@ class UpdateOrderHandler(ResilientCommandHandler[UpdateOrder]):
     max_retries = 3
     retry_delay = 1.0
     exponential_backoff = True
-    
+
     # Conflict resolution
     conflict_strategy = DeepMergeStrategy(list_identity_key="id")
-    
+
     async def _handle_internal(self, command: UpdateOrder):
         order = await self.repo.get(command.order_id)
         order.update(command.changes)
         await self.repo.save(order)
-    
+
     def resolve_conflict(self, existing: Order, incoming: dict) -> Order:
         merged = self.conflict_strategy.merge(
             existing.model_dump(),
@@ -445,7 +445,7 @@ from cqrs_ddd_advanced_core.upcasting import EventUpcaster, UpcasterRegistry
 class OrderCreatedV1ToV2(EventUpcaster):
     event_type = "OrderCreated"
     source_version = 1
-    
+
     def upcast(self, data: dict[str, Any]) -> dict[str, Any]:
         return {
             **data,
@@ -580,7 +580,7 @@ async def lifespan(app: FastAPI):
     factory.register_event_sourced_type("Order")
     factory.register_event_sourced_type("Customer")
     mediator = factory.create()
-    
+
     # 2. Setup sagas
     saga_result = bootstrap_sagas(
         sagas=[OrderSaga, PaymentSaga],
@@ -590,14 +590,14 @@ async def lifespan(app: FastAPI):
         event_dispatcher=event_dispatcher,
         recovery_interval=60,
     )
-    
+
     # 3. Setup projections
     projection_worker = ProjectionWorker(
         projector_registry=projector_registry,
         event_store=event_store,
         batch_size=100,
     )
-    
+
     # 4. Setup scheduling
     scheduler_worker = CommandSchedulerWorker(
         service=CommandSchedulerService(
@@ -606,14 +606,14 @@ async def lifespan(app: FastAPI):
         ),
         poll_interval=60.0,
     )
-    
+
     # Start all workers
     await saga_result.worker.start()
     await projection_worker.start()
     await scheduler_worker.start()
-    
+
     yield
-    
+
     # Stop all workers
     await saga_result.worker.stop()
     await projection_worker.stop()
@@ -830,8 +830,8 @@ scheduler = InMemoryCommandScheduler()
 
 ---
 
-**Last Updated:** February 21, 2026  
-**Status:** Production Ready ✅  
+**Last Updated:** February 21, 2026
+**Status:** Production Ready ✅
 **Version:** 1.0.0
 
 **Key Methods:**

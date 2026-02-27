@@ -75,6 +75,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_eq_specification(self, repository_with_data):
         """Test search with equality specification."""
+
         # Create simple specification-like object
         class SimpleSpec:
             specification = {"attr": "value", "op": "=", "val": 5}
@@ -90,14 +91,15 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_and_specification(self, repository_with_data):
         """Test search with AND specification."""
+
         # Create specification with multiple conditions using AST format
         class AndSpec:
             specification = {
                 "op": "and",
                 "conditions": [
                     {"attr": "value", "op": ">=", "val": 3},
-                    {"attr": "category", "op": "=", "val": "A"}
-                ]
+                    {"attr": "category", "op": "=", "val": "A"},
+                ],
             }
 
         result = await repository_with_data.search(AndSpec())
@@ -110,14 +112,15 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_or_specification(self, repository_with_data):
         """Test search with OR specification."""
+
         # Create specification with OR logic using AST format
         class OrSpec:
             specification = {
                 "op": "or",
                 "conditions": [
                     {"attr": "value", "op": "=", "val": 0},
-                    {"attr": "value", "op": "=", "val": 9}
-                ]
+                    {"attr": "value", "op": "=", "val": 9},
+                ],
             }
 
         result = await repository_with_data.search(OrSpec())
@@ -132,6 +135,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_limit(self, repository_with_data):
         """Test search with limit option."""
+
         # Create options with limit
         class QueryOptions:
             specification = {}
@@ -148,6 +152,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_offset(self, repository_with_data):
         """Test search with offset option."""
+
         # Create specification-like object with offset in options
         class QueryOptions:
             specification = {}
@@ -167,6 +172,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_order_by(self, repository_with_data):
         """Test search with order_by option."""
+
         # Create options with order_by
         class QueryOptions:
             specification = {}
@@ -185,6 +191,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_projection(self, repository_with_data):
         """Test search with projection (select fields)."""
+
         # Create options with select_fields
         class QueryOptions:
             specification = {}
@@ -215,6 +222,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_stream_mode(self, repository_with_data):
         """Test search with streaming mode."""
+
         class EmptySpec:
             specification = {}
 
@@ -230,6 +238,7 @@ class TestMongoRepositorySearch:
     @pytest.mark.asyncio
     async def test_search_with_complex_nested_spec(self, repository_with_data):
         """Test search with complex nested specification."""
+
         # Create complex specification using AST format
         class ComplexSpec:
             specification = {
@@ -237,7 +246,7 @@ class TestMongoRepositorySearch:
                 "conditions": [
                     {"attr": "value", "op": "between", "val": [2, 8]},
                     {"attr": "category", "op": "=", "val": "A"},
-                ]
+                ],
             }
 
         result = await repository_with_data.search(ComplexSpec())

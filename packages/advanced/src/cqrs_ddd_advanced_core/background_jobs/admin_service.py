@@ -99,9 +99,7 @@ class BackgroundJobAdminService:
         total = sum(counts.values())
         return JobStatistics(counts=counts, total=total)
 
-    async def bulk_cancel(
-        self, job_ids: list[str]
-    ) -> tuple[int, int]:
+    async def bulk_cancel(self, job_ids: list[str]) -> tuple[int, int]:
         """Cancel multiple jobs by ID.
 
         Only jobs in a cancellable state (PENDING or RUNNING) are mutated.
@@ -229,9 +227,7 @@ class BackgroundJobAdminService:
             await self._repository.add(latest)
         return latest
 
-    async def bulk_retry(
-        self, job_ids: list[str]
-    ) -> tuple[int, int]:
+    async def bulk_retry(self, job_ids: list[str]) -> tuple[int, int]:
         """Retry multiple FAILED jobs by ID.
 
         Only FAILED jobs within their ``max_retries`` budget are mutated.

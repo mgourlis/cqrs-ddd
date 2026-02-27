@@ -36,7 +36,10 @@ def increment_document_version(doc: dict[str, Any]) -> int:
     Returns:
         New version number (old_version + 1)
     """
-    new_version = doc.get("version", 0) + 1
+    current_version = doc.get("version", 0)
+    if not isinstance(current_version, int):
+        current_version = 0
+    new_version = current_version + 1
     doc["version"] = new_version
     return new_version
 

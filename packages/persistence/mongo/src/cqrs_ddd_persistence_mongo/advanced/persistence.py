@@ -27,7 +27,6 @@ from cqrs_ddd_advanced_core.ports.persistence import (
     IRetrievalPersistence,
 )
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
-from cqrs_ddd_core.domain.specification import ISpecification
 from cqrs_ddd_core.ports.search_result import SearchResult
 
 from ..core.session_utils import session_in_transaction
@@ -41,6 +40,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Sequence
 
     from cqrs_ddd_core.domain.events import DomainEvent
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..connection import MongoConnectionManager
@@ -93,9 +93,7 @@ class MongoOperationPersistence(
     def _db(self) -> Any:
         """Get the database instance."""
         client = self.connection.client
-        database_name = self.database or getattr(
-            self.connection, "_database", None
-        )
+        database_name = self.database or getattr(self.connection, "_database", None)
         if database_name:
             try:
                 return client.get_database(database_name)
@@ -147,7 +145,9 @@ class MongoOperationPersistence(
         if session and session_in_transaction(session):
             # Insert/replace within transaction
             try:
-                await coll.replace_one({"_id": doc_id}, doc, upsert=True, session=session)
+                await coll.replace_one(
+                    {"_id": doc_id}, doc, upsert=True, session=session
+                )
             except (NotImplementedError, TypeError):
                 # mongomock doesn't support sessions
                 await coll.replace_one({"_id": doc_id}, doc, upsert=True)
@@ -187,9 +187,7 @@ class MongoRetrievalPersistence(
     def _db(self) -> Any:
         """Get the database instance."""
         client = self.connection.client
-        database_name = self.database or getattr(
-            self.connection, "_database", None
-        )
+        database_name = self.database or getattr(self.connection, "_database", None)
         if database_name:
             try:
                 return client.get_database(database_name)
@@ -207,7 +205,9 @@ class MongoRetrievalPersistence(
         """Get the MongoDB collection."""
         return self._db()[self.collection_name]
 
-    async def retrieve(self, ids: Sequence[T_ID], uow: UnitOfWork | None = None) -> list[T_Entity]:
+    async def retrieve(
+        self, ids: Sequence[T_ID], uow: UnitOfWork | None = None
+    ) -> list[T_Entity]:
         """
         Retrieve aggregates by their IDs.
 
@@ -267,9 +267,7 @@ class MongoQueryPersistence(
     def _db(self) -> Any:
         """Get the database instance."""
         client = self.connection.client
-        database_name = self.database or getattr(
-            self.connection, "_database", None
-        )
+        database_name = self.database or getattr(self.connection, "_database", None)
         if database_name:
             try:
                 return client.get_database(database_name)
@@ -299,7 +297,9 @@ class MongoQueryPersistence(
         """
         ...
 
-    async def fetch(self, ids: Sequence[T_ID], uow: UnitOfWork | None = None) -> list[T_Result]:
+    async def fetch(
+        self, ids: Sequence[T_ID], uow: UnitOfWork | None = None
+    ) -> list[T_Result]:
         """
         Fetch result DTOs by their IDs.
 
@@ -368,9 +368,7 @@ class MongoQuerySpecificationPersistence(
     def _db(self) -> Any:
         """Get the database instance."""
         client = self.connection.client
-        database_name = self.database or getattr(
-            self.connection, "_database", None
-        )
+        database_name = self.database or getattr(self.connection, "_database", None)
         if database_name:
             try:
                 return client.get_database(database_name)
@@ -400,17 +398,18 @@ class MongoQuerySpecificationPersistence(
         """
         ...
 
-    async def fetch(
+    def fetch(
         self,
         criteria: ISpecification[Any] | Any,
-        uow: UnitOfWork | None = None,  # noqa: ARG002
+        uow: UnitOfWork,  # Match protocol signature (non-optional)
+        # noqa: ARG002
     ) -> SearchResult[T_Result]:
         """
         Fetch result DTOs by specification or QueryOptions.
 
         Args:
             criteria: An ``ISpecification`` or ``QueryOptions`` instance.
-            uow: Optional UnitOfWork (session not typically used for reads).
+            uow: UnitOfWork (session not typically used for reads but required by protocol).
 
         Returns:
             A ``SearchResult`` supporting both batch and streaming access.
@@ -423,7 +422,7 @@ class MongoQuerySpecificationPersistence(
 
         # Extract context from both spec and options
         order_by, limit, offset, fields = extract_search_context(spec, options)
-        
+
         # Build query components
         filter_query = self.query_builder.build_match(spec) if spec else {}
         sort = self.query_builder.build_sort(

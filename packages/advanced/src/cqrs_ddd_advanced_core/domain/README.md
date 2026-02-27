@@ -32,10 +32,10 @@ from cqrs_ddd_advanced_core.domain.aggregate_mixin import EventSourcedAggregateM
 
 class Order(AggregateRoot[str], EventSourcedAggregateMixin[str]):
     status: str = "pending"
-    
+
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"
-    
+
     def apply_OrderPaid(self, event: OrderPaid) -> None:
         self.status = "paid"
 
@@ -95,12 +95,12 @@ from cqrs_ddd_advanced_core.domain.event_handlers import aggregate_event_handler
 
 class Order(AggregateRoot[str]):
     status: str = "pending"
-    
+
     # Mark as event handler (optional)
     @aggregate_event_handler()
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"
-    
+
     # Explicit event type
     @aggregate_event_handler(event_type=OrderCreated)
     def handle_order_created(self, event: OrderCreated) -> None:
@@ -133,10 +133,10 @@ from cqrs_ddd_advanced_core.domain.event_handlers import aggregate_event_handler
 @aggregate_event_handler_validator(enabled=True, strict=True)
 class Order(AggregateRoot[str]):
     status: str = "pending"
-    
+
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"
-    
+
     # This would fail validation in strict mode:
     # def apply_event(self, event: DomainEvent) -> None:
     #     pass
@@ -159,7 +159,7 @@ class StrictOrder(AggregateRoot[str]):
     # ✅ GOOD: Exact handler
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         pass
-    
+
     # ❌ BAD: Generic fallback not allowed
     # def apply_event(self, event: DomainEvent) -> None:
     #     pass
@@ -174,7 +174,7 @@ class LenientOrder(AggregateRoot[str]):
     # ✅ GOOD: Exact handler
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         pass
-    
+
     # ✅ GOOD: Generic fallback allowed
     def apply_event(self, event: DomainEvent) -> None:
         # Handle unknown events
@@ -285,7 +285,7 @@ from cqrs_ddd_core.domain.aggregate import AggregateRoot
 
 class Order(AggregateRoot[str]):
     status: str = "pending"
-    
+
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"
 
@@ -300,7 +300,7 @@ from cqrs_ddd_advanced_core.domain.aggregate_mixin import EventSourcedAggregateM
 
 class Order(AggregateRoot[str], EventSourcedAggregateMixin[str]):
     status: str = "pending"
-    
+
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"
 
@@ -320,7 +320,7 @@ from cqrs_ddd_advanced_core.domain.event_handlers import (
 @aggregate_event_handler_validator(enabled=True, strict=True)
 class Order(AggregateRoot[str]):
     status: str = "pending"
-    
+
     @aggregate_event_handler()
     def apply_OrderCreated(self, event: OrderCreated) -> None:
         self.status = "created"

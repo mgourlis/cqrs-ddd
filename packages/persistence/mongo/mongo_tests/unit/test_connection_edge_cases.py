@@ -9,7 +9,6 @@ import pytest
 from cqrs_ddd_persistence_mongo.connection import MongoConnectionManager
 from cqrs_ddd_persistence_mongo.exceptions import MongoConnectionError
 
-
 # Phase 3, Step 12: Connection Edge Cases Tests (6 tests)
 
 

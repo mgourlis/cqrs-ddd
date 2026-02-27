@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .advanced.position_store import SQLAlchemyProjectionPositionStore
+from .advanced.projection_store import SQLAlchemyProjectionStore
 from .compat import HAS_GEOMETRY
 from .core.event_store import SQLAlchemyEventStore
 from .core.model_mapper import ModelMapper
@@ -12,8 +14,6 @@ from .core.models import (
     StoredEventModel,
 )
 from .core.outbox import SQLAlchemyOutboxStorage
-from .advanced.position_store import SQLAlchemyProjectionPositionStore
-from .advanced.projection_store import SQLAlchemyProjectionStore
 from .core.repository import SQLAlchemyRepository
 from .core.uow import SQLAlchemyUnitOfWork
 from .exceptions import (

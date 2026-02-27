@@ -113,17 +113,13 @@ class ProjectionWorker(IBackgroundWorker):
             # Use actual event position from event store (global sequence number)
             event_position = stored.position
             if event_position is None:
-                logger.warning(
-                    f"Event {stored.event_id} has no position, skipping"
-                )
+                logger.warning(f"Event {stored.event_id} has no position, skipping")
                 continue
 
             await self._process_event_with_retry(stored, event_position)
             last_position = event_position
 
-        await self._checkpoint_store.save_position(
-            self._projection_name, last_position
-        )
+        await self._checkpoint_store.save_position(self._projection_name, last_position)
 
     def _should_process_event(self, stored: StoredEvent) -> bool:
         """Check if event should be processed based on partition filter."""

@@ -1,6 +1,6 @@
 # Validation Layer - Command/Query Validation
 
-**Package:** `cqrs_ddd_core.validation`  
+**Package:** `cqrs_ddd_core.validation`
 **Purpose:** Validation utilities for commands and queries
 
 ---
@@ -29,13 +29,13 @@ from cqrs_ddd_core.validation.pydantic import PydanticValidator
 class PydanticValidator(IValidator):
     """
     Validator using Pydantic models.
-    
+
     Features:
     - Automatic field validation
     - Custom validators
     - Type checking
     """
-    
+
     async def validate(self, obj: Any) -> ValidationResult:
         """Validate object using Pydantic."""
         try:
@@ -57,14 +57,14 @@ from cqrs_ddd_core.validation.pydantic import PydanticValidator
 class CreateOrderCommand(Command[str]):
     customer_id: str
     items: list[OrderItem]
-    
+
     @field_validator("customer_id")
     @classmethod
     def validate_customer_id(cls, v: str) -> str:
         if not v.startswith("cust-"):
             raise ValueError("Invalid customer ID format")
         return v
-    
+
     @field_validator("items")
     @classmethod
     def validate_items(cls, v: list[OrderItem]) -> list[OrderItem]:
@@ -92,25 +92,25 @@ from cqrs_ddd_core.validation.composite import CompositeValidator
 class CompositeValidator(IValidator):
     """
     Combines multiple validators.
-    
+
     Features:
     - Chain multiple validators
     - Aggregate errors
     - Short-circuit on first error
     """
-    
+
     def __init__(self, validators: list[IValidator]):
         self.validators = validators
-    
+
     async def validate(self, obj: Any) -> ValidationResult:
         """Run all validators and aggregate results."""
         all_errors = []
-        
+
         for validator in self.validators:
             result = await validator.validate(obj)
             if not result.is_valid:
                 all_errors.extend(result.errors)
-        
+
         return ValidationResult(
             is_valid=len(all_errors) == 0,
             errors=all_errors,
@@ -127,11 +127,11 @@ from cqrs_ddd_core.validation.pydantic import PydanticValidator
 class BusinessRulesValidator(IValidator):
     async def validate(self, obj: Any) -> ValidationResult:
         errors = []
-        
+
         if hasattr(obj, 'total'):
             if obj.total > 10000:
                 errors.append("Order total exceeds maximum allowed")
-        
+
         return ValidationResult(is_valid=len(errors) == 0, errors=errors)
 
 # Combine validators
@@ -162,39 +162,39 @@ from cqrs_ddd_core.validation.result import ValidationResult
 class ValidationResult:
     """
     Collects field-level validation errors.
-    
+
     Attributes:
         errors: Dict mapping field names to list of error messages
-    
+
     Properties:
         is_valid: True if no errors (property, not constructor param)
-    
+
     Factory methods:
         success() -> ValidationResult
         failure(errors: dict[str, list[str]]) -> ValidationResult
     """
-    
+
     errors: dict[str, list[str]] = field(default_factory=dict)
-    
+
     @property
     def is_valid(self) -> bool:
         """Check if validation passed."""
         return len(self.errors) == 0
-    
+
     @classmethod
     def success(cls) -> ValidationResult:
         """Create successful validation result."""
         return cls()
-    
+
     @classmethod
     def failure(cls, errors: dict[str, list[str]]) -> ValidationResult:
         """Create failed validation result."""
         return cls(errors=errors)
-    
+
     def merge(self, other: ValidationResult) -> ValidationResult:
         """Merge another result into this one."""
         ...
-    
+
     def add_error(self, field_name: str, message: str) -> None:
         """Add a single error for field_name."""
         ...
@@ -330,13 +330,13 @@ from cqrs_ddd_core.validation.result import ValidationResult
 
 class AuthorizationValidator(IValidator):
     """Validates user authorization."""
-    
+
     def __init__(self, auth_service: IAuthService):
         self.auth_service = auth_service
-    
+
     async def validate(self, obj: Any) -> ValidationResult:
         errors = []
-        
+
         # Check authorization
         if hasattr(obj, 'user_id'):
             is_authorized = await self.auth_service.check_permission(
@@ -345,7 +345,7 @@ class AuthorizationValidator(IValidator):
             )
             if not is_authorized:
                 errors.append("User not authorized to create orders")
-        
+
         return ValidationResult(is_valid=len(errors) == 0, errors=errors)
 
 # Use in composite validator
@@ -366,14 +366,14 @@ class CreateOrderCommand(Command[str]):
     customer_id: str
     items: list[OrderItem]
     total: float
-    
+
     @field_validator("customer_id")
     @classmethod
     def validate_customer_id(cls, v: str) -> str:
         if not v.startswith("cust-"):
             raise ValueError("Invalid customer ID format")
         return v
-    
+
     @field_validator("total")
     @classmethod
     def validate_total(cls, v: float) -> float:
@@ -390,7 +390,7 @@ class CreateOrderHandler(CommandHandler[str]):
     async def handle(self, command: CreateOrderCommand) -> CommandResponse[str]:
         if not command.customer_id.startswith("cust-"):
             raise ValueError("Invalid customer ID")  # Should be in validator
-        
+
         # Business logic
         order = Order.create(...)
         return CommandResponse(result=order.id)
@@ -414,19 +414,19 @@ validator = CompositeValidator([
 class OrderValidator(IValidator):
     async def validate(self, obj: Any) -> ValidationResult:
         errors = []
-        
+
         # Field validation
         if not obj.customer_id.startswith("cust-"):
             errors.append("Invalid customer ID")
-        
+
         # Business rules
         if obj.total > 10000:
             errors.append("Total too high")
-        
+
         # Authorization
         if not await self.check_permission(obj.user_id):
             errors.append("Not authorized")
-        
+
         # Too much responsibility - split into separate validators
         return ValidationResult(is_valid=len(errors) == 0, errors=errors)
 ```
@@ -448,5 +448,5 @@ class OrderValidator(IValidator):
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.validation`

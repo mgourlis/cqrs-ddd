@@ -202,11 +202,11 @@ from cqrs_ddd_specifications.operators import SpecificationOperator
 
 class ModuloOperator(SQLAlchemyOperator):
     """Custom operator: field % divisor = remainder."""
-    
+
     @property
     def name(self) -> SpecificationOperator:
         return SpecificationOperator("modulo")  # Custom operator
-    
+
     def apply(self, column: Any, value: Any) -> ColumnElement[bool]:
         # value = {"divisor": 10, "remainder": 0}
         divisor = value["divisor"]
@@ -250,20 +250,20 @@ def json_field_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookResul
     if "." in context.field_path and context.field_path.startswith("metadata."):
         # Extract JSON path
         path_parts = context.field_path.split(".")[1:]  # Skip 'metadata'
-        
+
         # Build JSON path expression
         json_col = context.get_column("metadata")
         expr = json_col[path_parts[0]]
-        
+
         for part in path_parts[1:]:
             expr = expr[part]
-        
+
         return SQLAlchemyHookResult(
             value=expr,
             handled=True,
             resolved_field=expr,
         )
-    
+
     return None
 
 # Usage
@@ -281,7 +281,7 @@ def relationship_join_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHo
     """Auto-join relationships like 'customer.email'."""
     if "." not in context.field_path:
         return None
-    
+
     parts = context.field_path.split(".")
     if parts[0] == "customer":
         # Check alias cache to avoid duplicate joins
@@ -296,11 +296,11 @@ def relationship_join_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHo
                 OrderModel.customer_id == customer_alias.id,
             )
             context.alias_cache[alias_key] = customer_alias
-        
+
         # Resolve field on aliased model
         field_name = parts[1]
         resolved = getattr(customer_alias, field_name)
-        
+
         return SQLAlchemyHookResult(
             value=resolved,
             handled=True,
@@ -308,7 +308,7 @@ def relationship_join_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHo
             new_statement=context.stmt,
             new_model=customer_alias,
         )
-    
+
     return None
 
 # Usage with statement modification
@@ -367,11 +367,11 @@ async def search_orders(spec: ISpecification, options: QueryOptions):
     """Search with specifications and options."""
     # Build filter
     filter_expr = build_sqla_filter(OrderModel, spec.to_dict())
-    
+
     # Build statement
     stmt = select(OrderModel).where(filter_expr)
     stmt = apply_query_options(stmt, OrderModel, options)
-    
+
     # Execute
     result = await session.execute(stmt)
     return result.scalars().all()
@@ -477,7 +477,7 @@ from cqrs_ddd_persistence_sqlalchemy.specifications import (
 
 class OrderRepository(SQLAlchemyRepository[Order, str]):
     """Repository with specification support."""
-    
+
     async def search(
         self,
         spec: ISpecification | None = None,
@@ -486,10 +486,10 @@ class OrderRepository(SQLAlchemyRepository[Order, str]):
     ) -> list[Order]:
         """Search orders by specification."""
         active_uow = self._get_active_uow(uow)
-        
+
         # Build statement
         stmt = select(OrderModel)
-        
+
         # Apply specification
         if spec:
             filter_expr = build_sqla_filter(
@@ -499,15 +499,15 @@ class OrderRepository(SQLAlchemyRepository[Order, str]):
                 hooks=self._hooks,
             )
             stmt = stmt.where(filter_expr)
-        
+
         # Apply query options
         if options:
             stmt = apply_query_options(stmt, OrderModel, options)
-        
+
         # Execute
         result = await active_uow.session.execute(stmt)
         models = result.scalars().all()
-        
+
         return [self.from_model(m) for m in models]
 ```
 
@@ -522,7 +522,7 @@ def computed_field_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookR
         # Computed column: first_name || ' ' || last_name
         expr = func.concat(context.model.first_name, " ", context.model.last_name)
         return SQLAlchemyHookResult(value=expr, handled=True)
-    
+
     return None
 
 # Usage
@@ -543,7 +543,7 @@ filter_expr = build_sqla_filter(
 def tenant_filter_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookResult | None:
     """Inject tenant_id filter for all queries."""
     tenant_id = get_current_tenant_id()
-    
+
     if tenant_id:
         return SQLAlchemyHookResult(
             value=and_(
@@ -552,7 +552,7 @@ def tenant_filter_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookRe
             ),
             handled=True,
         )
-    
+
     return None
 
 # Usage
@@ -671,7 +671,7 @@ def safe_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookResult | No
         logger.warning(f"Hook failed for {context.field_path}: {e}")
         # Return None to fall back to default resolution
         return None
-    
+
     return None
 ```
 
@@ -687,8 +687,8 @@ def safe_hook(context: SQLAlchemyResolutionContext) -> SQLAlchemyHookResult | No
 | `apply_query_options()` | Query modifiers | Ordering, pagination, distinct, group_by |
 | `PostgreSQL Operators` | Advanced SQL features | FTS, JSONB, Geometry |
 
-**Total Lines:** ~800  
-**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-specifications  
+**Total Lines:** ~800
+**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-specifications
 **Python Version:** 3.11+
 
 **Supported Databases:**

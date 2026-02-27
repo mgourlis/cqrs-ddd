@@ -14,15 +14,15 @@ from .persistence import (
     IRetrievalPersistence,
     T_Criteria,
 )
-from .saga_repository import ISagaRepository
-from .scheduling import ICommandScheduler
-from .snapshots import ISnapshotStore, ISnapshotStrategy
 from .projection import (
     DocId,
     IProjectionPositionStore,
     IProjectionReader,
     IProjectionWriter,
 )
+from .saga_repository import ISagaRepository
+from .scheduling import ICommandScheduler
+from .snapshots import ISnapshotStore, ISnapshotStrategy
 from .undo import IUndoExecutor, IUndoExecutorRegistry
 from .upcasting import IEventUpcaster
 

@@ -5,11 +5,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from cqrs_ddd_specifications.ast import SpecificationFactory
-from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
 
 from .syntax import ColonSeparatedSyntax, FilterSyntax
 
 if TYPE_CHECKING:
+    from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
+
     from .whitelist import FieldWhitelist
 
 
@@ -33,7 +34,7 @@ class FilterParser:
     ) -> None:
         """
         Initialize FilterParser with required registry.
-        
+
         Args:
             registry: MemoryOperatorRegistry for specification evaluation.
             default_syntax: Optional filter syntax parser (defaults to ColonSeparatedSyntax).

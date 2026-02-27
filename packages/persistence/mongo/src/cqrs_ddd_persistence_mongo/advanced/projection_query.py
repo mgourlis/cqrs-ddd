@@ -101,10 +101,14 @@ class MongoProjectionSpecPersistence(
         """
         # Default: try to extract common attributes
         if hasattr(criteria, "to_mongo_filter"):
-            return criteria.to_mongo_filter()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_mongo_filter())
 
         if hasattr(criteria, "to_filter_dict"):
-            return criteria.to_filter_dict()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_filter_dict())
 
         # Fallback: raise NotImplementedError
         return super().build_filter(criteria)
@@ -168,9 +172,13 @@ class MongoProjectionDualPersistence(
     ) -> dict[str, Any]:
         """Convert specification to MongoDB filter dict."""
         if hasattr(criteria, "to_mongo_filter"):
-            return criteria.to_mongo_filter()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_mongo_filter())
 
         if hasattr(criteria, "to_filter_dict"):
-            return criteria.to_filter_dict()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_filter_dict())
 
         return super().build_filter(criteria)

@@ -2,22 +2,15 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any
 from uuid import uuid4
 
 import pytest
+from mongo_tests.conftest import MockSession
 from mongomock_motor import AsyncMongoMockClient
 from pydantic import BaseModel, Field
 
-from cqrs_ddd_advanced_core.ports.persistence import (
-    IOperationPersistence,
-    IQueryPersistence,
-    IQuerySpecificationPersistence,
-    IRetrievalPersistence,
-)
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
-from cqrs_ddd_core.domain.specification import ISpecification
 from cqrs_ddd_core.ports.search_result import SearchResult
 from cqrs_ddd_persistence_mongo.advanced.persistence import (
     MongoOperationPersistence,
@@ -25,9 +18,6 @@ from cqrs_ddd_persistence_mongo.advanced.persistence import (
     MongoQuerySpecificationPersistence,
     MongoRetrievalPersistence,
 )
-from cqrs_ddd_persistence_mongo.query_builder import MongoQueryBuilder
-
-from mongo_tests.conftest import MockSession
 
 
 # Sample models (names avoid pytest collecting them as test classes)
@@ -86,7 +76,9 @@ class ConcreteQueryPersistence(MongoQueryPersistence[SampleReadDTO, str]):
         )
 
 
-class ConcreteQuerySpecificationPersistence(MongoQuerySpecificationPersistence[SampleReadDTO]):
+class ConcreteQuerySpecificationPersistence(
+    MongoQuerySpecificationPersistence[SampleReadDTO]
+):
     """Concrete implementation for testing MongoQuerySpecificationPersistence."""
 
     def __init__(self, connection):
@@ -490,7 +482,7 @@ class TestMongoQuerySpecificationPersistence:
             specification = {
                 "attr": "name",
                 "op": SpecificationOperator.EQ.value,
-                "val": "Test"
+                "val": "Test",
             }
 
         results = await persistence.fetch(SimpleSpec())
@@ -578,7 +570,6 @@ class TestMongoQuerySpecificationPersistence:
         await collection.insert_one({"_id": str(uuid4()), "name": "Test", "value": 1})
 
         # Create empty specification
-        from cqrs_ddd_specifications import SpecificationOperator
         class EmptySpec:
             specification = {}
 
@@ -597,7 +588,6 @@ class TestMongoQuerySpecificationPersistence:
         await collection.insert_one({"_id": str(uuid4()), "name": "Test", "value": 1})
 
         # Create empty specification
-        from cqrs_ddd_specifications import SpecificationOperator
         class EmptySpec:
             specification = {}
 

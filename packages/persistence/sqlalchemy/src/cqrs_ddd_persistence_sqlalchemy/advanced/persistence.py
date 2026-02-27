@@ -32,11 +32,11 @@ from cqrs_ddd_advanced_core.ports.persistence import (
 )
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_core.ports.search_result import SearchResult
+from cqrs_ddd_core.primitives.exceptions import OptimisticConcurrencyError
 
 from ..core.model_mapper import ModelMapper
 from ..core.uow import SQLAlchemyUnitOfWork
 from ..core.versioning import set_version_after_merge, set_version_for_insert
-from cqrs_ddd_core.primitives.exceptions import OptimisticConcurrencyError
 from ..specifications.compiler import apply_query_options, build_sqla_filter
 
 if TYPE_CHECKING:

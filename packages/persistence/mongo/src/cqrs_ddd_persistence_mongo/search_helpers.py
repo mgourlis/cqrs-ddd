@@ -20,9 +20,7 @@ def normalise_criteria(criteria: Any) -> tuple[Any, Any | None]:
     return criteria, None
 
 
-def extract_search_context(
-    spec: Any, options: Any | None
-) -> tuple[Any, Any, Any, Any]:
+def extract_search_context(spec: Any, options: Any | None) -> tuple[Any, Any, Any, Any]:
     """Extract order_by, limit, offset, fields from spec and options.
 
     Args:
@@ -37,9 +35,7 @@ def extract_search_context(
     offset = None
     fields = None
     if options is not None:
-        order_by = getattr(options, "order_by", None) or getattr(
-            options, "sort", None
-        )
+        order_by = getattr(options, "order_by", None) or getattr(options, "sort", None)
         limit = getattr(options, "limit", None)
         offset = getattr(options, "offset", None)
         fields = getattr(options, "select_fields", None) or getattr(
@@ -52,7 +48,5 @@ def extract_search_context(
     if offset is None and spec is not None:
         offset = getattr(spec, "offset", None)
     if fields is None and spec is not None:
-        fields = getattr(spec, "select_fields", None) or getattr(
-            spec, "fields", None
-        )
+        fields = getattr(spec, "select_fields", None) or getattr(spec, "fields", None)
     return order_by, limit, offset, fields

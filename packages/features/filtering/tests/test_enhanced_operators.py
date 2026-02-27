@@ -130,7 +130,7 @@ class TestColonSeparatedComplexQueries:
         )
         assert result["op"] == "and"
         assert len(result["conditions"]) == 3
-        
+
         # Check each condition
         conditions = result["conditions"]
         assert any(
@@ -142,8 +142,7 @@ class TestColonSeparatedComplexQueries:
             for c in conditions
         )
         assert any(
-            c["op"] == "is_null" and c["attr"] == "deleted_at"
-            for c in conditions
+            c["op"] == "is_null" and c["attr"] == "deleted_at" for c in conditions
         )
 
     def test_mixed_operators(self) -> None:
@@ -160,44 +159,52 @@ class TestJsonSyntaxEnhancedOperators:
 
     def test_null_operators(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "deleted_at",
-            "op": "is_null",
-            "value": True,
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "deleted_at",
+                "op": "is_null",
+                "value": True,
+            }
+        )
         assert result["op"] == "is_null"
         assert result["attr"] == "deleted_at"
         assert result["val"] is True
 
     def test_string_operators(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "name",
-            "op": "startswith",
-            "value": "John",
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "name",
+                "op": "startswith",
+                "value": "John",
+            }
+        )
         assert result["op"] == "startswith"
         assert result["val"] == "John"
 
     def test_range_operators(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "age",
-            "op": "between",
-            "value": [18, 65],
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "age",
+                "op": "between",
+                "value": [18, 65],
+            }
+        )
         assert result["op"] == "between"
         assert result["val"] == [18, 65]
 
     def test_composite_with_enhanced_operators(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "and": [
-                {"field": "status", "op": "eq", "value": "active"},
-                {"field": "deleted_at", "op": "is_null", "value": True},
-                {"field": "name", "op": "startswith", "value": "John"},
-            ]
-        })
+        result = syntax.parse_filter(
+            {
+                "and": [
+                    {"field": "status", "op": "eq", "value": "active"},
+                    {"field": "deleted_at", "op": "is_null", "value": True},
+                    {"field": "name", "op": "startswith", "value": "John"},
+                ]
+            }
+        )
         assert result["op"] == "and"
         assert len(result["conditions"]) == 3
 
@@ -207,39 +214,47 @@ class TestJsonSyntaxAllOperators:
 
     def test_json_contains_operator(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "metadata",
-            "op": "json_contains",
-            "value": {"verified": True},
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "metadata",
+                "op": "json_contains",
+                "value": {"verified": True},
+            }
+        )
         assert result["op"] == "json_contains"
 
     def test_geo_within_operator(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "location",
-            "op": "within",
-            "value": {"type": "Polygon", "coordinates": [...]},
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "location",
+                "op": "within",
+                "value": {"type": "Polygon", "coordinates": [...]},
+            }
+        )
         assert result["op"] == "within"
 
     def test_regex_operator(self) -> None:
         syntax = JsonFilterSyntax()
-        result = syntax.parse_filter({
-            "field": "phone",
-            "op": "regex",
-            "value": r"^\d{3}-\d{4}$",
-        })
+        result = syntax.parse_filter(
+            {
+                "field": "phone",
+                "op": "regex",
+                "value": r"^\d{3}-\d{4}$",
+            }
+        )
         assert result["op"] == "regex"
 
     def test_invalid_operator_raises_error(self) -> None:
         syntax = JsonFilterSyntax()
         with pytest.raises(FilterParseError, match="Unknown operator"):
-            syntax.parse_filter({
-                "field": "status",
-                "op": "invalid_op",
-                "value": "active",
-            })
+            syntax.parse_filter(
+                {
+                    "field": "status",
+                    "op": "invalid_op",
+                    "value": "active",
+                }
+            )
 
 
 class TestValueParsing:
@@ -247,10 +262,10 @@ class TestValueParsing:
 
     def test_boolean_parsing(self) -> None:
         syntax = ColonSeparatedSyntax()
-        
+
         result = syntax.parse_filter("active:eq:true")
         assert result["val"] is True
-        
+
         result = syntax.parse_filter("active:eq:false")
         assert result["val"] is False
 
@@ -261,11 +276,11 @@ class TestValueParsing:
 
     def test_numeric_parsing(self) -> None:
         syntax = ColonSeparatedSyntax()
-        
+
         result = syntax.parse_filter("age:eq:25")
         assert result["val"] == 25
         assert isinstance(result["val"], int)
-        
+
         result = syntax.parse_filter("price:eq:99.99")
         assert result["val"] == 99.99
         assert isinstance(result["val"], float)
@@ -289,7 +304,9 @@ class TestEdgeCases:
         syntax = ColonSeparatedSyntax()
         result = syntax.parse_filter(" name : eq : John ")
         assert result["attr"] == "name"
-        assert result["op"] == "="  # "eq" is normalized to "=" (SpecificationOperator.EQ)
+        assert (
+            result["op"] == "="
+        )  # "eq" is normalized to "=" (SpecificationOperator.EQ)
         assert result["val"] == "John"
 
     def test_special_characters_in_value(self) -> None:

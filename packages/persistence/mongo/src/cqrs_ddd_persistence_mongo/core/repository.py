@@ -15,7 +15,6 @@ from ..search_helpers import extract_search_context, normalise_criteria
 from .model_mapper import MongoDBModelMapper
 from .session_utils import session_in_transaction
 from .uow import MongoUnitOfWork
-from .versioning import check_document_version
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -50,9 +49,7 @@ class MongoRepository(IRepository[T, str], Generic[T]):
 
     def _db(self) -> Any:
         """Get the database instance."""
-        database_name = self._database or getattr(
-            self._connection, "_database", None
-        )
+        database_name = self._database or getattr(self._connection, "_database", None)
         if not database_name:
             raise MongoPersistenceError(
                 "Database name must be set on repository or connection"
@@ -184,9 +181,7 @@ class MongoRepository(IRepository[T, str], Generic[T]):
                 cursor = coll.find({})
         results = []
         async for doc in cursor:
-            results.append(
-                self._mapper.from_doc(doc)
-            )
+            results.append(self._mapper.from_doc(doc))
         return results
 
     def _build_pipeline(
@@ -239,10 +234,7 @@ class MongoRepository(IRepository[T, str], Generic[T]):
                 fields=fields,
             )
             cursor = coll.aggregate(pipeline, session=session)
-            return [
-                self._mapper.from_doc(doc)
-                async for doc in cursor
-            ]
+            return [self._mapper.from_doc(doc) async for doc in cursor]
 
         async def stream_fn(batch_size: int | None) -> AsyncIterator[T]:
             coll = self._collection(session)

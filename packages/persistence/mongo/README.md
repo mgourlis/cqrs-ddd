@@ -368,7 +368,7 @@ async with MongoUnitOfWork(connection=connection) as uow:
     # Both operations succeed or fail together
     await order_repo.add(order, uow=uow)
     await inventory_repo.decrement(item_id, uow=uow)
-    
+
     # Atomic commit
     await uow.commit()
 ```
@@ -388,7 +388,7 @@ async def handle_order_created(event: OrderCreated):
         "total_amount": event.total,
         "_version": 1,
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id=event.order_id,
@@ -437,7 +437,7 @@ async def ship_order(order_id: str):
         order = await repo.get(order_id, uow=uow)
         order.ship()
         await repo.add(order, uow=uow)
-        
+
         # Save events to outbox (same transaction)
         events = order.pull_domain_events()
         await outbox.save_messages([
@@ -448,7 +448,7 @@ async def ship_order(order_id: str):
             )
             for e in events
         ], uow=uow)
-        
+
         # Atomic commit
         await uow.commit()
 
@@ -534,20 +534,20 @@ from dependency_injector import containers, providers
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
-    
+
     # Infrastructure
     connection = providers.Singleton(
         MongoConnectionManager,
         url=config.mongodb_url,
         database=config.database,
     )
-    
+
     # Unit of Work
     uow = providers.Factory(
         MongoUnitOfWork,
         connection=connection,
     )
-    
+
     # Repositories
     order_repo = providers.Singleton(
         MongoRepository,
@@ -555,7 +555,7 @@ class Container(containers.DeclarativeContainer):
         collection="orders",
         model_cls=Order,
     )
-    
+
     # Services
     order_service = providers.Factory(
         OrderService,
@@ -594,7 +594,7 @@ async def test_create_order(uow: MongoUnitOfWork):
     order = Order(id="123", customer_id="456", total=99.99)
     await order_repo.add(order, uow=uow)
     await uow.commit()
-    
+
     loaded = await order_repo.get("123")
     assert loaded.id == "123"
     assert loaded.total == 99.99
@@ -803,10 +803,10 @@ from pymongo import monitoring
 class CommandLogger(monitoring.CommandListener):
     def started(self, event):
         logging.debug(f"Command {event.command_name} started")
-    
+
     def succeeded(self, event):
         logging.debug(f"Command {event.command_name} succeeded")
-    
+
     def failed(self, event):
         logging.error(f"Command {event.command_name} failed: {event.failure}")
 
@@ -889,7 +889,7 @@ Built on top of:
 - [cqrs-ddd-core](https://github.com/your-org/cqrs-ddd-core) - Domain primitives
 - [cqrs-ddd-specifications](https://github.com/your-org/cqrs-ddd-specifications) - Specification pattern
 
-**Total Package Lines:** ~2500  
-**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-core, cqrs-ddd-specifications  
-**Python Version:** 3.11+  
+**Total Package Lines:** ~2500
+**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-core, cqrs-ddd-specifications
+**Python Version:** 3.11+
 **MongoDB Version:** 4.0+ (replica set required for transactions)

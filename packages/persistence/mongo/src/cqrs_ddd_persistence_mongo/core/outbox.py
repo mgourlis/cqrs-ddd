@@ -11,12 +11,13 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_core.ports.outbox import IOutboxStorage, OutboxMessage
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 from ..exceptions import MongoPersistenceError
 from .session_utils import session_in_transaction
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
+
     from ..connection import MongoConnectionManager
 
 
@@ -207,7 +208,6 @@ class MongoOutboxStorage(IOutboxStorage):
                 await coll.update_many(filter_query, update)
         else:
             await coll.update_many(filter_query, update)
-
 
     async def mark_failed(
         self,

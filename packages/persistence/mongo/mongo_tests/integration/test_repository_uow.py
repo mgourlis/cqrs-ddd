@@ -1,10 +1,11 @@
 """Integration tests for MongoDB persistence with Unit of Work."""
 
-import pytest
-from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from dataclasses import dataclass, field
 from uuid import uuid4
 
+import pytest
+
+from cqrs_ddd_core.domain.aggregate import AggregateRoot
 from cqrs_ddd_persistence_mongo import MongoRepository, MongoUnitOfWork
 
 
@@ -32,9 +33,7 @@ async def test_repository_with_uow_commit(real_mongo_connection):
     entity = SampleEntity(id=str(uuid4()), name="Test", value=42)
 
     # Simulate UoW context
-    uow = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     async with uow:
         entity_id = await repo.add(entity, uow=uow)
         await uow.commit()
@@ -62,12 +61,10 @@ async def test_repository_rollback_on_exception(real_mongo_connection):
     entity = SampleEntity(id=str(uuid4()), name="RollbackTest", value=100)
 
     # Test rollback
-    uow = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     with pytest.raises(ValueError):
         async with uow:
-            entity_id = await repo.add(entity, uow=uow)
+            await repo.add(entity, uow=uow)
             await uow.commit()
             raise ValueError("Simulated error")
 
@@ -88,13 +85,10 @@ async def test_repository_list_all_with_uow(real_mongo_connection):
 
     # Add multiple entities
     entities = [
-        SampleEntity(id=str(uuid4()), name=f"Entity{i}", value=i)
-        for i in range(3)
+        SampleEntity(id=str(uuid4()), name=f"Entity{i}", value=i) for i in range(3)
     ]
 
-    uow = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     async with uow:
         for entity in entities:
             await repo.add(entity, uow=uow)
@@ -119,9 +113,7 @@ async def test_repository_delete_with_uow(real_mongo_connection):
 
     entity = SampleEntity(id=str(uuid4()), name="ToDelete", value=1)
 
-    uow = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     async with uow:
         entity_id = await repo.add(entity, uow=uow)
         await uow.commit()
@@ -131,9 +123,7 @@ async def test_repository_delete_with_uow(real_mongo_connection):
     assert retrieved is not None
 
     # Delete
-    uow2 = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow2 = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     async with uow2:
         deleted_id = await repo.delete(entity_id, uow=uow2)
         await uow2.commit()
@@ -163,9 +153,7 @@ async def test_on_commit_hooks_work(real_mongo_connection):
 
     entity = SampleEntity(id=str(uuid4()), name="HookTest", value=1)
 
-    uow = MongoUnitOfWork(
-        connection=real_mongo_connection, require_replica_set=False
-    )
+    uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
     uow.on_commit(hook)
 
     async with uow:

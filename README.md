@@ -16,7 +16,7 @@
 
 ## 📖 Overview
 
-A **composable**, **production-ready** toolkit for building scalable, maintainable domain-driven applications with CQRS architecture. 
+A **composable**, **production-ready** toolkit for building scalable, maintainable domain-driven applications with CQRS architecture.
 
 ### Why CQRS-DDD Toolkit?
 
@@ -73,7 +73,7 @@ class OrderCreated(DomainEvent):
 class Order(AggregateRoot[str]):
     customer_id: str
     status: str = "pending"
-    
+
     @classmethod
     def create(cls, order_id: str, customer_id: str) -> "Order":
         order = cls(id=order_id, customer_id=customer_id)
@@ -93,11 +93,11 @@ class CreateOrderCommand(Command[str]):
 class CreateOrderHandler(CommandHandler[str]):
     async def handle(self, cmd: CreateOrderCommand) -> CommandResponse[str]:
         uow = get_current_uow()
-        
+
         # Create order
         order = Order.create(cmd.order_id, cmd.customer_id)
         await uow.orders.add(order)
-        
+
         # Return with events
         return CommandResponse(
             result=order.id,
@@ -354,7 +354,7 @@ class Order(AggregateRoot[str]):
     items: list[dict] = []
     total: Money = Money(amount=0.0)
     status: str = "pending"
-    
+
     @classmethod
     def create(cls, order_id: str, customer_id: str) -> "Order":
         """Factory method to create order."""
@@ -366,29 +366,29 @@ class Order(AggregateRoot[str]):
             total=Money(amount=0.0),
         ))
         return order
-    
+
     def add_item(self, product_id: str, quantity: int, price: Money) -> None:
         """Add item to order with business rules."""
         if self.status != "pending":
             raise ValueError("Can only add items to pending orders")
-        
+
         if quantity <= 0:
             raise ValueError("Quantity must be positive")
-        
+
         # Update state
         self.items.append({
             "product_id": product_id,
             "quantity": quantity,
             "price": price,
         })
-        
+
         # Recalculate total
         total_amount = sum(
-            item["price"].amount * item["quantity"] 
+            item["price"].amount * item["quantity"]
             for item in self.items
         )
         self.total = Money(amount=total_amount)
-        
+
         # Emit event
         self.add_event(OrderItemAdded(
             aggregate_id=self.id,
@@ -397,15 +397,15 @@ class Order(AggregateRoot[str]):
             quantity=quantity,
             price=price,
         ))
-    
+
     def confirm(self) -> None:
         """Confirm the order."""
         if not self.items:
             raise ValueError("Cannot confirm empty order")
-        
+
         if self.status != "pending":
             raise ValueError("Order already processed")
-        
+
         self.status = "confirmed"
         self.add_event(OrderConfirmed(
             aggregate_id=self.id,
@@ -437,16 +437,16 @@ class ConfirmOrderCommand(Command[None]):
 class CreateOrderHandler(CommandHandler[str]):
     async def handle(self, cmd: CreateOrderCommand) -> CommandResponse[str]:
         uow = get_current_uow()
-        
+
         # Check if order exists
         existing = await uow.orders.get(cmd.order_id)
         if existing:
             raise ValueError(f"Order {cmd.order_id} already exists")
-        
+
         # Create order
         order = Order.create(cmd.order_id, cmd.customer_id)
         await uow.orders.add(order)
-        
+
         return CommandResponse(
             result=order.id,
             events=order.clear_events(),
@@ -455,22 +455,22 @@ class CreateOrderHandler(CommandHandler[str]):
 class AddOrderItemHandler(CommandHandler[None]):
     async def handle(self, cmd: AddOrderItemCommand) -> CommandResponse[None]:
         uow = get_current_uow()
-        
+
         # Load order
         order = await uow.orders.get(cmd.order_id)
         if not order:
             raise ValueError(f"Order {cmd.order_id} not found")
-        
+
         # Add item
         order.add_item(
             product_id=cmd.product_id,
             quantity=cmd.quantity,
             price=Money(amount=cmd.price_amount),
         )
-        
+
         # Persist
         await uow.orders.add(order)
-        
+
         return CommandResponse(
             result=None,
             events=order.clear_events(),
@@ -479,14 +479,14 @@ class AddOrderItemHandler(CommandHandler[None]):
 class ConfirmOrderHandler(CommandHandler[None]):
     async def handle(self, cmd: ConfirmOrderCommand) -> CommandResponse[None]:
         uow = get_current_uow()
-        
+
         order = await uow.orders.get(cmd.order_id)
         if not order:
             raise ValueError(f"Order {cmd.order_id} not found")
-        
+
         order.confirm()
         await uow.orders.add(order)
-        
+
         return CommandResponse(
             result=None,
             events=order.clear_events(),
@@ -521,13 +521,13 @@ class ListOrdersQuery(Query[list[OrderDTO]]):
 class GetOrderHandler(QueryHandler[OrderDTO]):
     async def handle(self, query: GetOrderQuery) -> QueryResponse[OrderDTO]:
         uow = get_current_uow()
-        
+
         # For queries, we could use a separate read model
         # Here we're using the aggregate for simplicity
         order = await uow.orders.get(query.order_id)
         if not order:
             return QueryResponse(result=None)
-        
+
         dto = OrderDTO(
             order_id=order.id,
             customer_id=order.customer_id,
@@ -535,32 +535,32 @@ class GetOrderHandler(QueryHandler[OrderDTO]):
             status=order.status,
             item_count=len(order.items),
         )
-        
+
         return QueryResponse(result=dto)
 
 class ListOrdersHandler(QueryHandler[list[OrderDTO]]):
     async def handle(self, query: ListOrdersQuery) -> QueryResponse[list[OrderDTO]]:
         uow = get_current_uow()
-        
+
         # Build specification
         from cqrs_ddd_specifications import SpecificationBuilder
         spec_builder = SpecificationBuilder()
-        
+
         if query.customer_id:
             spec_builder = spec_builder.where("customer_id", "==", query.customer_id)
-        
+
         if query.status:
             spec_builder = spec_builder.where("status", "==", query.status)
-        
+
         spec = spec_builder.build()
-        
+
         # Search
         from cqrs_ddd_core.ports import QueryOptions
         options = QueryOptions().with_specification(spec).with_limit(query.limit)
-        
+
         result = await uow.orders.search(options)
         orders = await result  # Await SearchResult
-        
+
         # Convert to DTOs
         dtos = [
             OrderDTO(
@@ -572,7 +572,7 @@ class ListOrdersHandler(QueryHandler[list[OrderDTO]]):
             )
             for o in orders
         ]
-        
+
         return QueryResponse(result=dtos)
 ```
 
@@ -584,7 +584,7 @@ from cqrs_ddd_core.cqrs import EventHandler
 class SendOrderConfirmationEmailHandler(EventHandler[OrderConfirmed]):
     def __init__(self, email_service: EmailService):
         self.email_service = email_service
-    
+
     async def handle(self, event: OrderConfirmed) -> None:
         # Send email when order is confirmed
         await self.email_service.send(
@@ -596,7 +596,7 @@ class SendOrderConfirmationEmailHandler(EventHandler[OrderConfirmed]):
 class UpdateInventoryHandler(EventHandler[OrderItemAdded]):
     def __init__(self, inventory_service: InventoryService):
         self.inventory_service = inventory_service
-    
+
     async def handle(self, event: OrderItemAdded) -> None:
         # Update inventory
         await self.inventory_service.reserve(
@@ -644,7 +644,7 @@ async def create_and_confirm_order():
         order_id="order-123",
         customer_id="cust-456",
     ))
-    
+
     # Add items
     await mediator.send(AddOrderItemCommand(
         order_id="order-123",
@@ -652,12 +652,12 @@ async def create_and_confirm_order():
         quantity=2,
         price_amount=29.99,
     ))
-    
+
     # Confirm
     await mediator.send(ConfirmOrderCommand(
         order_id="order-123",
     ))
-    
+
     # Query
     order = await mediator.send(GetOrderQuery(order_id="order-123"))
     print(f"Order: {order}")
@@ -705,7 +705,7 @@ class OrderCreatedV1ToV2Upcaster(EventUpcaster):
     supported_type = "OrderCreated"
     from_version = 1
     to_version = 2
-    
+
     def upcast(self, payload: dict) -> dict:
         # Add new field with default
         payload["shipping_method"] = payload.get("shipping_method", "standard")
@@ -734,7 +734,7 @@ from cqrs_ddd_advanced_core.sagas import SagaBuilder, bootstrap_sagas, SagaManag
 OrderFulfillmentSaga = (
     SagaBuilder("OrderFulfillment")
     # Step 1: Reserve items
-    .on(OrderCreated, 
+    .on(OrderCreated,
         send=lambda e: ReserveItems(order_id=e.order_id, items=e.items),
         step="reserving",
         compensate=lambda e: CancelReservation(order_id=e.order_id))
@@ -995,15 +995,15 @@ job_id = await job_service.schedule(
 # Process job in worker
 async def process_file_worker():
     pending = await job_service.get_pending_jobs(limit=10)
-    
+
     for job in pending:
         try:
             # Mark as running
             await job_service.mark_running(job.job_id)
-            
+
             # Process
             await process_large_file(job.payload["file_id"])
-            
+
             # Mark complete
             await job_service.mark_completed(job.job_id)
         except Exception as e:
@@ -1042,14 +1042,14 @@ async def create_order_with_undo():
         order_id="order-123",
         customer_id="cust-456",
     ))
-    
+
     # Generate undo token
     undo_token = await undo_service.create_token(
         aggregate_id="order-123",
         aggregate_type="Order",
         events=response.events,
     )
-    
+
     return {
         "order_id": response.result,
         "undo_token": undo_token.token_id,
@@ -1060,14 +1060,14 @@ async def undo_order(undo_token_id: str):
     # Execute undo
     executor = UndoExecutor(mediator, event_store)
     await executor.undo(undo_token_id)
-    
+
     # Order is now reverted to previous state
 
 # Redo operation
 async def redo_order(undo_token_id: str):
     executor = UndoExecutor(mediator, event_store)
     await executor.redo(undo_token_id)
-    
+
     # Order is back to the state it was before undo
 ```
 

@@ -3,20 +3,19 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from cqrs_ddd_advanced_core.ports.projection import (
     DocId,
     IProjectionReader,
     IProjectionWriter,
 )
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 from ..exceptions import MongoPersistenceError
 
 if TYPE_CHECKING:
     from cqrs_ddd_advanced_core.projections.schema import ProjectionSchema
-    from motor.motor_asyncio import AsyncIOMotorClient
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..connection import MongoConnectionManager
 
@@ -101,9 +100,7 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         filter_doc = self._normalize_doc_id(doc_id)
         if "_id" not in filter_doc and "id" in filter_doc:
             filter_doc["_id"] = filter_doc.get("id")
-        doc = await self._coll(collection).find_one(
-            filter_doc, session=session
-        )
+        doc = await self._coll(collection).find_one(filter_doc, session=session)
         if doc is None:
             return None
         return dict(doc)
@@ -167,7 +164,6 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         schema: ProjectionSchema | None = None,
     ) -> None:
         """MongoDB auto-creates collections; no-op (or optional validation from schema)."""
-        pass
 
     async def collection_exists(self, collection: str) -> bool:
         names = await self._db().list_collection_names()
@@ -207,7 +203,9 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
             if existing:
                 logger.debug(
                     "Skipping duplicate event %s for %s/%s",
-                    event_id, collection, doc_id
+                    event_id,
+                    collection,
+                    doc_id,
                 )
                 return False
 
@@ -219,7 +217,10 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
                 if existing_version >= event_position:
                     logger.debug(
                         "Skipping stale event at position %s (current: %s) for %s/%s",
-                        event_position, existing_version, collection, doc_id
+                        event_position,
+                        existing_version,
+                        collection,
+                        doc_id,
                     )
                     return False
             data["_version"] = event_position
@@ -236,10 +237,8 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         if self._id_field in data and data.get("_id") is not None:
             data.pop(self._id_field, None)
 
-        result = await coll.replace_one(
-            filter_doc, data, upsert=True, session=session
-        )
-        return result.acknowledged
+        result = await coll.replace_one(filter_doc, data, upsert=True, session=session)
+        return cast("bool", result.acknowledged)
 
     async def upsert_batch(
         self,
@@ -288,8 +287,7 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
             # TypeError occurs when mongomock's BulkOperationBuilder doesn't support
             # newer pymongo ReplaceOne arguments (e.g., 'sort' parameter)
             logger.debug(
-                "bulk_write not supported (%s), falling back to individual ops",
-                e
+                "bulk_write not supported (%s), falling back to individual ops", e
             )
             for doc in normalized_docs:
                 await coll.replace_one({"_id": doc["_id"]}, doc, upsert=True)

@@ -22,6 +22,9 @@ class ObservabilityContext:
 
     @staticmethod
     def set(**kwargs: Any) -> None:
+        if not kwargs:
+            _observability_ctx.set({})
+            return
         ctx = dict(_observability_ctx.get() or {})
         ctx.update(kwargs)
         _observability_ctx.set(ctx)

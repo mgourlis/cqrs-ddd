@@ -7,8 +7,8 @@ from .backed_persistence import (
 )
 from .manager import ProjectionManager
 from .schema import (
-    GeometryType,
     PROJECTION_VERSION_COLUMNS,
+    GeometryType,
     ProjectionRelationship,
     ProjectionSchema,
     ProjectionSchemaRegistry,

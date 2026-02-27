@@ -1,0 +1,1 @@
+"""CQRS-DDD Identity tests."""

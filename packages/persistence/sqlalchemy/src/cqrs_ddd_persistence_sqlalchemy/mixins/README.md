@@ -41,7 +41,7 @@ class Base(DeclarativeBase):
 
 class Product(VersionMixin, Base):
     __tablename__ = "products"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[float] = mapped_column(Numeric(10, 2))
@@ -85,7 +85,7 @@ await repo.add(product2, uow=uow2)  # ❌ StaleDataError!
 - `updated_at: datetime` - Updated on every modification (UTC, indexed)
 
 **Behavior:**
-- Both default to `datetime.now(timezone.utc)` 
+- Both default to `datetime.now(timezone.utc)`
 - `updated_at` automatically updates on `UPDATE` operations
 - `updated_at` indexed for efficient "recently modified" queries
 
@@ -95,7 +95,7 @@ from cqrs_ddd_persistence_sqlalchemy.mixins import AuditableModelMixin
 
 class Order(AuditableModelMixin, Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     total: Mapped[float] = mapped_column(Numeric(10, 2))
 ```
@@ -150,9 +150,9 @@ from cqrs_ddd_persistence_sqlalchemy.mixins import ArchivableModelMixin
 
 class Document(ArchivableModelMixin, Base):
     __tablename__ = "documents"
-    
+
     __archivable_unique_columns__ = ["slug"]  # Unique slug among active docs
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(String(200))
     title: Mapped[str] = mapped_column(String(500))
@@ -171,13 +171,13 @@ CREATE TABLE documents (
 );
 
 -- Partial index: Active rows only
-CREATE INDEX ix_documents_archivable_active 
-ON documents(archived_at) 
+CREATE INDEX ix_documents_archivable_active
+ON documents(archived_at)
 WHERE archived_at IS NULL;
 
 -- Partial index: Archived rows only
-CREATE INDEX ix_documents_archivable_archived 
-ON documents(archived_at) 
+CREATE INDEX ix_documents_archivable_archived
+ON documents(archived_at)
 WHERE archived_at IS NOT NULL;
 
 -- Partial unique constraint: Unique slug among active documents
@@ -215,13 +215,13 @@ await session.commit()  # ✅ SUCCESS - unique constraint only applies to active
 ```python
 class Ticket(ArchivableModelMixin, Base):
     __tablename__ = "tickets"
-    
+
     # Both code and (event_id, seat_number) must be unique among active tickets
     __archivable_unique_columns__ = [
         ["code"],                     # Unique code
         ["event_id", "seat_number"],  # Unique (event_id, seat_number) combination
     ]
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     code: Mapped[str] = mapped_column(String(50))
     event_id: Mapped[int] = mapped_column(ForeignKey("events.id"))
@@ -233,10 +233,10 @@ class Ticket(ArchivableModelMixin, Base):
 class MyModel(ArchivableModelMixin, Base):
     __tablename__ = "my_table"
     __archivable_unique_columns__ = ["code"]
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     code: Mapped[str] = mapped_column(String(100))
-    
+
     @declared_attr.directive
     def __table_args__(cls):
         # Merge mixin indexes with local constraints
@@ -277,7 +277,7 @@ class Store(SpatialModelMixin, Base):
     __tablename__ = "stores"
     __geometry_type__ = "POINT"
     __geometry_srid__ = 4326  # WGS84 (GPS coordinates)
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
     # geom column added automatically
@@ -371,11 +371,11 @@ class Location(
     __tablename__ = "locations"
     __archivable_unique_columns__ = ["code"]
     __geometry_type__ = "POINT"
-    
+
     id: Mapped[int] = mapped_column(primary_key=True)
     code: Mapped[str] = mapped_column(String(50))
     name: Mapped[str] = mapped_column(String(200))
-    
+
     # Columns added by mixins:
     # - version (VersionMixin)
     # - created_at, updated_at (AuditableModelMixin)
@@ -550,8 +550,8 @@ SELECT * FROM documents WHERE archived_at IS NULL;
 
 -- Without partial index: Scans ALL rows (including archived)
 -- With partial index: Scans only active rows
-CREATE INDEX ix_documents_archivable_active 
-ON documents(archived_at) 
+CREATE INDEX ix_documents_archivable_active
+ON documents(archived_at)
 WHERE archived_at IS NULL;  -- Only indexes active rows
 ```
 
@@ -597,7 +597,7 @@ def test_version_mixin_detects_concurrent_modification():
     """Test that VersionMixin raises error on concurrent update."""
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
-    
+
     # Create initial product
     with Session(engine) as session:
         product = Product(name="Widget", price=10.0)
@@ -605,17 +605,17 @@ def test_version_mixin_detects_concurrent_modification():
         session.commit()
         product_id = product.id
         version_1 = product.version
-    
+
     # Simulate concurrent modifications
     with Session(engine) as session1, Session(engine) as session2:
         # Both load same version
         p1 = session1.get(Product, product_id)
         p2 = session2.get(Product, product_id)
-        
+
         # First update succeeds
         p1.price = 15.0
         session1.commit()  # version → 2
-        
+
         # Second update fails
         p2.price = 20.0
         with pytest.raises(StaleDataError):
@@ -655,6 +655,6 @@ def upgrade():
 | `ArchivableModelMixin` | Soft delete | `archived_at`, `archived_by` | Partial (active/archived) + optional unique |
 | `SpatialModelMixin` | Geometry data | `geom` | Spatial GIST |
 
-**Total Lines:** ~250  
-**Dependencies:** SQLAlchemy 2.0+, GeoAlchemy2 (optional)  
+**Total Lines:** ~250
+**Dependencies:** SQLAlchemy 2.0+, GeoAlchemy2 (optional)
 **Python Version:** 3.11+

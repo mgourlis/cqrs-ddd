@@ -109,10 +109,7 @@ class TestMongoProjectionStoreUpsertBatch:
     @pytest.mark.asyncio
     async def test_upsert_batch_multiple_documents(self, projection_store):
         """Test upserting multiple documents."""
-        docs = [
-            {"id": str(uuid4()), "name": f"Test {i}", "value": i}
-            for i in range(3)
-        ]
+        docs = [{"id": str(uuid4()), "name": f"Test {i}", "value": i} for i in range(3)]
 
         await projection_store.upsert_batch("test_collection", docs)
 

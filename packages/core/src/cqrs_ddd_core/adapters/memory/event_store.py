@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import AsyncIterator
+from typing import TYPE_CHECKING, cast
 
 from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.instrumentation import get_hook_registry
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
 
 
 class InMemoryEventStore(IEventStore):
@@ -124,7 +127,8 @@ class InMemoryEventStore(IEventStore):
         ]
         if not positions:
             return len(self._events) - 1
-        return max(positions)
+        # Filter out None values before max
+        return cast("int", max(p for p in positions if p is not None))
 
     def get_all_streaming(
         self, batch_size: int = 1000

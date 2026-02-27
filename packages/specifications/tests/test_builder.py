@@ -24,8 +24,8 @@ class MockAggregate(AggregateRoot[UUID]):
 
 
 @pytest.fixture
-def builder() -> SpecificationBuilder:
-    return SpecificationBuilder()
+def builder(registry) -> SpecificationBuilder:
+    return SpecificationBuilder(registry=registry)
 
 
 @pytest.fixture
@@ -136,8 +136,12 @@ def test_nested_groups(
 # -- .add() -----------------------------------------------------------------
 
 
-def test_add_existing_spec(builder: SpecificationBuilder, alice: MockAggregate):
-    existing = AttributeSpecification("age", SpecificationOperator.GT, 20)
+def test_add_existing_spec(
+    builder: SpecificationBuilder, alice: MockAggregate, registry
+):
+    existing = AttributeSpecification(
+        "age", SpecificationOperator.GT, 20, registry=registry
+    )
     spec = builder.where("name", "=", "Alice").add(existing).build()
     assert isinstance(spec, AndSpecification)
     assert spec.is_satisfied_by(alice) is True

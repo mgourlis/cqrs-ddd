@@ -88,7 +88,7 @@ class MongoQueryBuilder:
             return {}
         # Raw MongoDB filter: top-level keys are field names, no "attr"/"op"/"conditions"
         if not any(k in data for k in ("attr", "op", "conditions")):
-            return data
+            return data if isinstance(data, dict) else {}
         return _compile_node(data)
 
     def build_sort(

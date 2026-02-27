@@ -218,11 +218,10 @@ class ProjectionSchemaRegistry:
     def _add_foreign_key(self, schema_name: str, fk_column: str) -> None:
         """Add foreign key column to schema."""
         schema = self._schemas.get(schema_name)
-        if schema:
-            if not any(col.name == fk_column for col in schema.columns):
-                schema.columns.append(
-                    Column(fk_column, String(255), nullable=False, index=True)
-                )
+        if schema and not any(col.name == fk_column for col in schema.columns):
+            schema.columns.append(
+                Column(fk_column, String(255), nullable=False, index=True)
+            )
 
     def get_initialization_order(self) -> list[str]:
         """

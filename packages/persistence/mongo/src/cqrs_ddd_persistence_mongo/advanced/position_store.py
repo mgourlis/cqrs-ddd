@@ -5,12 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_advanced_core.ports.projection import IProjectionPositionStore
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
-    from motor.motor_asyncio import AsyncIOMotorClient
-
-    from ..connection import MongoConnectionManager
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 
 def _get_client_and_db(

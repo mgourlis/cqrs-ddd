@@ -1,9 +1,11 @@
 """Unit tests for MongoProjectionPositionStore — get/save/reset with and without UoW."""
 
 import pytest
-
-from cqrs_ddd_persistence_mongo.advanced.position_store import MongoProjectionPositionStore
 from mongomock_motor import AsyncMongoMockClient
+
+from cqrs_ddd_persistence_mongo.advanced.position_store import (
+    MongoProjectionPositionStore,
+)
 
 
 @pytest.fixture

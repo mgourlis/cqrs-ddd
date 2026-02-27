@@ -7,7 +7,6 @@ import pytest
 from cqrs_ddd_persistence_mongo.exceptions import MongoQueryError
 from cqrs_ddd_persistence_mongo.operators.string import _regex_escape, compile_string
 
-
 # Phase 1, Step 4: String Operators Tests (12 tests)
 
 

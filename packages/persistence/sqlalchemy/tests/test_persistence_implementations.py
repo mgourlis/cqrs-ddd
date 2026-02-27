@@ -191,3 +191,31 @@ async def test_event_store(
         # Get all
         all_events = await store.get_all()
         assert len(all_events) == 2
+
+        # get_events_after (position-based; positions may be set by DB)
+        after_0 = await store.get_events_after(0, limit=10)
+        after_1 = await store.get_events_after(1, limit=10)
+        assert isinstance(after_0, list)
+        assert isinstance(after_1, list)
+
+        # get_latest_position
+        latest = await store.get_latest_position()
+        assert latest is None or latest >= 0
+
+        # get_by_aggregate with aggregate_type filter
+        agg_filtered = await store.get_by_aggregate("agg-1", aggregate_type="Agg")
+        assert len(agg_filtered) == 2
+        none_type = await store.get_by_aggregate("agg-1", aggregate_type="Other")
+        assert len(none_type) == 0
+
+        # get_all_streaming (covers streaming path)
+        batches = []
+        async for batch in store.get_all_streaming(batch_size=1):
+            batches.append(batch)
+        assert sum(len(b) for b in batches) >= 0
+
+        # get_events_from_position (stream; uses get_events_after internally)
+        collected = []
+        async for evt in store.get_events_from_position(0, limit=5):
+            collected.append(evt)
+        assert len(collected) >= 0

@@ -100,7 +100,7 @@ class MyHandler(PipelinedCommandHandler[str]):
     async def process(self, command: MyCommand) -> CommandResponse[str]:
         # Core business logic
         return CommandResponse(result="success")
-    
+
     def get_pipeline(self):
         # Build pipeline with behaviors
         pipeline = self.process
@@ -194,7 +194,7 @@ class UpdateOrderCommand(Command[str], Retryable):
     """Command with automatic retry on failure."""
     order_id: str
     status: str
-    
+
     # Inherited from Retryable:
     # retry_policy: RetryPolicy = Field(default_factory=ExponentialBackoffPolicy)
 ```
@@ -390,7 +390,7 @@ class UpdateOrderCommand(Command[str], ConflictResilient):
     """Command with automatic conflict resolution."""
     order_id: str
     updates: dict
-    
+
     # Configure conflict resolution
     conflict_config: ConflictConfig = Field(
         default_factory=lambda: ConflictConfig(
@@ -412,16 +412,16 @@ class UpdateOrderHandler(ConflictCommandHandler[str]):
         # Apply updates
         await self.dispatcher.persist(order, uow)
         return CommandResponse(result=order.id)
-    
+
     async def fetch_latest_state(self, command: UpdateOrderCommand) -> dict:
         """Fetch current order state from database."""
         order = await self.dispatcher.retrieve([command.order_id], None)
         return order.model_dump() if order else None
-    
+
     def get_incoming_state(self, command: UpdateOrderCommand) -> dict:
         """Extract incoming state from command."""
         return command.updates
-    
+
     def update_command(
         self, command: UpdateOrderCommand, merged_state: dict
     ) -> UpdateOrderCommand:
@@ -485,7 +485,7 @@ class UpdateOrderHandler(ConflictCommandHandler[str]):
     async def process(self, command: UpdateOrderCommand) -> CommandResponse[str]:
         # Conflicts will be automatically resolved
         return CommandResponse(result="success")
-    
+
     # Must implement abstract methods (see above)
     async def fetch_latest_state(self, command): ...
     def get_incoming_state(self, command): ...
@@ -509,7 +509,7 @@ class UpdateOrderHandler(ResilientCommandHandler[str]):
     async def process(self, command: UpdateOrderCommand) -> CommandResponse[str]:
         # Will be retried on failure AND conflicts will be resolved
         return CommandResponse(result="success")
-    
+
     # Must implement conflict resolution methods
     async def fetch_latest_state(self, command): ...
     def get_incoming_state(self, command): ...
@@ -536,7 +536,7 @@ class SendEmailCommand(Command[str], Retryable):
     to: str
     subject: str
     body: str
-    
+
     retry_policy: ExponentialBackoffPolicy = Field(
         default_factory=lambda: ExponentialBackoffPolicy(
             max_retries=3,
@@ -570,7 +570,7 @@ from cqrs_ddd_advanced_core.cqrs.handlers import ConflictCommandHandler
 class UpdateProfileCommand(Command[str], ConflictResilient):
     user_id: str
     updates: dict
-    
+
     conflict_config: ConflictConfig = Field(
         default_factory=lambda: ConflictConfig(
             policy=ConflictResolutionPolicy.MERGE,
@@ -587,14 +587,14 @@ class UpdateProfileHandler(ConflictCommandHandler[str]):
             setattr(user, key, value)
         await self.dispatcher.persist(user, uow)
         return CommandResponse(result=user.id)
-    
+
     async def fetch_latest_state(self, command: UpdateProfileCommand):
         user = await self.dispatcher.retrieve([command.user_id], None)
         return user.model_dump() if user else None
-    
+
     def get_incoming_state(self, command: UpdateProfileCommand):
         return command.updates
-    
+
     def update_command(self, command: UpdateProfileCommand, merged_state: dict):
         return UpdateProfileCommand(
             user_id=command.user_id,
@@ -630,7 +630,7 @@ class UpdateOrderCommand(
 ):
     order_id: str
     updates: dict
-    
+
     # Retry configuration
     retry_policy: ExponentialBackoffPolicy = Field(
         default_factory=lambda: ExponentialBackoffPolicy(
@@ -638,7 +638,7 @@ class UpdateOrderCommand(
             initial_delay_ms=100,
         )
     )
-    
+
     # Conflict resolution configuration
     conflict_config: ConflictConfig = Field(
         default_factory=lambda: ConflictConfig(
@@ -656,31 +656,31 @@ class UpdateOrderHandler(ResilientCommandHandler[str]):
         orders = await self.dispatcher.retrieve([command.order_id], uow)
         if not orders:
             raise ValueError(f"Order {command.order_id} not found")
-        
+
         order = orders[0]
-        
+
         # 2. Apply updates
         for key, value in command.updates.items():
             if hasattr(order, key):
                 setattr(order, key, value)
-        
+
         # 3. Persist (may throw ConcurrencyError)
         await self.dispatcher.persist(order, uow)
-        
+
         return CommandResponse(
             result=order.id,
             events=order.collect_events(),
         )
-    
+
     async def fetch_latest_state(self, command: UpdateOrderCommand):
         """Fetch current order state from database."""
         orders = await self.dispatcher.retrieve([command.order_id], None)
         return orders[0].model_dump() if orders else None
-    
+
     def get_incoming_state(self, command: UpdateOrderCommand):
         """Extract incoming state from command."""
         return command.updates
-    
+
     def update_command(
         self, command: UpdateOrderCommand, merged_state: dict
     ) -> UpdateOrderCommand:
@@ -711,23 +711,23 @@ from cqrs_ddd_advanced_core.conflict.resolution import IMergeStrategy
 
 class CustomOrderMergeStrategy(IMergeStrategy):
     """Custom merge logic for orders."""
-    
+
     def merge(self, current: dict, incoming: dict) -> dict:
         # Custom business logic
         merged = current.copy()
-        
+
         # Always preserve created_at
         merged["created_at"] = current.get("created_at")
-        
+
         # Merge items by product_id
         current_items = {item["product_id"]: item for item in current.get("items", [])}
         for item in incoming.get("items", []):
             current_items[item["product_id"]] = item
         merged["items"] = list(current_items.values())
-        
+
         # Take latest status
         merged["status"] = incoming.get("status", current.get("status"))
-        
+
         return merged
 
 # Register strategy
@@ -806,12 +806,12 @@ async def test_conflict_resolution():
     # 1. Create order
     order = Order(id="order_123", status="pending")
     await repository.persist(order, uow)
-    
+
     # 2. Simulate concurrent update
     order2 = await repository.retrieve(["order_123"], uow)
     order2.status = "processing"
     await repository.persist(order2, uow)
-    
+
     # 3. Try to update stale order (should auto-resolve)
     command = UpdateOrderCommand(
         order_id="order_123",
@@ -820,10 +820,10 @@ async def test_conflict_resolution():
             policy=ConflictResolutionPolicy.MERGE,
         ),
     )
-    
+
     result = await handler.handle(command)
     assert result.result == "order_123"
-    
+
     # 4. Verify merge
     final = await repository.retrieve(["order_123"], uow)
     assert final.status == "processing"  # Kept from concurrent update

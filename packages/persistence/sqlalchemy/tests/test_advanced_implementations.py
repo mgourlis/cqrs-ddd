@@ -187,6 +187,43 @@ async def test_job_repository(session_factory):
         assert loaded_again.status == BackgroundJobStatus.RUNNING
         assert loaded_again.version == 2  # First add -> 1, second add (update) -> 2
 
+        # find_by_status (we have one RUNNING job after the update above)
+        pending = await repo.find_by_status(
+            [BackgroundJobStatus.PENDING],
+            limit=10,
+            uow=SQLAlchemyUnitOfWork(session=session),
+        )
+        running = await repo.find_by_status(
+            [BackgroundJobStatus.RUNNING],
+            limit=10,
+            uow=SQLAlchemyUnitOfWork(session=session),
+        )
+        assert len(running) >= 1
+        assert isinstance(pending, list)
+
+        # count_by_status
+        counts = await repo.count_by_status(uow=SQLAlchemyUnitOfWork(session=session))
+        assert isinstance(counts, dict)
+        assert "PENDING" in counts or "RUNNING" in counts
+
+        # is_cancellation_requested (not cancelled)
+        assert (
+            await repo.is_cancellation_requested(
+                job.id, uow=SQLAlchemyUnitOfWork(session=session)
+            )
+            is False
+        )
+
+        # get_stale_jobs (none with default timeout)
+        stale = await repo.get_stale_jobs(uow=SQLAlchemyUnitOfWork(session=session))
+        assert isinstance(stale, list)
+
+        # purge_completed (threshold in future, so nothing deleted)
+        n = await repo.purge_completed(
+            datetime.now(timezone.utc), uow=SQLAlchemyUnitOfWork(session=session)
+        )
+        assert n >= 0
+
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(

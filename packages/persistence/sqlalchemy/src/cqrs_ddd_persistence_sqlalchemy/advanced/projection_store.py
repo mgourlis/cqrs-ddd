@@ -7,21 +7,24 @@ import re
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from cqrs_ddd_advanced_core.ports.projection import (
     DocId,
     IProjectionReader,
     IProjectionWriter,
 )
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from cqrs_ddd_advanced_core.projections.schema import ProjectionSchema
+    from sqlalchemy.ext.asyncio import AsyncSession
 
-    AsyncSessionFactory = Callable[[], Any]  # async context manager yielding AsyncSession
+    from cqrs_ddd_advanced_core.projections.schema import ProjectionSchema
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
+
+    AsyncSessionFactory = Callable[
+        [], Any
+    ]  # async context manager yielding AsyncSession
 
 logger = logging.getLogger("cqrs_ddd.projection.sqlalchemy")
 
@@ -75,7 +78,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             return None
         return getattr(uow, "session", None)
 
-    async def _run_with_session(self, fn, *args, **kwargs):
+    async def _run_with_session(self, fn: Any, *args: Any, **kwargs: Any) -> Any:
         session = self._get_session(kwargs.get("uow"))
         if session is not None:
             return await fn(session, *args, **kwargs)
@@ -200,16 +203,18 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         if all(isinstance(d, (str, int)) for d in doc_ids):
             placeholders = ", ".join(f":id_{i}" for i in range(len(doc_ids)))
             params = {f"id_{i}": d for i, d in enumerate(doc_ids)}
-            query = text(f"SELECT * FROM {collection} WHERE {id_col} IN ({placeholders})")
+            query = text(
+                f"SELECT * FROM {collection} WHERE {id_col} IN ({placeholders})"
+            )
 
             session = self._get_session(uow)
             if session is None:
                 async with self._session_factory() as session:
                     r = await session.execute(query, params)
-                    rows = {row[id_col]: dict(row._mapping) for row in r}
+                    rows = {row._mapping[id_col]: dict(row._mapping) for row in r}
             else:
                 r = await session.execute(query, params)
-                rows = {row[id_col]: dict(row._mapping) for row in r}
+                rows = {row._mapping[id_col]: dict(row._mapping) for row in r}
 
             # Map back to original order
             for i, doc_id in enumerate(doc_ids):
@@ -287,7 +292,9 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             if existing and existing.get("_last_event_id") == event_id:
                 logger.debug(
                     "Skipping duplicate event %s for %s/%s",
-                    event_id, collection, doc_id
+                    event_id,
+                    collection,
+                    doc_id,
                 )
                 return False
 
@@ -299,7 +306,10 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
                 if existing_version >= event_position:
                     logger.debug(
                         "Skipping stale event at position %s (current: %s) for %s/%s",
-                        event_position, existing_version, collection, doc_id
+                        event_position,
+                        existing_version,
+                        collection,
+                        doc_id,
                     )
                     return False
 
@@ -334,10 +344,14 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         conflict_target = ", ".join(conflict_columns)
 
         cols = ", ".join(data.keys())
-        placeholders = ", ".join(f":{k}" for k in data.keys())
+        placeholders = ", ".join(f":{k}" for k in data)
         # Exclude version columns from update to preserve monotonicity
         exclude_from_update = {"_version", "_last_event_id", "_last_event_position"}
-        update_cols = [k for k in data.keys() if k not in conflict_columns and k not in exclude_from_update]
+        update_cols = [
+            k
+            for k in data
+            if k not in conflict_columns and k not in exclude_from_update
+        ]
         updates = ", ".join(f"{k} = EXCLUDED.{k}" for k in update_cols)
 
         stmt = text(
@@ -388,13 +402,20 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             for k, v in doc.items():
                 params[f"{k}_{i}"] = v
 
-        exclude_from_update = {"_version", "_last_event_id", "_last_event_position", id_field}
-        updates = ", ".join(f"{k} = EXCLUDED.{k}" for k in cols if k not in exclude_from_update)
+        exclude_from_update = {
+            "_version",
+            "_last_event_id",
+            "_last_event_position",
+            id_field,
+        }
+        updates = ", ".join(
+            f"{k} = EXCLUDED.{k}" for k in cols if k not in exclude_from_update
+        )
 
         stmt = text(
             f"""
             INSERT INTO {collection} ({cols_str})
-            VALUES {', '.join(values_parts)}
+            VALUES {", ".join(values_parts)}
             ON CONFLICT ({id_field}) DO UPDATE SET {updates}
             """
         )

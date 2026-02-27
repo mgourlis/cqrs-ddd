@@ -21,7 +21,7 @@ def extract_tables_from_statement(stmt: Select[Any]) -> list[Table]:
     Useful for hooks to check if a table is already joined.
     """
     tables: set[Table] = set()
-    for from_obj in stmt.froms:
+    for from_obj in stmt.get_final_froms():
         _extract_tables_recursive(from_obj, tables)
     return list(tables)
 

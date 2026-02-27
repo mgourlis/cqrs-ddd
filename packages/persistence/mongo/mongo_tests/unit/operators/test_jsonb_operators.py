@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-import pytest
-
 from cqrs_ddd_persistence_mongo.operators.jsonb import compile_jsonb
-
 
 # Phase 2, Step 7: JSON/JSONB Operators Tests (8 tests)
 

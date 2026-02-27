@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from cqrs_ddd_advanced_core.ports.projection import IProjectionPositionStore
-from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
+
+    from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 
 KEY_PREFIX = "projection_position"

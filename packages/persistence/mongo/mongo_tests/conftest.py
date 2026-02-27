@@ -1,5 +1,7 @@
 """Test configuration for MongoDB persistence package."""
 
+import contextlib
+
 import pytest
 
 from cqrs_ddd_persistence_mongo import MongoConnectionManager
@@ -69,8 +71,9 @@ async def mongo_connection_with_mock_session():
     """Create a MongoDB connection with session support for UoW tests."""
     # Use mongomock for unit tests to avoid real database dependency
     try:
-        from mongomock_motor import AsyncMongoMockClient
         from unittest.mock import AsyncMock
+
+        from mongomock_motor import AsyncMongoMockClient
 
         # Create a mock connection manager
         connection = MongoConnectionManager.__new__(MongoConnectionManager)
@@ -142,14 +145,10 @@ async def real_mongo_connection(mongo_container):
     # Drop test collections for isolation (all integration tests get clean DB)
     db = connection.client.get_database("test_db")
     for name in _REAL_MONGO_TEST_COLLECTIONS:
-        try:
+        with contextlib.suppress(Exception):
             await db[name].drop()
-        except Exception:
-            pass
 
     yield connection
 
     # Cleanup
     connection.close()
-
-

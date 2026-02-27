@@ -93,9 +93,7 @@ async def test_get_pending_respects_limit(mongo_connection):
 
     # Add multiple messages
     messages = [
-        OutboxMessage(
-            message_id=f"msg{i}", event_type="TestEvent", payload={}
-        )
+        OutboxMessage(message_id=f"msg{i}", event_type="TestEvent", payload={})
         for i in range(10)
     ]
     await storage.save_messages(messages)

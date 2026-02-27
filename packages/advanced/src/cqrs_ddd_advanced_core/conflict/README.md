@@ -361,12 +361,12 @@ from cqrs_ddd_advanced_core.conflict import DeepMergeStrategy
 
 class UpdateOrderHandler(ConflictCommandHandler[UpdateOrder]):
     conflict_strategy = DeepMergeStrategy(append_lists=True)
-    
+
     async def _handle_internal(self, command: UpdateOrder):
         order = await self.repo.get(command.order_id)
         order.update(command.changes)
         await self.repo.save(order)
-    
+
     def resolve_conflict(
         self,
         existing: Order,
@@ -391,25 +391,25 @@ from cqrs_ddd_advanced_core.ports.conflict import IMergeStrategy
 
 class PriorityBasedMergeStrategy(IMergeStrategy):
     """Merge based on field priority levels."""
-    
+
     def __init__(self, priority_fields: dict[str, int]):
         self.priority_fields = priority_fields
-    
+
     def merge(
         self,
         existing: dict[str, Any],
         incoming: dict[str, Any],
     ) -> dict[str, Any]:
         merged = dict(existing)
-        
+
         for key, incoming_value in incoming.items():
             # Higher priority wins
             existing_priority = self.priority_fields.get(key, 0)
             incoming_priority = self.priority_fields.get(key, 0)
-            
+
             if incoming_priority >= existing_priority:
                 merged[key] = incoming_value
-        
+
         return merged
 
 # Usage
@@ -452,12 +452,12 @@ import pytest
 
 def test_deep_merge_strategy():
     strategy = DeepMergeStrategy(list_identity_key="id")
-    
+
     existing = {"items": [{"id": 1, "qty": 2}]}
     incoming = {"items": [{"id": 1, "qty": 3}]}
-    
+
     merged = strategy.merge(existing, incoming)
-    
+
     assert merged["items"][0]["qty"] == 3  # Updated
     assert len(merged["items"]) == 1  # Not duplicated
 ```
@@ -490,7 +490,7 @@ TimestampLastWinsStrategy(timestamp_field="modified_at")
 ```python
 class UpdateOrderHandler(ConflictCommandHandler[UpdateOrder]):
     """Update order with automatic conflict resolution.
-    
+
     Conflict Resolution:
     - Deep merge nested structures
     - Merge lists by item ID

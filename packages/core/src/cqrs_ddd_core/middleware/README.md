@@ -1,6 +1,6 @@
 # Middleware Layer - Pipeline Components
 
-**Package:** `cqrs_ddd_core.middleware`  
+**Package:** `cqrs_ddd_core.middleware`
 **Purpose:** Pluggable middleware pipeline for command/query processing
 
 ---
@@ -40,13 +40,13 @@ from cqrs_ddd_core.middleware.registry import MiddlewareRegistry
 class MiddlewareRegistry:
     """
     Registry for managing middleware.
-    
+
     Features:
     - Ordered registration
     - Priority support
     - Enable/disable
     """
-    
+
     def register(
         self,
         middleware: IMiddleware,
@@ -56,7 +56,7 @@ class MiddlewareRegistry:
     ) -> None:
         """Register middleware."""
         ...
-    
+
     def get_ordered_middlewares(self) -> list[IMiddleware]:
         """Get middlewares sorted by priority."""
         ...
@@ -127,21 +127,21 @@ from cqrs_ddd_core.middleware.logging import LoggingMiddleware
 class LoggingMiddleware(IMiddleware):
     """
     Logs command/query execution.
-    
+
     Features:
     - Request logging
     - Response logging
     - Error logging
     - Duration tracking
     """
-    
+
     async def __call__(
         self,
         message: Any,
         next_handler: Callable[[Any], Awaitable[Any]],
     ) -> Any:
         logger.info(f"Processing: {type(message).__name__}")
-        
+
         start = time.time()
         try:
             result = await next_handler(message)
@@ -177,13 +177,13 @@ from cqrs_ddd_core.middleware.validation import ValidatorMiddleware
 class ValidatorMiddleware(IMiddleware):
     """
     Validates commands/queries before execution.
-    
+
     Features:
     - Pydantic validation
     - Custom validators
     - Early rejection
     """
-    
+
     async def __call__(
         self,
         message: Any,
@@ -191,10 +191,10 @@ class ValidatorMiddleware(IMiddleware):
     ) -> Any:
         # Validate message
         result = await self.validator.validate(message)
-        
+
         if not result.is_valid:
             raise ValidationError(result.errors)
-        
+
         return await next_handler(message)
 ```
 
@@ -221,28 +221,28 @@ from cqrs_ddd_core.middleware.outbox import OutboxMiddleware
 class OutboxMiddleware(IMiddleware):
     """
     Saves CommandResponse.events to outbox after commit.
-    
+
     Features:
     - Transactional outbox
     - Automatic event persistence
     - Same transaction as aggregate
     """
-    
+
     def __init__(self, outbox: BufferedOutbox):
         self.outbox = outbox
-    
+
     async def __call__(
         self,
         message: Any,
         next_handler: Callable[[Any], Awaitable[Any]],
     ) -> Any:
         result = await next_handler(message)
-        
+
         # Save events from CommandResponse
         if hasattr(result, 'events'):
             for event in result.events:
                 await self.outbox.publish(event)
-        
+
         return result
 ```
 
@@ -269,13 +269,13 @@ from cqrs_ddd_core.middleware.concurrency import ConcurrencyGuardMiddleware
 class ConcurrencyGuardMiddleware(IMiddleware):
     """
     Implements pessimistic locking.
-    
+
     Features:
     - Locks resources from command.get_critical_resources()
     - Prevents deadlocks by sorting
     - Configurable timeout
     """
-    
+
     def __init__(
         self,
         lock_strategy: ILockStrategy,
@@ -283,7 +283,7 @@ class ConcurrencyGuardMiddleware(IMiddleware):
     ):
         self.lock = lock_strategy
         self.timeout = timeout_seconds
-    
+
     async def __call__(
         self,
         message: Any,
@@ -291,13 +291,13 @@ class ConcurrencyGuardMiddleware(IMiddleware):
     ) -> Any:
         # Get resources to lock
         resources = message.get_critical_resources() if hasattr(message, 'get_critical_resources') else []
-        
+
         if not resources:
             return await next_handler(message)
-        
+
         # Sort to prevent deadlocks
         sorted_resources = sorted(resources, key=lambda r: (r.resource_type, r.resource_id))
-        
+
         # Acquire locks
         for resource in sorted_resources:
             acquired = await self.lock.acquire(
@@ -306,7 +306,7 @@ class ConcurrencyGuardMiddleware(IMiddleware):
             )
             if not acquired:
                 raise LockAcquisitionError(f"Failed to acquire lock: {resource}")
-        
+
         try:
             return await next_handler(message)
         finally:
@@ -329,7 +329,7 @@ registry.register(
 class TransferFundsCommand(Command[None]):
     from_account: str
     to_account: str
-    
+
     def get_critical_resources(self) -> list[ResourceIdentifier]:
         return [
             ResourceIdentifier("Account", self.from_account),
@@ -352,7 +352,7 @@ from cqrs_ddd_core.middleware.persistence import EventStorePersistenceMiddleware
 class EventStorePersistenceMiddleware(IMiddleware):
     """
     Auto-persists events from CommandResponse to IEventStore.
-    
+
     Features:
     - Runs after handler returns
     - Converts domain events to StoredEvent
@@ -389,22 +389,22 @@ from cqrs_ddd_core.middleware.definition import MiddlewareDefinition
 class MiddlewareDefinition:
     """
     Descriptor for a middleware in the pipeline.
-    
+
     Supports **deferred instantiation**: supply *middleware_cls* and
     optional *factory* for lazy construction.
-    
+
     Attributes:
         middleware_cls: Middleware class type
         priority: Execution priority (lower = outer wrapper)
         factory: Optional factory function for custom instantiation
         kwargs: Constructor arguments for middleware_cls
     """
-    
+
     middleware_cls: type[IMiddleware]
     priority: int = 0
     factory: Callable[..., IMiddleware] | None = None
     kwargs: dict[str, object] = field(default_factory=dict)
-    
+
     def build(self) -> IMiddleware:
         """Construct the middleware instance."""
         ...
@@ -524,10 +524,10 @@ class CreateOrderHandler(CommandHandler[str]):
         # Don't do validation here - use middleware
         if not command.items:
             raise ValueError("No items")
-        
+
         # Don't do logging here - use middleware
         logger.info("Creating order")
-        
+
         # Business logic only
         order = Order.create(...)
         return CommandResponse(result=order.id)
@@ -553,5 +553,5 @@ class CreateOrderHandler(CommandHandler[str]):
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.middleware`

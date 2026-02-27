@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import contextlib
 from typing import Any
 from uuid import uuid4
 
@@ -10,7 +10,6 @@ import pytest
 from pydantic import BaseModel, Field
 
 from cqrs_ddd_core.domain.aggregate import AggregateRoot
-from cqrs_ddd_core.ports.search_result import SearchResult
 from cqrs_ddd_persistence_mongo.advanced.persistence import (
     MongoOperationPersistence,
     MongoQueryPersistence,
@@ -107,11 +106,9 @@ async def _drop_integration_test_collections(real_mongo_connection):
     """Drop test collections before each integration test to avoid cross-test pollution."""
     db = real_mongo_connection.client.get_database("test_db")
     for name in _INTEGRATION_TEST_COLLECTIONS:
-        try:
+        with contextlib.suppress(Exception):
             await db[name].drop()
-        except Exception:
-            pass
-    yield
+    return
 
 
 # Phase 4, Step 16: Integration Test Suite (15 tests)
@@ -337,9 +334,7 @@ class TestIntegrationQueryPersistence:
         coll = query_persistence._collection()
         doc_ids = [str(uuid4()) for _ in range(3)]
         for idx, doc_id in enumerate(doc_ids):
-            await coll.insert_one(
-                {"_id": doc_id, "name": f"Test {idx}", "value": idx}
-            )
+            await coll.insert_one({"_id": doc_id, "name": f"Test {idx}", "value": idx})
 
         # Fetch DTOs
         results = await query_persistence.fetch(doc_ids)

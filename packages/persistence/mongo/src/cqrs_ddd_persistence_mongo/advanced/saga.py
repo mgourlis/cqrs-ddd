@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from cqrs_ddd_advanced_core.ports.saga_repository import ISagaRepository
 from cqrs_ddd_advanced_core.sagas.state import SagaState
@@ -46,21 +46,29 @@ class MongoSagaRepository(MongoRepository[SagaState], ISagaRepository):
     ) -> SagaState | None:
         """Find a saga instance by its correlation_id and type."""
         coll = self._collection()
-        doc = await coll.find_one({
-            "correlation_id": correlation_id,
-            "saga_type": saga_type,
-        })
+        doc = await coll.find_one(
+            {
+                "correlation_id": correlation_id,
+                "saga_type": saga_type,
+            }
+        )
         return self._mapper.from_doc(doc) if doc else None
 
     async def find_stalled_sagas(self, limit: int = 10) -> list[SagaState]:
         """Return sagas that are RUNNING but have stalled (beyond update threshold)."""
         threshold = datetime.now(timezone.utc) - timedelta(minutes=5)
 
-        cursor = self._collection().find({
-            "status": DomainSagaStatus.RUNNING.value,
-            "updated_at": {"$lt": threshold},
-            "saga_type": self.saga_type,
-        }).limit(limit)
+        cursor = (
+            self._collection()
+            .find(
+                {
+                    "status": DomainSagaStatus.RUNNING.value,
+                    "updated_at": {"$lt": threshold},
+                    "saga_type": self.saga_type,
+                }
+            )
+            .limit(limit)
+        )
 
         results = []
         async for doc in cursor:
@@ -69,10 +77,16 @@ class MongoSagaRepository(MongoRepository[SagaState], ISagaRepository):
 
     async def find_suspended_sagas(self, limit: int = 10) -> list[SagaState]:
         """Return all currently suspended sagas."""
-        cursor = self._collection().find({
-            "status": DomainSagaStatus.SUSPENDED.value,
-            "saga_type": self.saga_type,
-        }).limit(limit)
+        cursor = (
+            self._collection()
+            .find(
+                {
+                    "status": DomainSagaStatus.SUSPENDED.value,
+                    "saga_type": self.saga_type,
+                }
+            )
+            .limit(limit)
+        )
 
         results = []
         async for doc in cursor:
@@ -83,11 +97,17 @@ class MongoSagaRepository(MongoRepository[SagaState], ISagaRepository):
         """Return suspended sagas whose timeout_at has passed."""
         now = datetime.now(timezone.utc)
 
-        cursor = self._collection().find({
-            "status": DomainSagaStatus.SUSPENDED.value,
-            "timeout_at": {"$lt": now},
-            "saga_type": self.saga_type,
-        }).limit(limit)
+        cursor = (
+            self._collection()
+            .find(
+                {
+                    "status": DomainSagaStatus.SUSPENDED.value,
+                    "timeout_at": {"$lt": now},
+                    "saga_type": self.saga_type,
+                }
+            )
+            .limit(limit)
+        )
 
         results = []
         async for doc in cursor:

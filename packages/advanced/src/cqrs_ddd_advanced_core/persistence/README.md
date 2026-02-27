@@ -83,11 +83,11 @@ class OrderRepository(
     IRetrievalPersistence[Order, str]
 ):
     """Event-sourced or state-stored aggregate persistence."""
-    
+
     async def persist(self, entity: Order, uow: UnitOfWork) -> str:
         # Save aggregate state or events
         ...
-    
+
     async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Order]:
         # Load aggregate by ID
         ...
@@ -95,14 +95,14 @@ class OrderRepository(
 # Query side (read model)
 class OrderSummaryQuery(IQueryPersistence[OrderSummaryDTO, str]):
     """Projection-backed read model."""
-    
+
     async def fetch(self, ids: Sequence[str], uow: UnitOfWork) -> list[OrderSummaryDTO]:
         # Load denormalized read model
         ...
 
 class OrderSummarySpecQuery(IQuerySpecificationPersistence[OrderSummaryDTO]):
     """Specification-based read model queries."""
-    
+
     async def fetch(self, criteria: ISpecification, uow: UnitOfWork) -> SearchResult[OrderSummaryDTO]:
         # Query by specification
         ...
@@ -201,7 +201,7 @@ Persist an aggregate (command-side write).
 async with uow_factory() as uow:
     order = Order(id="order_123", customer_id="cust_456")
     order.add_event(OrderCreated(...))
-    
+
     await dispatcher.apply(order, uow=uow)
     # UnitOfWork commits
 
@@ -229,7 +229,7 @@ order = orders[0] if orders else None
 
 # Load multiple aggregates
 orders = await dispatcher.fetch_domain(
-    Order, 
+    Order,
     ["order_1", "order_2", "order_3"],
     uow=uow
 )
@@ -330,12 +330,12 @@ class Order(AggregateRoot[str]):
     customer_id: str
     status: str = "pending"
     total: Decimal = Decimal("0.00")
-    
+
     def apply_OrderCreated(self, event: OrderCreated):
         self.customer_id = event.customer_id
         self.total = event.total
         self.status = "created"
-    
+
     def apply_OrderSubmitted(self, event: OrderSubmitted):
         self.status = "submitted"
 ```
@@ -361,7 +361,7 @@ class OrderSummaryQueryPersistence(
     SQLAlchemyProjectionDualPersistence[OrderSummaryDTO, str]
 ):
     collection = "order_summaries"
-    
+
     def to_dto(self, doc: dict) -> OrderSummaryDTO:
         return OrderSummaryDTO(**doc)
 ```
@@ -374,15 +374,15 @@ from cqrs_ddd_advanced_core.persistence import PersistenceRegistry, PersistenceD
 
 def setup_dispatcher():
     registry = PersistenceRegistry()
-    
+
     # Command-side
     registry.register_operation(Order, OrderRepository, source="default")
     registry.register_retrieval(Order, OrderRepository, source="default")
-    
+
     # Query-side
     registry.register_query(OrderSummaryDTO, OrderSummaryQueryPersistence, source="default")
     registry.register_query_spec(OrderSummaryDTO, OrderSummaryQueryPersistence, source="default")
-    
+
     return PersistenceDispatcher(
         uow_factories={"default": create_uow_factory()},
         registry=registry,
@@ -405,9 +405,9 @@ async def handle_submit_order(
     orders = await dispatcher.fetch_domain(Order, [command.order_id], uow=uow)
     if not orders:
         raise OrderNotFound(command.order_id)
-    
+
     order = orders[0]
-    
+
     # Business logic
     event = OrderSubmitted(
         aggregate_id=order.id,
@@ -415,10 +415,10 @@ async def handle_submit_order(
         submitted_at=datetime.now(timezone.utc),
     )
     order.add_event(event)
-    
+
     # Persist
     await dispatcher.apply(order, uow=uow)
-    
+
     return order.id
 
 # application/queries.py
@@ -432,14 +432,14 @@ async def handle_get_customer_orders(
     uow: UnitOfWork,
 ) -> list[OrderSummaryDTO]:
     from cqrs_ddd_specifications import SpecificationBuilder, QueryOptions
-    
+
     # Build specification
     spec = (
         SpecificationBuilder()
         .where("customer_id", "=", query.customer_id)
         .build()
     )
-    
+
     # Build query options
     options = (
         QueryOptions()
@@ -447,7 +447,7 @@ async def handle_get_customer_orders(
         .with_ordering("-created_at")
         .with_pagination(limit=query.limit)
     )
-    
+
     # Execute query
     result = await dispatcher.fetch(OrderSummaryDTO, options, uow=uow)
     return await result
@@ -510,7 +510,7 @@ class CustomerRepository(
         async with session.begin():
             await session.merge(entity)
         return entity.id
-    
+
     async def retrieve(self, ids: Sequence[str], uow: UnitOfWork) -> list[Customer]:
         session = uow.session
         result = await session.execute(

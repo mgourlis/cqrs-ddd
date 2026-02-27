@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from cqrs_ddd_core.primitives.exceptions import PersistenceError
+from cqrs_ddd_core.primitives.exceptions import (
+    OptimisticConcurrencyError,
+    PersistenceError,
+)
 
 
 class SQLAlchemyPersistenceError(PersistenceError):
@@ -27,3 +30,14 @@ class TransactionError(SQLAlchemyPersistenceError):
 
 class MappingError(SQLAlchemyPersistenceError):
     """Raised when mapping between domain entities and DB models fails."""
+
+
+__all__: list[str] = [
+    "OptimisticConcurrencyError",
+    "MappingError",
+    "RepositoryError",
+    "SessionManagementError",
+    "SQLAlchemyPersistenceError",
+    "TransactionError",
+    "UnitOfWorkError",
+]

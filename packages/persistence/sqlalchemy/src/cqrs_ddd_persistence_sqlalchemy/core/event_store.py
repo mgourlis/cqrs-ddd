@@ -162,7 +162,9 @@ class SQLAlchemyEventStore(IEventStore):
             if len(batch) < batch_size:
                 break
             last = batch[-1]
-            current = last.position if last.position is not None else current + len(batch)
+            current = (
+                last.position if last.position is not None else current + len(batch)
+            )
 
     async def get_latest_position(self) -> int | None:
         """

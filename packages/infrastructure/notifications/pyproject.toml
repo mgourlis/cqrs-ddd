@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-notifications"
+version = "0.1.0"
+description = "Multi-channel notification infrastructure for CQRS/DDD - Email, SMS, Push, Webhooks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[project.optional-dependencies]
+smtp = ["aiosmtplib>=3.0.0"]
+http = ["httpx>=0.27.0"]
+aws = ["aiobotocore>=2.12.0"]
+jinja2 = ["Jinja2>=3.1.0"]
+twilio = ["twilio>=9.0.0"]
+all = [
+    "cqrs-ddd-notifications[smtp,http,aws,jinja2]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_notifications*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+select = [
+    "E",
+    "F",
+    "I",
+    "N",
+    "W",
+]
+
+[tool.pyright]
+pythonVersion = "3.12"
+strict = ["*"]
+reportMissingImports = "warning"
+
+[tool.pytest.ini_options]
+testpaths = ["notifications_tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-ra"

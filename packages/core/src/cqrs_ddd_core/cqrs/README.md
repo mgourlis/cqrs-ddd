@@ -1,6 +1,6 @@
 # CQRS Layer - Implementation Details & Usage
 
-**Package:** `cqrs_ddd_core.cqrs`  
+**Package:** `cqrs_ddd_core.cqrs`
 **Purpose:** Command Query Responsibility Segregation with Mediator pattern
 
 ---
@@ -41,14 +41,14 @@ from cqrs_ddd_core.cqrs.mediator import Mediator, get_current_uow
 class Mediator(ICommandBus, IQueryBus):
     """
     Central dispatch with ContextVar UoW scope.
-    
+
     Features:
     - Root vs nested command detection
     - Automatic correlation ID propagation
     - Middleware pipeline execution
     - Event dispatching from responses
     """
-    
+
     def __init__(
         self,
         registry: HandlerRegistry,
@@ -93,13 +93,13 @@ class ShipOrderHandler(CommandHandler[None]):
     async def handle(self, command: ShipOrderCommand) -> CommandResponse[None]:
         # Get UoW from context (inherited from parent)
         uow = get_current_uow()
-        
+
         # Nested command reuses same UoW
         await mediator.send(GenerateInvoiceCommand(order_id=command.order_id))
-        
+
         order = await uow.orders.get(command.order_id)
         order.ship()
-        
+
         return CommandResponse(result=None, events=order.clear_events())
 
 # Root command creates new UoW, nested commands reuse it
@@ -135,16 +135,16 @@ from cqrs_ddd_core.cqrs.command import Command
 class Command(BaseModel, Generic[TResult]):
     """
     Base class for all commands.
-    
+
     Features:
     - Auto-generated command_id
     - Inherited correlation_id
     - Optional pessimistic locking
     """
-    
+
     command_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     correlation_id: str | None = Field(default_factory=get_correlation_id)
-    
+
     def get_critical_resources(self) -> list[ResourceIdentifier]:
         """Override for pessimistic locking."""
         return []
@@ -159,7 +159,7 @@ from cqrs_ddd_core.cqrs.command import Command
 
 class CreateOrderCommand(Command[str]):
     """Command to create order."""
-    
+
     customer_id: str
     items: list[OrderItem]
 
@@ -175,11 +175,11 @@ from cqrs_ddd_core.primitives.locking import ResourceIdentifier
 
 class TransferFundsCommand(Command[None]):
     """Transfer with pessimistic locking."""
-    
+
     from_account: str
     to_account: str
     amount: float
-    
+
     def get_critical_resources(self) -> list[ResourceIdentifier]:
         """Lock both accounts."""
         return [
@@ -200,13 +200,13 @@ from cqrs_ddd_core.cqrs.query import Query
 class Query(BaseModel, Generic[TResult]):
     """
     Base class for all queries.
-    
+
     Features:
     - Auto-generated query_id
     - Inherited correlation_id
     - Read-only (never modifies state)
     """
-    
+
     query_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     correlation_id: str | None = Field(default_factory=get_correlation_id)
 ```
@@ -218,12 +218,12 @@ from cqrs_ddd_core.cqrs.query import Query
 
 class GetOrderQuery(Query[OrderDTO]):
     """Query to get order by ID."""
-    
+
     order_id: str
 
 class ListOrdersQuery(Query[list[OrderDTO]]):
     """Query to list orders."""
-    
+
     customer_id: str | None = None
     status: str | None = None
     limit: int = 100
@@ -246,14 +246,14 @@ from cqrs_ddd_core.cqrs.handler import CommandHandler, QueryHandler
 
 class CommandHandler(ABC, Generic[TResult]):
     """Base class for command handlers."""
-    
+
     @abstractmethod
     async def handle(self, command: Command[TResult]) -> CommandResponse[TResult]:
         ...
 
 class QueryHandler(ABC, Generic[TResult]):
     """Base class for query handlers."""
-    
+
     @abstractmethod
     async def handle(self, query: Query[TResult]) -> QueryResponse[TResult]:
         ...
@@ -271,11 +271,11 @@ class CreateOrderHandler(CommandHandler[str]):
     async def handle(self, command: CreateOrderCommand) -> CommandResponse[str]:
         # Get UoW from context
         uow = get_current_uow()
-        
+
         # Execute business logic
         order = Order.create(command.customer_id, command.items)
         await uow.orders.add(order)
-        
+
         # Return with events
         return CommandResponse(
             result=order.id,
@@ -290,7 +290,7 @@ class GetOrderHandler(QueryHandler[OrderDTO]):
     async def handle(self, query: GetOrderQuery) -> QueryResponse[OrderDTO]:
         uow = get_current_uow()
         order = await uow.orders.get(query.order_id)
-        
+
         # Convert to DTO (no events)
         dto = OrderDTO.from_aggregate(order)
         return QueryResponse(result=dto)
@@ -308,7 +308,7 @@ from cqrs_ddd_core.cqrs.response import CommandResponse, QueryResponse
 @dataclass(frozen=True)
 class CommandResponse(Generic[T]):
     """Wrapper for command results."""
-    
+
     result: T
     events: list[DomainEvent] = field(default_factory=list)
     success: bool = True
@@ -318,7 +318,7 @@ class CommandResponse(Generic[T]):
 @dataclass(frozen=True)
 class QueryResponse(Generic[T]):
     """Wrapper for query results."""
-    
+
     result: T
     success: bool = True
     correlation_id: str | None = None
@@ -360,7 +360,7 @@ from cqrs_ddd_core.cqrs.event_dispatcher import EventDispatcher
 class EventDispatcher(Generic[E]):
     """
     Event dispatcher with retry and instrumentation.
-    
+
     Features:
     - Async dispatch
     - Retry on failure
@@ -400,10 +400,10 @@ from cqrs_ddd_core.cqrs.message_registry import MessageRegistry
 class MessageRegistry:
     """
     Registry for mapping message type names to Command and Query classes.
-    
+
     Used to reconstruct messages (commands and queries) from stored payloads.
     Explicit registration is required.
-    
+
     Features:
     - Command registration and hydration
     - Query registration and hydration
@@ -497,12 +497,12 @@ def process_message(message_type: str, payload: dict):
     command = message_registry.hydrate_command(message_type, payload)
     if command:
         return await mediator.send(command)
-    
+
     # Try query
     query = message_registry.hydrate_query(message_type, payload)
     if query:
         return await mediator.send(query)
-    
+
     raise ValueError(f"Unknown message type: {message_type}")
 ```
 
@@ -518,7 +518,7 @@ from cqrs_ddd_core.cqrs.concurrency import CriticalSection
 class CriticalSection:
     """
     Async context manager that acquires locks on multiple resources.
-    
+
     Features:
     - Locks multiple resources atomically
     - Prevents deadlocks via sorted acquisition
@@ -598,14 +598,14 @@ session_id = "user-session-abc"
 
 async def outer_operation():
     resources = [ResourceIdentifier("Order", "order-123")]
-    
+
     async with CriticalSection(resources, lock_strategy, session_id=session_id):
         # Lock acquired
         await inner_operation()
 
 async def inner_operation():
     resources = [ResourceIdentifier("Order", "order-123")]
-    
+
     async with CriticalSection(resources, lock_strategy, session_id=session_id):
         # Same session → reentrant lock allowed
         await process_order("order-123")
@@ -681,11 +681,11 @@ from cqrs_ddd_core.cqrs.outbox.buffered import BufferedOutbox
 class BufferedOutbox(IMessagePublisher, IBackgroundWorker):
     """
     Unified Outbox component for both recording and publishing.
-    
+
     Roles:
     1. Publisher: Saves messages to DB (IMessagePublisher)
     2. Worker: Background loop that publishes to broker (IBackgroundWorker)
-    
+
     Features:
     - Automatic persistence in same transaction
     - Debounced background publishing
@@ -768,13 +768,13 @@ from cqrs_ddd_core.cqrs.outbox.service import OutboxService
 class OutboxService:
     """
     Processes pending outbox messages with lock-based claiming.
-    
+
     Lifecycle:
     1. Fetch pending messages
     2. Claim via locks (prevents duplicates)
     3. Publish to broker
     4. Mark success/record failures
-    
+
     Two-phase locking prevents race conditions.
     """
 ```
@@ -825,12 +825,12 @@ from cqrs_ddd_core.cqrs.publishers.routing import TopicRoutingPublisher
 class TopicRoutingPublisher(IMessagePublisher):
     """
     Routes messages to different publishers based on metadata.
-    
+
     Resolution order:
     1. Check __route_to__ attribute (via @route_to decorator)
     2. Check explicit routes dict
     3. Fall back to default publisher
-    
+
     Features:
     - Flexible routing
     - Per-event publishers
@@ -912,7 +912,7 @@ from cqrs_ddd_core.cqrs.publishers.decorators import route_to
 def route_to(destination_key: str) -> Any:
     """
     Decorator to mark event class for specific routing destination.
-    
+
     Used by TopicRoutingPublisher to resolve publishers.
     """
 ```
@@ -952,7 +952,7 @@ from cqrs_ddd_core.cqrs.publishers.handler import PublishingEventHandler
 class PublishingEventHandler(EventHandler[DomainEvent]):
     """
     Generic handler that publishes events to external broker.
-    
+
     Bridge between domain event dispatcher and IMessagePublisher.
     """
 ```
@@ -997,13 +997,13 @@ from cqrs_ddd_core.cqrs.consumers.base import BaseEventConsumer
 class BaseEventConsumer:
     """
     Base implementation of event consumer (message broker subscriber).
-    
+
     Lifecycle:
     1. Subscribe to topics on message broker
     2. Extract event_type from payload
     3. Hydrate using EventTypeRegistry
     4. Dispatch using IEventDispatcher
-    
+
     Features:
     - Automatic event hydration
     - Handler auto-wiring
@@ -1248,5 +1248,5 @@ class GetOrderHandler(QueryHandler[Order]):
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.cqrs`

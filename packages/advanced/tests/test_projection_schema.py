@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import tempfile
 
-import pytest
 from sqlalchemy import Column, Integer, String
 
 from cqrs_ddd_advanced_core.projections.schema import (
@@ -52,7 +51,9 @@ def test_schema_to_json_round_trip():
 
 def test_registry_register_and_get():
     registry = ProjectionSchemaRegistry()
-    schema = ProjectionSchema(name="orders", columns=[Column("id", String(255), primary_key=True)])
+    schema = ProjectionSchema(
+        name="orders", columns=[Column("id", String(255), primary_key=True)]
+    )
     registry.register(schema)
     assert registry.get("orders") is schema
     assert registry.get("missing") is None
@@ -95,7 +96,9 @@ def test_projection_version_columns_defined():
 
 def test_schema_save_and_load_file():
     registry = ProjectionSchemaRegistry()
-    schema = create_schema("file_test", columns=[Column("id", String(255), primary_key=True)])
+    schema = create_schema(
+        "file_test", columns=[Column("id", String(255), primary_key=True)]
+    )
     registry.register(schema)
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         path = f.name

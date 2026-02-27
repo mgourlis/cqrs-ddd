@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from . import auth as auth_observability
 from .context import ObservabilityContext
 from .exceptions import ObservabilityError
 from .hooks import (
@@ -26,4 +27,5 @@ __all__ = [
     "SentryMiddleware",
     "StructuredLoggingMiddleware",
     "TracingMiddleware",
+    "auth_observability",
 ]

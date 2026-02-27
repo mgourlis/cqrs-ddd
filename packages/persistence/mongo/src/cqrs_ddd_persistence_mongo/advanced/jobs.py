@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_advanced_core.background_jobs.entity import (
     BackgroundJobStatus as DomainJobStatus,
@@ -53,10 +53,12 @@ class MongoBackgroundJobRepository(
         timeout = timeout_seconds or self.stale_job_timeout_seconds
         threshold = datetime.now(timezone.utc) - timedelta(seconds=timeout)
 
-        cursor = self._collection().find({
-            "status": DomainJobStatus.RUNNING.value,
-            "updated_at": {"$lt": threshold},
-        })
+        cursor = self._collection().find(
+            {
+                "status": DomainJobStatus.RUNNING.value,
+                "updated_at": {"$lt": threshold},
+            }
+        )
 
         results = []
         async for doc in cursor:
@@ -65,14 +67,24 @@ class MongoBackgroundJobRepository(
 
     async def find_by_status(
         self,
-        status: DomainJobStatus,
-        limit: int = 10,
+        statuses: list[DomainJobStatus],  # Match protocol signature (list of statuses)
+        limit: int = 50,
+        offset: int = 0,
         uow: UnitOfWork | None = None,
     ) -> list[BaseBackgroundJob]:
         """Find jobs by status."""
-        cursor = self._collection().find({
-            "status": status.value,
-        }).limit(limit)
+        # Build query to match any of the provided statuses
+        status_values = [s.value for s in statuses]
+        cursor = (
+            self._collection()
+            .find(
+                {
+                    "status": {"$in": status_values},
+                }
+            )
+            .skip(offset)
+            .limit(limit)
+        )
 
         results = []
         async for doc in cursor:
@@ -87,15 +99,15 @@ class MongoBackgroundJobRepository(
     ) -> BaseBackgroundJob | None:
         """
         Atomically claim next pending job using findAndModify.
-        
+
         This is a NoSQL-native pattern that eliminates race conditions
         without requiring database-level locks.
-        
+
         Args:
             worker_id: Unique identifier for the worker claiming the job
             timeout_seconds: Job timeout (will be marked as stale after this)
             uow: Optional UnitOfWork (not used for atomic claim)
-            
+
         Returns:
             Claimed job or None if no pending jobs
         """
@@ -133,12 +145,12 @@ class MongoBackgroundJobRepository(
     ) -> bool:
         """
         Mark a failed job for retry.
-        
+
         Args:
             job_id: Job ID to mark for retry
             error_message: Optional error message
             uow: Optional UnitOfWork
-            
+
         Returns:
             True if job was marked for retry, False if max retries exceeded
         """
@@ -180,7 +192,7 @@ class MongoBackgroundJobRepository(
     async def mark_completed(
         self,
         job_id: str,
-        result_data: dict | None = None,
+        result_data: dict[str, Any] | None = None,
         uow: UnitOfWork | None = None,
     ) -> None:
         """Mark a job as completed."""

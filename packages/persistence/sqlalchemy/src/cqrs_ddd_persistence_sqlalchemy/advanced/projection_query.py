@@ -16,8 +16,6 @@ from cqrs_ddd_advanced_core.projections.backed_persistence import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     from cqrs_ddd_advanced_core.ports.projection import (
         IProjectionReader,
         IProjectionWriter,
@@ -98,7 +96,9 @@ class SQLAlchemyProjectionSpecPersistence(
         """
         # Default: try to extract common attributes
         if hasattr(criteria, "to_filter_dict"):
-            return criteria.to_filter_dict()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_filter_dict())
 
         # Fallback: raise NotImplementedError
         return super().build_filter(criteria)
@@ -148,5 +148,7 @@ class SQLAlchemyProjectionDualPersistence(
     ) -> dict[str, Any]:
         """Convert specification to filter dict."""
         if hasattr(criteria, "to_filter_dict"):
-            return criteria.to_filter_dict()  # type: ignore[union-attr]
+            from typing import cast
+
+            return cast("dict[str, Any]", criteria.to_filter_dict())
         return super().build_filter(criteria)

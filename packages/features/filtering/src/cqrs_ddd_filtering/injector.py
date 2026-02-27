@@ -6,13 +6,14 @@ from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_specifications.ast import AttributeSpecification
 from cqrs_ddd_specifications.base import AndSpecification
-from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
 from cqrs_ddd_specifications.operators import SpecificationOperator
 
 from .exceptions import SecurityConstraintError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from cqrs_ddd_specifications.evaluator import MemoryOperatorRegistry
 
 
 class SecurityConstraintInjector:
@@ -30,7 +31,7 @@ class SecurityConstraintInjector:
     ) -> None:
         """
         Initialize SecurityConstraintInjector.
-        
+
         Args:
             registry: MemoryOperatorRegistry for creating specifications.
             get_tenant_id: Callable that returns current tenant ID.

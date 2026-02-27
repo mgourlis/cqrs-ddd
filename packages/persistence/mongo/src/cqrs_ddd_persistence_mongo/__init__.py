@@ -13,6 +13,8 @@ from .advanced.persistence import (
     MongoQuerySpecificationPersistence,
     MongoRetrievalPersistence,
 )
+from .advanced.position_store import MongoProjectionPositionStore
+from .advanced.projection_store import MongoProjectionStore
 from .advanced.snapshots import MongoSnapshotStore
 
 # Core components
@@ -20,8 +22,6 @@ from .connection import MongoConnectionManager
 from .core.checkpoint_store import MongoCheckpointStore
 from .core.event_store import MongoEventStore
 from .core.outbox import MongoOutboxStorage
-from .advanced.projection_store import MongoProjectionStore
-from .advanced.position_store import MongoProjectionPositionStore
 from .core.repository import MongoRepository
 from .core.uow import MongoUnitOfWork, MongoUnitOfWorkError
 from .exceptions import (

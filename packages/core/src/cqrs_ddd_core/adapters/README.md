@@ -1,6 +1,6 @@
 # Adapters Layer - In-Memory Implementations
 
-**Package:** `cqrs_ddd_core.adapters`  
+**Package:** `cqrs_ddd_core.adapters`
 **Purpose:** In-memory implementations for testing
 
 ---
@@ -39,13 +39,13 @@ from cqrs_ddd_core.adapters.memory.repository import InMemoryRepository
 class InMemoryRepository(Generic[T, ID]):
     """
     In-memory repository for testing.
-    
+
     Features:
     - Thread-safe storage
     - Optimistic concurrency support
     - Specification-based search
     """
-    
+
     def __init__(self, model_cls: type[T] | None = None):
         self._storage: dict[ID, T] = {}
         self._model_cls = model_cls
@@ -88,7 +88,7 @@ from cqrs_ddd_core.adapters.memory.unit_of_work import InMemoryUnitOfWork
 class InMemoryUnitOfWork(UnitOfWork):
     """
     In-memory UoW for testing.
-    
+
     Features:
     - Transaction simulation
     - Commit hooks
@@ -109,10 +109,10 @@ uow.orders = InMemoryRepository[Order, str]()
 async with uow:
     order = Order.create(...)
     await uow.orders.add(order)
-    
+
     # Register commit hook
     uow.on_commit(lambda: print("Order created!"))
-    
+
     await uow.commit()  # Hooks trigger after commit
 
 # Verify
@@ -132,7 +132,7 @@ from cqrs_ddd_core.adapters.memory.event_store import InMemoryEventStore
 class InMemoryEventStore(IEventStore):
     """
     In-memory event store for testing.
-    
+
     Features:
     - Event persistence
     - Version-based retrieval
@@ -179,7 +179,7 @@ from cqrs_ddd_core.adapters.memory.outbox import InMemoryOutboxStorage
 class InMemoryOutboxStorage(IOutboxStorage):
     """
     In-memory outbox for testing.
-    
+
     Features:
     - Message persistence
     - Pending retrieval
@@ -223,7 +223,7 @@ from cqrs_ddd_core.adapters.memory.locking import InMemoryLockStrategy
 class InMemoryLockStrategy(ILockStrategy):
     """
     In-memory lock for testing.
-    
+
     Features:
     - Lock acquisition
     - Lock release
@@ -267,13 +267,13 @@ from cqrs_ddd_core.adapters.decorators.caching_repository import CachingReposito
 class CachingRepository(Generic[T, ID]):
     """
     Repository decorator that adds caching.
-    
+
     Features:
     - Transparent caching
     - TTL support
     - Cache invalidation
     """
-    
+
     def __init__(
         self,
         inner: IRepository[T, ID],
@@ -322,12 +322,12 @@ async def test_create_order():
     # Use in-memory adapters - fast!
     uow = InMemoryUnitOfWork()
     uow.orders = InMemoryRepository[Order, str]()
-    
+
     handler = CreateOrderHandler()
     command = CreateOrderCommand(customer_id="cust-123")
-    
+
     response = await handler.handle(command)
-    
+
     assert response.success
     # No database needed!
 ```
@@ -339,10 +339,10 @@ async def test_create_order():
     # BAD: Slow, requires setup
     db = await create_postgres_connection()
     repo = SQLAlchemyOrderRepository(db)
-    
+
     handler = CreateOrderHandler(repo)
     # ... test code ...
-    
+
     # Slow, hard to maintain
 ```
 
@@ -380,5 +380,5 @@ await test_order_creation(uow)
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.adapters`

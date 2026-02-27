@@ -5,8 +5,10 @@ from __future__ import annotations
 import pytest
 
 from cqrs_ddd_persistence_mongo.exceptions import MongoQueryError
-from cqrs_ddd_persistence_mongo.operators.standard import _validate_range_operand, compile_standard
-
+from cqrs_ddd_persistence_mongo.operators.standard import (
+    _validate_range_operand,
+    compile_standard,
+)
 
 # Phase 3, Step 10: Standard Operators Tests (4 tests)
 
@@ -56,7 +58,7 @@ class TestComparisonOperatorsComplete:
     """Tests for all standard comparison operators."""
 
     @pytest.mark.parametrize(
-        "op,value,expected_mongo_op",
+        ("op", "value", "expected_mongo_op"),
         [
             ("=", "test", "$eq"),
             ("!=", "test", "$ne"),
@@ -73,7 +75,7 @@ class TestComparisonOperatorsComplete:
         assert result == {"field": {expected_mongo_op: value}}
 
     @pytest.mark.parametrize(
-        "op,value",
+        ("op", "value"),
         [
             ("in", ["val1", "val2"]),
             ("not_in", ["val1", "val2"]),

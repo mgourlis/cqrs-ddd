@@ -61,7 +61,7 @@ async def list_products(request: Request):
     # Parse query params (registry injected via constructor)
     parser = FilterParser(registry)
     spec, options = parser.parse(dict(request.query_params), whitelist=whitelist)
-    
+
     # Execute search
     result = await product_repo.search(spec, options)
     return await result
@@ -259,10 +259,10 @@ whitelist = FieldWhitelist(
         "created_at": {"gte", "lte", "between"},
         "tags": {"contains", "in"},
     },
-    
+
     # Fields that can be used for sorting
     sortable_fields={"created_at", "price", "name", "status"},
-    
+
     # Fields that can be projected (field selection)
     projectable_fields={"id", "name", "price", "status", "category"},
 )
@@ -387,7 +387,7 @@ async def list_products(request: Request):
             dict(request.query_params),
             whitelist=PRODUCT_WHITELIST,
         )
-        
+
         result = await product_repo.search(spec, options)
         return {
             "data": await result,
@@ -420,10 +420,10 @@ injector = SecurityConstraintInjector(
 async def list_orders(request: Request):
     parser = FilterParser(registry)  # Inject registry
     user_spec, options = parser.parse(dict(request.query_params), whitelist=whitelist)
-    
+
     # Inject tenant_id constraint
     secure_spec = injector.inject(user_spec)
-    
+
     # secure_spec → AND(user_spec, tenant_id:eq:{current_tenant})
     return await order_repo.search(secure_spec, options)
 ```
@@ -450,7 +450,7 @@ class SearchRequest(BaseModel):
 async def search_products(body: SearchRequest):
     parser = FilterParser(registry, default_syntax=JsonFilterSyntax())  # Inject registry
     spec, options = parser.parse(body.model_dump(exclude_none=True))
-    
+
     result = await product_repo.search(spec, options)
     return await result
 ```
@@ -513,17 +513,17 @@ async def list_products(
 ):
     """
     List products with filtering, sorting, and pagination.
-    
+
     Examples:
         # Simple filter
         GET /products?filter=status:eq:active
-        
+
         # Range query
         GET /products?filter=price:between:100,500
-        
+
         # Null check
         GET /products?filter=deleted_at:is_null:true
-        
+
         # Complex query
         GET /products?filter=status:eq:active,price:gte:100,category:in:electronics,books
     """
@@ -539,7 +539,7 @@ async def list_products(
             },
             whitelist=PRODUCT_WHITELIST,
         )
-        
+
         # Convert FilterParser options to Specification QueryOptions
         query_options = (
             SpecQueryOptions()
@@ -547,13 +547,13 @@ async def list_products(
             .with_pagination(limit=options.limit, offset=options.offset)
             .with_ordering(*[f"-{f}" if d == "desc" else f for f, d in options.sort])
         )
-        
+
         if options.fields:
             query_options = query_options.with_select_fields(*options.fields)
-        
+
         result = await product_repo.search(query_options)
         items = await result
-        
+
         return {
             "data": items,
             "pagination": {
@@ -574,7 +574,7 @@ async def list_products(
 async def search_products(body: dict):
     """
     Advanced search with JSON syntax (supports ALL specification operators).
-    
+
     Request body:
     {
       "filter": {
@@ -590,13 +590,13 @@ async def search_products(body: dict):
     """
     parser = FilterParser(registry, default_syntax=JsonFilterSyntax())  # Inject registry
     spec, options = parser.parse(body, whitelist=PRODUCT_WHITELIST)
-    
+
     query_options = (
         SpecQueryOptions()
         .with_specification(spec)
         .with_pagination(limit=options.limit, offset=options.offset)
     )
-    
+
     result = await product_repo.search(query_options)
     return await result
 ```
@@ -794,7 +794,7 @@ spec = AttributeSpecification(attr, op, val, registry=registry)
 class FilterParser:
     def __init__(self, registry: MemoryOperatorRegistry, default_syntax: FilterSyntax | None = None):
         """Initialize parser with required registry."""
-    
+
     def parse(
         self,
         query_params: dict[str, Any],
@@ -816,13 +816,13 @@ class FieldWhitelist:
     filterable_fields: dict[str, set[str]]  # field → allowed operators
     sortable_fields: set[str]                # sortable field names
     projectable_fields: set[str]             # projectable field names
-    
+
     def allow_filter(self, field: str, op: str) -> None:
         """Validate field and operator are whitelisted."""
-    
+
     def allow_sort(self, field: str) -> None:
         """Validate field is sortable."""
-    
+
     def allow_project(self, field: str) -> None:
         """Validate field is projectable."""
 ```
@@ -981,13 +981,13 @@ from cqrs_ddd_filtering import FilterParser
 class Container(containers.DeclarativeContainer):
     # Registry singleton
     registry = providers.Singleton(build_default_registry)
-    
+
     # FilterParser factory (gets registry injected)
     filter_parser = providers.Factory(
         FilterParser,
         registry=registry,
     )
-    
+
     # Service that uses filtering
     product_service = providers.Factory(
         ProductService,
@@ -1086,7 +1086,7 @@ def test_filter_parsing(parser: FilterParser):
 
 ---
 
-**Last Updated:** February 22, 2026  
-**Status:** Production Ready ✅  
-**Version:** 2.0.0  
+**Last Updated:** February 22, 2026
+**Status:** Production Ready ✅
+**Version:** 2.0.0
 **Operators Supported:** 24 (Colon), 50+ (JSON)

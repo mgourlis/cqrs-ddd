@@ -8,7 +8,7 @@ from uuid import uuid4
 
 import pytest
 from bson import Decimal128
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
 from cqrs_ddd_persistence_mongo.exceptions import MongoPersistenceError
 from cqrs_ddd_persistence_mongo.serialization import (

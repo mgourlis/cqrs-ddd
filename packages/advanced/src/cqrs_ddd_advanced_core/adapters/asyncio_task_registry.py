@@ -49,9 +49,7 @@ class AsyncioJobTaskRegistry(IJobKillStrategy):
         task = self._tasks.get(job_id)
         if task and not task.done():
             task.cancel()
-            logger.info(
-                "AsyncioJobTaskRegistry: cancelled task for job %s", job_id
-            )
+            logger.info("AsyncioJobTaskRegistry: cancelled task for job %s", job_id)
 
     async def force_kill(self, job_id: str) -> None:
         """Same as ``request_stop`` — asyncio has no harder escalation."""

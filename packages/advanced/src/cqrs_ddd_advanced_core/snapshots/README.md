@@ -127,7 +127,7 @@ from typing import Protocol
 
 class SnapshotStrategy(Protocol):
     """Protocol for snapshot strategies."""
-    
+
     def should_snapshot(
         self,
         aggregate_id: str,
@@ -140,10 +140,10 @@ class SnapshotStrategy(Protocol):
 # Example: Time-based strategy
 class TimeBasedStrategy:
     """Snapshot based on time since last snapshot."""
-    
+
     def __init__(self, interval_seconds: int = 3600):
         self.interval_seconds = interval_seconds
-    
+
     def should_snapshot(
         self,
         aggregate_id: str,
@@ -153,7 +153,7 @@ class TimeBasedStrategy:
     ) -> bool:
         if last_snapshot_time is None:
             return True
-        
+
         elapsed = (datetime.now(timezone.utc) - last_snapshot_time).total_seconds()
         return elapsed >= self.interval_seconds
 ```
@@ -165,7 +165,7 @@ Combine multiple strategies for sophisticated snapshot logic.
 ```python
 class CompositeSnapshotStrategy:
     """Combine multiple snapshot strategies."""
-    
+
     def __init__(
         self,
         strategies: list[SnapshotStrategy],
@@ -173,7 +173,7 @@ class CompositeSnapshotStrategy:
     ):
         self.strategies = strategies
         self.mode = mode
-    
+
     def should_snapshot(
         self,
         aggregate_id: str,
@@ -188,7 +188,7 @@ class CompositeSnapshotStrategy:
             )
             for strategy in self.strategies
         ]
-        
+
         if self.mode == "any":
             return any(results)
         else:  # "all"
@@ -257,7 +257,7 @@ async def rebuild_projection_from_snapshot(
 ):
     # Load snapshot
     snapshot = await snapshot_store.load(aggregate_id)
-    
+
     if snapshot:
         # Start from snapshot version
         start_position = snapshot.version
@@ -266,7 +266,7 @@ async def rebuild_projection_from_snapshot(
     else:
         # No snapshot, start from beginning
         start_position = 0
-    
+
     # Stream events after snapshot
     async for event in event_store.get_events_from_position(
         aggregate_id=aggregate_id,
@@ -381,7 +381,7 @@ strategies = {
 
 class AdaptiveSnapshotStore:
     """Snapshot store with per-type strategies."""
-    
+
     def __init__(
         self,
         session,
@@ -389,7 +389,7 @@ class AdaptiveSnapshotStore:
     ):
         self.session = session
         self.strategies = strategies
-    
+
     def should_snapshot(
         self,
         aggregate_type: str,
@@ -435,10 +435,10 @@ strategy = EveryNEventsStrategy(frequency=10000)
 ```python
 class ImportantEventStrategy:
     """Snapshot after critical state changes."""
-    
+
     def __init__(self, important_events: set[str]):
         self.important_events = important_events
-    
+
     def should_snapshot(
         self,
         aggregate_id: str,
@@ -449,11 +449,11 @@ class ImportantEventStrategy:
         # Always snapshot after important events
         if last_event_type in self.important_events:
             return True
-        
+
         # Otherwise, use default frequency
         if last_snapshot_version is None:
             return True
-        
+
         return (current_version - last_snapshot_version) >= 100
 
 # Example: Snapshot after order submission
@@ -474,14 +474,14 @@ async def test_snapshot_performance():
     order = Order.create("order_123", "cust_456")
     for i in range(1000):
         order.add_item(f"item_{i}", Decimal("10.00"))
-    
+
     await repo.save(order)
-    
+
     # Measure load without snapshot
     start = time.time()
     await repo.get("order_123")
     time_without_snapshot = time.time() - start
-    
+
     # Create snapshot
     await snapshot_store.save(
         aggregate_id="order_123",
@@ -489,18 +489,18 @@ async def test_snapshot_performance():
         version=order.version,
         state=order.to_dict(),
     )
-    
+
     # Add more events after snapshot
     order = await repo.get("order_123")
     for i in range(100):
         order.add_item(f"item_{1000+i}", Decimal("10.00"))
     await repo.save(order)
-    
+
     # Measure load with snapshot
     start = time.time()
     await repo.get("order_123")
     time_with_snapshot = time.time() - start
-    
+
     # Assert improvement
     assert time_with_snapshot < time_without_snapshot * 0.5
 ```
@@ -510,11 +510,11 @@ async def test_snapshot_performance():
 ```python
 class ResilientSnapshotStore:
     """Snapshot store with failure handling."""
-    
+
     def __init__(self, delegate: SnapshotStore, logger):
         self.delegate = delegate
         self.logger = logger
-    
+
     async def save(self, *args, **kwargs):
         """Save snapshot with error handling."""
         try:
@@ -523,7 +523,7 @@ class ResilientSnapshotStore:
             # Log but don't fail the operation
             self.logger.error(f"Snapshot save failed: {e}")
             # Aggregate can still be loaded from events
-    
+
     async def load(self, aggregate_id: str):
         """Load snapshot with fallback."""
         try:
@@ -539,20 +539,20 @@ class ResilientSnapshotStore:
 ```python
 class SnapshotMaintenance:
     """Snapshot cleanup and maintenance."""
-    
+
     def __init__(self, snapshot_store: SnapshotStore):
         self.snapshot_store = snapshot_store
-    
+
     async def cleanup_old_snapshots(self, keep_last: int = 3):
         """Keep only recent snapshots."""
         async with self.snapshot_store.session.begin():
             # Get all aggregates
             aggregates = await self.snapshot_store.list_aggregates()
-            
+
             for aggregate_id in aggregates:
                 # Get all snapshots for aggregate
                 snapshots = await self.snapshot_store.list(aggregate_id)
-                
+
                 # Keep only last N
                 if len(snapshots) > keep_last:
                     for snapshot in snapshots[:-keep_last]:
@@ -573,24 +573,24 @@ Handle snapshot schema changes with versioning:
 ```python
 class VersionedSnapshotStore:
     """Handle snapshot schema evolution."""
-    
+
     def __init__(self, session, current_schema_version: int = 1):
         self.session = session
         self.current_schema_version = current_schema_version
-    
+
     async def load(self, aggregate_id: str):
         """Load snapshot with schema migration."""
         snapshot = await self._load_raw(aggregate_id)
-        
+
         if not snapshot:
             return None
-        
+
         # Migrate snapshot to current schema
         if snapshot.schema_version < self.current_schema_version:
             snapshot = await self._migrate_snapshot(snapshot)
-        
+
         return snapshot
-    
+
     async def _migrate_snapshot(self, snapshot):
         """Migrate snapshot to current schema version."""
         # Apply migrations
@@ -598,7 +598,7 @@ class VersionedSnapshotStore:
             snapshot = self._migrate_v1_to_v2(snapshot)
         if snapshot.schema_version == 2:
             snapshot = self._migrate_v2_to_v3(snapshot)
-        
+
         # Save migrated snapshot
         await self.save(snapshot)
         return snapshot
@@ -614,40 +614,40 @@ import json
 
 class CompressedSnapshotStore:
     """Snapshot store with compression."""
-    
+
     def __init__(self, delegate: SnapshotStore, threshold: int = 1024):
         self.delegate = delegate
         self.threshold = threshold  # Compress if > 1KB
-    
+
     async def save(self, aggregate_id: str, state: dict, **kwargs):
         """Save with compression."""
         state_bytes = json.dumps(state).encode('utf-8')
-        
+
         if len(state_bytes) > self.threshold:
             state_bytes = gzip.compress(state_bytes)
             compressed = True
         else:
             compressed = False
-        
+
         await self.delegate.save(
             aggregate_id,
             state=state_bytes,
             compressed=compressed,
             **kwargs,
         )
-    
+
     async def load(self, aggregate_id: str):
         """Load with decompression."""
         snapshot = await self.delegate.load(aggregate_id)
-        
+
         if not snapshot:
             return None
-        
+
         if snapshot.compressed:
             state_bytes = gzip.decompress(snapshot.state)
         else:
             state_bytes = snapshot.state
-        
+
         snapshot.state = json.loads(state_bytes.decode('utf-8'))
         return snapshot
 ```

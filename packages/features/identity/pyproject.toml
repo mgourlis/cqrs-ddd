@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-identity"
+version = "0.1.0"
+description = "Authentication — Who are you? Resolves tokens to Principal VO"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[project.optional-dependencies]
+# OAuth2/JWT support
+oauth2 = ["joserfc>=1.6.2"]
+# Keycloak IdP integration
+keycloak = ["python-keycloak>=3.0", "joserfc>=1.6.2"]
+# LDAP/Active Directory
+ldap = ["python-ldap>=3.4"]
+# Database authentication (bcrypt/argon2id)
+db = ["bcrypt>=4.0", "argon2-cffi>=23.0"]
+# MFA/TOTP support (Google/Microsoft Authenticator)
+mfa = ["pyotp>=2.9"]
+# FastAPI integration
+fastapi = ["fastapi>=0.100", "starlette>=0.27"]
+# All optional dependencies
+all = [
+    "joserfc>=1.6.2",
+    "python-keycloak>=3.0",
+    "python-ldap>=3.4",
+    "bcrypt>=4.0",
+    "argon2-cffi>=23.0",
+    "pyotp>=2.9",
+    "fastapi>=0.100",
+    "starlette>=0.27",
+]
+# Dev/test: includes db (bcrypt/argon2) so DatabaseIdentityProvider tests run
+dev = ["bcrypt>=4.0", "argon2-cffi>=23.0"]
+# Unit tests (no external dependencies)
+unit-tests = []
+# Integration tests with real Keycloak instance
+keycloak-tests = [
+    "python-keycloak>=3.0",
+    "joserfc>=1.6.2",
+    "testcontainers>=4.0",
+    "requests>=2.31.0",
+]
+# All test dependencies
+all-tests = [
+    "bcrypt>=4.0",
+    "argon2-cffi>=23.0",
+    "python-keycloak>=3.0",
+    "testcontainers>=4.0",
+    "requests>=2.31.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_identity*"]

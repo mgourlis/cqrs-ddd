@@ -159,10 +159,7 @@ async def test_projection_batch_upsert(real_mongo_connection):
     await projection_store.drop_collection(collection)
 
     # Batch upsert
-    docs = [
-        {"id": f"doc{i}", "value": i * 10}
-        for i in range(1, 6)
-    ]
+    docs = [{"id": f"doc{i}", "value": i * 10} for i in range(1, 6)]
 
     await projection_store.upsert_batch(collection, docs)
 
@@ -193,10 +190,7 @@ async def test_projection_ttl_index(real_mongo_connection):
     indexes = [idx async for idx in coll.list_indexes()]
 
     # Check for TTL index
-    ttl_indexes = [
-        idx for idx in indexes
-        if idx.get("expireAfterSeconds") == 3600
-    ]
+    ttl_indexes = [idx for idx in indexes if idx.get("expireAfterSeconds") == 3600]
 
     assert len(ttl_indexes) >= 1
 

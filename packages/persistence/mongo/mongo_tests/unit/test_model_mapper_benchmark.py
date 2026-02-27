@@ -1,7 +1,7 @@
 """Performance benchmark for MongoDBModelMapper (5k+ docs)."""
 
-from decimal import Decimal
 import time
+from decimal import Decimal
 
 import pytest
 from pydantic import BaseModel

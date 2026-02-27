@@ -66,7 +66,9 @@ async def test_uow_context_manager_commit(mongo_connection_with_mock_session):
 
 
 @pytest.mark.asyncio
-async def test_uow_context_manager_rollback_on_exception(mongo_connection_with_mock_session):
+async def test_uow_context_manager_rollback_on_exception(
+    mongo_connection_with_mock_session,
+):
     """Test that __aexit__ rolls back when exception occurs."""
     uow = MongoUnitOfWork(
         connection=mongo_connection_with_mock_session,
@@ -110,7 +112,9 @@ async def test_uow_multiple_hooks(mongo_connection_with_mock_session):
 
 
 @pytest.mark.asyncio
-async def test_uow_session_property_raises_if_not_entered(mongo_connection_with_mock_session):
+async def test_uow_session_property_raises_if_not_entered(
+    mongo_connection_with_mock_session,
+):
     """Test that session property raises error if not entered."""
     uow = MongoUnitOfWork(
         connection=mongo_connection_with_mock_session,
@@ -137,7 +141,7 @@ async def test_uow_session_available_after_enter(mongo_connection_with_mock_sess
 @pytest.mark.asyncio
 async def test_uow_with_session_provided(mongo_connection):
     """Test that pre-existing session can be provided."""
-    from unittest.mock import MagicMock, AsyncMock
+    from unittest.mock import AsyncMock, MagicMock
 
     mock_session = MagicMock()
     mock_session.in_transaction.return_value = False

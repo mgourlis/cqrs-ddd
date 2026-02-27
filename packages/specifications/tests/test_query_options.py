@@ -19,8 +19,10 @@ class MockAggregate(AggregateRoot[UUID]):
     age: int
 
 
-def _name_eq(val: str) -> AttributeSpecification:
-    return AttributeSpecification("name", SpecificationOperator.EQ, val)
+def _name_eq(val: str, registry) -> AttributeSpecification:
+    return AttributeSpecification(
+        "name", SpecificationOperator.EQ, val, registry=registry
+    )
 
 
 # -- Construction -----------------------------------------------------------
@@ -37,8 +39,8 @@ def test_default_query_options():
     assert opts.select_fields == []
 
 
-def test_with_specification():
-    spec = _name_eq("Alice")
+def test_with_specification(registry):
+    spec = _name_eq("Alice", registry)
     opts = QueryOptions().with_specification(spec)
     assert opts.specification is spec
     assert opts.limit is None  # unchanged
@@ -79,9 +81,9 @@ def test_with_group_by():
 # -- Merge ------------------------------------------------------------------
 
 
-def test_merge_specifications_combined():
-    spec_a = _name_eq("Alice")
-    spec_b = _name_eq("Bob")
+def test_merge_specifications_combined(registry):
+    spec_a = _name_eq("Alice", registry)
+    spec_b = _name_eq("Bob", registry)
     opts_a = QueryOptions(specification=spec_a)
     opts_b = QueryOptions(specification=spec_b)
 
@@ -114,8 +116,8 @@ def test_merge_distinct_or():
     assert opts_a.merge(opts_b).distinct is True
 
 
-def test_merge_none_spec_keeps_existing():
-    spec = _name_eq("Alice")
+def test_merge_none_spec_keeps_existing(registry):
+    spec = _name_eq("Alice", registry)
     opts_a = QueryOptions(specification=spec)
     opts_b = QueryOptions()
     merged = opts_a.merge(opts_b)
@@ -129,8 +131,8 @@ def test_to_dict_empty():
     assert QueryOptions().to_dict() == {}
 
 
-def test_to_dict_full():
-    spec = _name_eq("Alice")
+def test_to_dict_full(registry):
+    spec = _name_eq("Alice", registry)
     opts = QueryOptions(
         specification=spec,
         limit=10,

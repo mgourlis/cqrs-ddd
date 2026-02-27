@@ -82,16 +82,16 @@ class Order(AggregateRoot):
         self.items: list[OrderItem] = []
         self.status = OrderStatus.PENDING
         self.total = Decimal("0.00")
-    
+
     def add_item(self, product_id: str, quantity: int, price: Decimal):
         # Business rules enforced here
         if self.status != OrderStatus.PENDING:
             raise CannotModifyCompletedOrder()
-        
+
         item = OrderItem(product_id, quantity, price)
         self.items.append(item)
         self.total += item.subtotal
-        
+
         # Emits domain event
         self.add_event(OrderItemAdded(
             order_id=self.id,
@@ -117,8 +117,8 @@ class OrderSummaryDTO:
     status: str
     created_at: datetime
     last_updated: datetime
-    
-@dataclass  
+
+@dataclass
 class CustomerOrderHistoryDTO:
     """Projection optimized for customer order history."""
     customer_id: str
@@ -198,7 +198,7 @@ class IProjectionWriter(Protocol):
     ) -> None:
         """Create table/collection with optional schema."""
         ...
-    
+
     async def upsert(
         self,
         collection: str,
@@ -211,13 +211,13 @@ class IProjectionWriter(Protocol):
     ) -> bool:
         """Upsert with version control. Returns False if stale/duplicate."""
         ...
-    
+
     async def upsert_batch(
         self, collection: str, docs: list[dict], *, id_field: str = "id"
     ) -> None:
         """Bulk upsert for efficiency."""
         ...
-    
+
     async def delete(
         self, collection: str, doc_id: DocId, *, uow: UnitOfWork | None = None
     ) -> None:
@@ -231,13 +231,13 @@ class IProjectionReader(Protocol):
     ) -> dict[str, Any] | None:
         """Fetch single document by ID."""
         ...
-    
+
     async def get_batch(
         self, collection: str, doc_ids: list[DocId], *, uow: UnitOfWork | None = None
     ) -> list[dict[str, Any] | None]:
         """Fetch multiple documents preserving order."""
         ...
-    
+
     async def find(
         self,
         collection: str,
@@ -368,7 +368,7 @@ from cqrs_ddd_advanced_core.projections.worker import (
 class OrderSummaryHandler:
     def __init__(self, writer: IProjectionWriter):
         self.writer = writer
-    
+
     async def handle(self, event: StoredEvent, *, uow: UnitOfWork) -> None:
         if event.event_type == "OrderCreated":
             data = json.loads(event.payload)
@@ -385,7 +385,7 @@ class OrderSummaryHandler:
                 event_id=event.id,
                 uow=uow,
             )
-        
+
         elif event.event_type == "OrderItemAdded":
             data = json.loads(event.payload)
             # Update existing projection
@@ -482,10 +482,10 @@ class CustomerSummaryQueryPersistence(
     ProjectionBackedQueryPersistence[CustomerSummaryDTO, str]
 ):
     collection = "customer_summaries"
-    
+
     def __init__(self, store: IProjectionReader):
         self._store = store
-    
+
     def to_dto(self, doc: dict) -> CustomerSummaryDTO:
         return CustomerSummaryDTO(
             id=doc["id"],
@@ -495,7 +495,7 @@ class CustomerSummaryQueryPersistence(
             total_spent=Decimal(doc.get("total_spent", "0")),
             last_order_date=doc.get("last_order_date"),
         )
-    
+
     def get_reader(self) -> IProjectionReader:
         return self._store
 
@@ -505,7 +505,7 @@ class CustomerSummarySpecPersistence(
 ):
     collection = "customer_summaries"
     # ... same as above ...
-    
+
     def build_filter(self, spec: ISpecification) -> dict[str, Any]:
         # Convert specification to filter dict
         if hasattr(spec, "customer_email"):
@@ -520,7 +520,7 @@ class CustomerSummaryDualPersistence(
 ):
     collection = "customer_summaries"
     # ... to_dto, get_reader, get_writer, build_filter ...
-    
+
     # Plus convenience method for projection handlers:
     async def refresh_from_event(
         self, customer_id: str, event: CustomerUpdated
@@ -617,13 +617,13 @@ class IProjectionPositionStore(Protocol):
     ) -> int | None:
         """Get last processed position. None = never processed."""
         ...
-    
+
     async def save_position(
         self, projection_name: str, position: int, *, uow: UnitOfWork | None = None
     ) -> None:
         """Update position after successful processing. MUST be in same UoW as projection writes."""
         ...
-    
+
     async def reset_position(
         self, projection_name: str, *, uow: UnitOfWork | None = None
     ) -> None:
@@ -638,10 +638,10 @@ class IProjectionPositionStore(Protocol):
 async def rebuild_customer_stats(position_store, writer, event_store):
     # Reset position to replay from beginning
     await position_store.reset_position("customer_stats")
-    
+
     # Clear existing data
     await writer.truncate_collection("customer_stats")
-    
+
     # Run worker to rebuild
     worker = ProjectionWorker(
         event_store=event_store,
@@ -656,7 +656,7 @@ async def rebuild_customer_stats(position_store, writer, event_store):
 async def repair_orders_after(position_store, writer, event_store, from_position: int):
     # Reset to specific position
     await position_store.save_position("order_summaries", from_position)
-    
+
     # Worker will reprocess from that point
     await worker.run("order_summaries")
 ```
@@ -678,7 +678,7 @@ class OrderCreated(DomainEvent):
     customer_id: str
     created_at: datetime
 
-@dataclass  
+@dataclass
 class OrderItemAdded(DomainEvent):
     order_id: str
     product_id: str
@@ -735,16 +735,16 @@ class ProductSalesDTO(BaseModel):
 
 class OrderSummaryHandler:
     """Updates order_summaries projection."""
-    
+
     def __init__(self, writer: IProjectionWriter, reader: IProjectionReader):
         self.writer = writer
         self.reader = reader
-    
+
     async def handle_order_created(self, event: OrderCreated, uow: UnitOfWork):
         # Get customer info for denormalization
         customer = await self.reader.get("customer_stats", event.customer_id)
         customer_name = customer.get("customer_name", "Unknown") if customer else "Unknown"
-        
+
         await self.writer.upsert(
             "order_summaries",
             event.order_id,
@@ -762,12 +762,12 @@ class OrderSummaryHandler:
             event_id=event.id,
             uow=uow,
         )
-    
+
     async def handle_order_item_added(self, event: OrderItemAdded, uow: UnitOfWork):
         existing = await self.reader.get("order_summaries", event.order_id)
         if not existing:
             return  # Order doesn't exist, skip
-        
+
         await self.writer.upsert(
             "order_summaries",
             event.order_id,
@@ -780,12 +780,12 @@ class OrderSummaryHandler:
             event_id=event.id,
             uow=uow,
         )
-    
+
     async def handle_order_submitted(self, event: OrderSubmitted, uow: UnitOfWork):
         existing = await self.reader.get("order_summaries", event.order_id)
         if not existing:
             return
-        
+
         await self.writer.upsert(
             "order_summaries",
             event.order_id,
@@ -801,24 +801,24 @@ class OrderSummaryHandler:
 
 class CustomerStatsHandler:
     """Updates customer_stats projection."""
-    
+
     def __init__(self, writer: IProjectionWriter):
         self.writer = writer
-    
+
     async def handle_order_submitted(self, event: OrderSubmitted, uow: UnitOfWork):
         # Get order to find customer
         order = await self.writer.get("order_summaries", event.order_id)
         if not order:
             return
-        
+
         customer_id = order["customer_id"]
         existing = await self.writer.get("customer_stats", customer_id)
-        
+
         if existing:
             # Update existing stats
             new_total_orders = existing.get("total_orders", 0) + 1
             new_total_spent = Decimal(existing.get("total_spent", "0")) + Decimal(order["total"])
-            
+
             await self.writer.upsert(
                 "customer_stats",
                 customer_id,
@@ -841,12 +841,12 @@ class OrderSummaryQueryPersistence(
     ProjectionBackedDualPersistence[OrderSummaryDTO, str]
 ):
     """Full-featured query persistence for orders."""
-    
+
     collection = "order_summaries"
-    
+
     def __init__(self, store: SQLAlchemyProjectionStore):
         self._store = store
-    
+
     def to_dto(self, doc: dict) -> OrderSummaryDTO:
         return OrderSummaryDTO(
             id=doc["id"],
@@ -858,27 +858,27 @@ class OrderSummaryQueryPersistence(
             created_at=datetime.fromisoformat(doc["created_at"]),
             submitted_at=datetime.fromisoformat(doc["submitted_at"]) if doc.get("submitted_at") else None,
         )
-    
+
     def get_reader(self) -> IProjectionReader:
         return self._store
-    
+
     def get_writer(self) -> IProjectionWriter:
         return self._store
-    
+
     def build_filter(self, spec: ISpecification) -> dict[str, Any]:
         """Convert specification to filter dict for IProjectionReader.find()."""
         filters = {}
-        
+
         if hasattr(spec, "customer_id"):
             filters["customer_id"] = spec.customer_id
-        
+
         if hasattr(spec, "status"):
             filters["status"] = spec.status
-        
-        # Note: For complex queries (ranges, OR conditions), use 
+
+        # Note: For complex queries (ranges, OR conditions), use
         # the specification compilation system instead of build_filter()
         # See "Specification Compilation" section below
-        
+
         return filters
 
 # ============================================================
@@ -908,30 +908,30 @@ dispatcher = PersistenceDispatcher(
 
 class GetOrderSummaryHandler:
     """Query handler for single order."""
-    
+
     async def handle(self, query: GetOrderSummary, uow: UnitOfWork) -> OrderSummaryDTO | None:
         results = await dispatcher.fetch(OrderSummaryDTO, [query.order_id], uow=uow)
         return results[0] if results else None
 
 class ListCustomerOrdersHandler:
     """Query handler for customer's orders."""
-    
+
     async def handle(
         self, query: ListCustomerOrders, uow: UnitOfWork
     ) -> list[OrderSummaryDTO]:
         from cqrs_ddd_specifications import SpecificationBuilder, QueryOptions
-        
+
         # Build specification
         builder = SpecificationBuilder().where("customer_id", "=", query.customer_id)
-        
+
         if query.status:
             builder = builder.where("status", "=", query.status)
-        
+
         spec = builder.build()
-        
+
         # Create query options
         options = QueryOptions().with_specification(spec)
-        
+
         results = await dispatcher.fetch(OrderSummaryDTO, options, uow=uow)
         return await results  # SearchResult -> list
 ```
@@ -1042,7 +1042,7 @@ class MyQueryPersistence(SQLAlchemyProjectionDualPersistence[MyDTO, str]):
     def build_filter(self, spec) -> dict:
         """
         Simple filter for equality queries.
-        
+
         For complex queries (ranges, OR, computed fields), see the
         "Specification Compilation" section for using build_sqla_filter()
         with hooks.
@@ -1077,7 +1077,7 @@ position_store = MongoProjectionPositionStore(
 class MyQueryPersistence(MongoProjectionDualPersistence[MyDTO, str]):
     """
     MongoDB query persistence with automatic specification compilation.
-    
+
     Note: No build_filter() needed! MongoQueryBuilder automatically
     compiles specifications to MongoDB queries. See "Specification Compilation"
     section for details.
@@ -1098,7 +1098,7 @@ async def handle_order_created(self, event: OrderCreated, uow: UnitOfWork):
         event.position,
         uow=uow,  # Reuses MongoDB session from UnitOfWork
     )
-    
+
     await self.writer.upsert(
         "order_summaries",
         event.order_id,
@@ -1315,13 +1315,13 @@ from cqrs_ddd_persistence_mongo.query_builder import MongoQueryBuilder
 
 class OrderSummaryQueryPersistence(MongoProjectionDualPersistence[OrderSummaryDTO, str]):
     collection = "order_summaries"
-    
+
     def __init__(self, store: MongoProjectionStore):
         self._store = store
-    
+
     def to_dto(self, doc: dict) -> OrderSummaryDTO:
         return OrderSummaryDTO(**doc)
-    
+
     # No build_filter() needed! MongoQueryBuilder handles it automatically
 ```
 
@@ -1366,17 +1366,17 @@ class OrderSummaryQueryPersistence(
     SQLAlchemyProjectionDualPersistence[OrderSummaryDTO, str]
 ):
     collection = "order_summaries"
-    
+
     def build_filter(self, spec: ISpecification) -> dict[str, Any]:
         """Simple filter dict for equality queries."""
         filters = {}
-        
+
         if hasattr(spec, "customer_id"):
             filters["customer_id"] = spec.customer_id
-        
+
         if hasattr(spec, "status"):
             filters["status"] = spec.status
-        
+
         return filters
 ```
 
@@ -1391,36 +1391,36 @@ class OrderSummaryQueryPersistence(
     SQLAlchemyProjectionDualPersistence[OrderSummaryDTO, str]
 ):
     async def find_by_spec(
-        self, 
-        spec: ISpecification, 
-        *, 
+        self,
+        spec: ISpecification,
+        *,
         limit: int = 100,
         offset: int = 0,
         uow: UnitOfWork | None = None,
     ) -> list[OrderSummaryDTO]:
         """Execute specification-based query using compiler."""
         from sqlalchemy import select
-        
+
         # Compile specification to SQLAlchemy expression
         filter_expr = build_sqla_filter(
             OrderSummaryModel,
             spec.to_dict(),
             hooks=self._get_hooks(),
         )
-        
+
         # Build query
         stmt = select(OrderSummaryModel).where(filter_expr)
-        
+
         if offset:
             stmt = stmt.offset(offset)
         if limit:
             stmt = stmt.limit(limit)
-        
+
         # Execute
         session = self._get_session(uow)
         result = await session.execute(stmt)
         rows = result.scalars().all()
-        
+
         return [self.to_dto(self._row_to_dict(row)) for row in rows]
 ```
 
@@ -1463,8 +1463,8 @@ class OrderSummaryQueryPersistence(
 | **Full-Text Search** |
 | `fts_match` | ✅*** | ✅ | ❌ | `.where("content", "fts_match", "python async")` |
 
-\* MongoDB uses `$regex` for pattern matching  
-\** Requires PostGIS extension for SQLAlchemy  
+\* MongoDB uses `$regex` for pattern matching
+\** Requires PostGIS extension for SQLAlchemy
 \*** Requires PostgreSQL full-text search configuration
 
 ### SQLAlchemy Resolution Hooks
@@ -1580,10 +1580,10 @@ from sqlalchemy import ColumnElement
 
 class MyCustomOperatorStrategy(SQLAlchemyOperatorStrategy):
     """Custom operator implementation."""
-    
+
     def apply(
-        self, 
-        column: ColumnElement[Any], 
+        self,
+        column: ColumnElement[Any],
         value: Any
     ) -> ColumnElement[bool]:
         # Implement custom logic
@@ -1595,8 +1595,8 @@ registry.register(SpecificationOperator("fts_match"), MyCustomOperatorStrategy()
 
 # Use in compilation
 filter_expr = build_sqla_filter(
-    Model, 
-    spec.to_dict(), 
+    Model,
+    spec.to_dict(),
     registry=registry
 )
 ```
@@ -1607,8 +1607,8 @@ filter_expr = build_sqla_filter(
 from typing import Any
 
 def compile_custom_operator(
-    field: str, 
-    op: str, 
+    field: str,
+    op: str,
     val: Any
 ) -> dict[str, Any] | None:
     """Custom MongoDB operator compiler."""
@@ -1713,7 +1713,7 @@ class OrderSummaryDTO:
 class OrderHandler:
     def __init__(self, writer: IProjectionWriter):
         self.writer = writer
-    
+
     async def handle(self, event: StoredEvent, uow: UnitOfWork):
         await self.writer.upsert(
             "order_summaries",
@@ -1727,7 +1727,7 @@ class OrderHandler:
 # 3. Create query persistence
 class OrderQuery(SQLAlchemyProjectionDualPersistence[OrderSummaryDTO, str]):
     collection = "order_summaries"
-    
+
     def to_dto(self, doc: dict) -> OrderSummaryDTO:
         return OrderSummaryDTO(**doc)
 
@@ -1766,6 +1766,6 @@ orders = await result
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: February 2026  
+**Version**: 1.0.0
+**Last Updated**: February 2026
 **Maintainers**: CQRS-DDD Toolkit Team

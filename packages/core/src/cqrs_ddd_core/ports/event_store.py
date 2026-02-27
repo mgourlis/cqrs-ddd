@@ -88,7 +88,7 @@ class IEventStore(Protocol):
         """
         ...
 
-    async def get_events_from_position(
+    def get_events_from_position(
         self,
         position: int,
         *,
@@ -110,10 +110,14 @@ class IEventStore(Protocol):
     async def get_latest_position(self) -> int | None:
         """Get the highest event position in the store.
 
-        Used for catch-up subscription mode.
+        Used by ProjectionWorker to resume after crash.
 
-        Returns:
-            Latest position number, or None if no events exist.
+        Args:
+            position: Starting position (exclusive).
+            limit: Optional batch size limit per internal batch.
+
+        Yields:
+            StoredEvent objects with incrementing positions.
         """
         ...
 

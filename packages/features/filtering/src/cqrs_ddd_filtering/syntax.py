@@ -25,7 +25,6 @@ _OP_ALIASES: dict[str, str] = {
     "<=": SpecificationOperator.LE,
     "in": SpecificationOperator.IN,
     "not_in": SpecificationOperator.NOT_IN,
-    
     # Tier 2: String operations (enhanced)
     "contains": SpecificationOperator.CONTAINS,
     "icontains": SpecificationOperator.ICONTAINS,
@@ -35,13 +34,11 @@ _OP_ALIASES: dict[str, str] = {
     "starts_with": SpecificationOperator.STARTSWITH,
     "endswith": SpecificationOperator.ENDSWITH,
     "ends_with": SpecificationOperator.ENDSWITH,
-    
     # Tier 2: Null checks
     "is_null": SpecificationOperator.IS_NULL,
     "null": SpecificationOperator.IS_NULL,
     "is_not_null": SpecificationOperator.IS_NOT_NULL,
     "not_null": SpecificationOperator.IS_NOT_NULL,
-    
     # Tier 2: Range queries
     "between": SpecificationOperator.BETWEEN,
     "not_between": SpecificationOperator.NOT_BETWEEN,
@@ -63,11 +60,11 @@ class ColonSeparatedSyntax(FilterSyntax):
         if not raw or not isinstance(raw, str):
             return {}
         clauses = []
-        
+
         # Smart split: split by comma but preserve commas in values after colon
         # Example: "field:op:val1,val2,field2:op2:val3" → ["field:op:val1,val2", "field2:op2:val3"]
         parts = self._smart_split(raw)
-        
+
         for part in parts:
             part = part.strip()
             if not part:
@@ -96,11 +93,11 @@ class ColonSeparatedSyntax(FilterSyntax):
     def _smart_split(self, raw: str) -> list[str]:
         """
         Split filter string by commas, but preserve commas within field:op:value groups.
-        
+
         Example:
-            "field:op:val1,val2,field2:op2:val3" 
+            "field:op:val1,val2,field2:op2:val3"
             → ["field:op:val1,val2", "field2:op2:val3"]
-        
+
         Strategy:
         1. Split by comma
         2. For each segment, check if it has 2+ colons (complete field:op:value)
@@ -108,15 +105,15 @@ class ColonSeparatedSyntax(FilterSyntax):
         """
         segments = raw.split(",")
         clauses = []
-        
+
         for segment in segments:
             segment = segment.strip()
             if not segment:
                 continue
-            
+
             # Check if this segment is a complete clause (has 2+ colons)
             colon_count = segment.count(":")
-            
+
             if colon_count >= 2:
                 # Complete clause - start new clause
                 clauses.append(segment)
@@ -126,7 +123,7 @@ class ColonSeparatedSyntax(FilterSyntax):
             else:
                 # First segment is incomplete (malformed input)
                 clauses.append(segment)
-        
+
         return clauses
 
     def _parse_value(self, s: str, op: str | None = None) -> Any:
@@ -145,18 +142,18 @@ class ColonSeparatedSyntax(FilterSyntax):
             return True
         if s.lower() == "false":
             return False
-        
+
         # Handle null values
         if s.lower() == "null":
             return None
-        
+
         # Handle arrays for set/range operators
         if op in ("in", "not_in", "between", "not_between") and "," in s:
             return [self._parse_simple_value(v.strip()) for v in s.split(",")]
-        
+
         # Try parsing as number or fallback to string
         return self._parse_simple_value(s)
-    
+
     def _parse_simple_value(self, s: str) -> Any:
         """Parse single value (int, float, or string)."""
         try:
@@ -196,38 +193,38 @@ class JsonFilterSyntax(FilterSyntax):
             if "value" in data and "val" not in data:
                 data["val"] = data.pop("value")
             return data
-        
+
         # Handle composite AND
         if "and" in data:
             return {
                 "op": SpecificationOperator.AND.value,
                 "conditions": [self._normalise(c) for c in data["and"]],
             }
-        
+
         # Handle composite OR
         if "or" in data:
             return {
                 "op": SpecificationOperator.OR.value,
                 "conditions": [self._normalise(c) for c in data["or"]],
             }
-        
+
         # Handle alternative field format
         if "field" in data and "op" in data:
             op = data["op"]
             op_val = _OP_ALIASES.get(op, op)
             op_str = getattr(op_val, "value", op_val)
-            
+
             # Validate operator exists
             valid_ops = [e.value for e in SpecificationOperator]
             if op_str not in valid_ops:
                 raise FilterParseError(
                     f"Unknown operator '{op}'. Valid operators: {', '.join(valid_ops)}"
                 )
-            
+
             return {
                 "op": op_str,
                 "attr": data["field"],
                 "val": data.get("value", data.get("val")),
             }
-        
+
         return data

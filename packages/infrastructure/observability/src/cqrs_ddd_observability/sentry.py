@@ -28,4 +28,6 @@ class SentryMiddleware(IMiddleware):
                 sentry_sdk.capture_exception(e)
             except ImportError:
                 pass
+            except Exception:
+                pass  # do not let Sentry reporting failures mask the original error
             raise

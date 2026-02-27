@@ -5,16 +5,14 @@ from __future__ import annotations
 import asyncio
 
 import pytest
-
-from cqrs_ddd_core.adapters.memory.locking import InMemoryLockStrategy
+from sqlalchemy import Column, String
 
 from cqrs_ddd_advanced_core.projections.manager import ProjectionManager
 from cqrs_ddd_advanced_core.projections.schema import (
-    ProjectionSchema,
     ProjectionSchemaRegistry,
     create_schema,
 )
-from sqlalchemy import Column, String
+from cqrs_ddd_core.adapters.memory.locking import InMemoryLockStrategy
 
 
 class RecordingWriter:

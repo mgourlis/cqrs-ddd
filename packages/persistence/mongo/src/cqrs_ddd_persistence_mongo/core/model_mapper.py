@@ -81,7 +81,9 @@ class MongoDBModelMapper(Generic[T_Entity]):
                 result[key] = [
                     self._serialize_custom_types({"_": v})["_"]
                     if isinstance(v, dict)
-                    else Decimal128(str(v)) if isinstance(v, Decimal) else v
+                    else Decimal128(str(v))
+                    if isinstance(v, Decimal)
+                    else v
                     for v in value
                 ]
             else:
@@ -99,7 +101,9 @@ class MongoDBModelMapper(Generic[T_Entity]):
                 result[key] = [
                     self._deserialize_custom_types({"_": v})["_"]
                     if isinstance(v, dict)
-                    else Decimal(str(v)) if isinstance(v, Decimal128) else v
+                    else Decimal(str(v))
+                    if isinstance(v, Decimal128)
+                    else v
                     for v in value
                 ]
             else:

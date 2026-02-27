@@ -1,6 +1,6 @@
 # Ports Layer - Protocol Definitions
 
-**Package:** `cqrs_ddd_core.ports`  
+**Package:** `cqrs_ddd_core.ports`
 **Purpose:** Infrastructure contracts using Protocol pattern
 
 ---
@@ -47,23 +47,23 @@ from cqrs_ddd_core.ports.repository import IRepository
 class IRepository(Protocol[T, ID]):
     """
     Generic Repository interface for managing aggregates.
-    
+
     T: Aggregate type (must extend AggregateRoot)
     ID: Primary key type (str, int, UUID)
     """
-    
+
     async def add(self, entity: T, uow: UnitOfWork | None = None) -> ID:
         """Add aggregate to repository."""
         ...
-    
+
     async def get(self, entity_id: ID, uow: UnitOfWork | None = None) -> T | None:
         """Get aggregate by ID."""
         ...
-    
+
     async def delete(self, entity_id: ID, uow: UnitOfWork | None = None) -> ID:
         """Delete aggregate."""
         ...
-    
+
     async def list_all(
         self,
         entity_ids: list[ID] | None = None,
@@ -71,7 +71,7 @@ class IRepository(Protocol[T, ID]):
     ) -> list[T]:
         """List all aggregates."""
         ...
-    
+
     async def search(
         self,
         criteria: ISpecification[T] | Any,
@@ -114,20 +114,20 @@ from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 class UnitOfWork(ABC):
     """
     Abstract base class for Unit of Work.
-    
+
     Features:
     - Transaction management
     - Commit hooks (run after successful commit)
     - Automatic hook triggering
     """
-    
+
     def __init__(self) -> None:
         self._on_commit_hooks: deque[Callable[[], Awaitable[Any]]] = deque()
-    
+
     def on_commit(self, callback: Callable[[], Awaitable[Any]]) -> None:
         """Register async callback to run after commit."""
         self._on_commit_hooks.append(callback)
-    
+
     async def trigger_commit_hooks(self) -> None:
         """Execute all registered hooks."""
         while self._on_commit_hooks:
@@ -136,12 +136,12 @@ class UnitOfWork(ABC):
                 await callback()
             except Exception as exc:
                 logger.error("Error in on_commit hook: %s", exc)
-    
+
     @abstractmethod
     async def commit(self) -> None:
         """Commit transaction."""
         ...
-    
+
     @abstractmethod
     async def rollback(self) -> None:
         """Rollback transaction."""
@@ -155,13 +155,13 @@ from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 class IOrderUoW(UnitOfWork):
     """Order Unit of Work contract."""
-    
+
     orders: IOrderRepository
-    
+
     async def commit(self) -> None:
         """Commit transaction."""
         ...
-    
+
     async def rollback(self) -> None:
         """Rollback transaction."""
         ...
@@ -170,10 +170,10 @@ class IOrderUoW(UnitOfWork):
 async with uow:
     order = Order.create(...)
     await uow.orders.add(order)
-    
+
     # Register hook to run AFTER commit
     uow.on_commit(lambda: send_email(order.id))
-    
+
     await uow.commit()  # Hooks trigger after successful commit
 ```
 
@@ -189,7 +189,7 @@ from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 @dataclass(frozen=True)
 class StoredEvent:
     """Persistent representation of a domain event."""
-    
+
     event_id: str
     event_type: str
     aggregate_id: str
@@ -206,15 +206,15 @@ class StoredEvent:
 @runtime_checkable
 class IEventStore(Protocol):
     """Protocol for persisting domain events."""
-    
+
     async def append(self, stored_event: StoredEvent) -> None:
         """Append single event."""
         ...
-    
+
     async def append_batch(self, events: list[StoredEvent]) -> None:
         """Append multiple events atomically."""
         ...
-    
+
     async def get_events(
         self,
         aggregate_id: str,
@@ -223,7 +223,7 @@ class IEventStore(Protocol):
     ) -> list[StoredEvent]:
         """Get events for aggregate."""
         ...
-    
+
     async def get_events_after(
         self,
         position: int,
@@ -268,7 +268,7 @@ from cqrs_ddd_core.ports.outbox import IOutboxStorage, OutboxMessage
 @dataclass
 class OutboxMessage:
     """Message waiting in outbox."""
-    
+
     message_id: str
     event_type: str
     payload: dict[str, object]
@@ -283,7 +283,7 @@ class OutboxMessage:
 @runtime_checkable
 class IOutboxStorage(Protocol):
     """Protocol for transactional outbox."""
-    
+
     async def save_messages(
         self,
         messages: list[OutboxMessage],
@@ -291,7 +291,7 @@ class IOutboxStorage(Protocol):
     ) -> None:
         """Save messages in same transaction as aggregate."""
         ...
-    
+
     async def get_pending(
         self,
         limit: int = 100,
@@ -299,7 +299,7 @@ class IOutboxStorage(Protocol):
     ) -> list[OutboxMessage]:
         """Get unpublished messages."""
         ...
-    
+
     async def mark_published(
         self,
         message_ids: list[str],
@@ -307,7 +307,7 @@ class IOutboxStorage(Protocol):
     ) -> None:
         """Mark messages as published."""
         ...
-    
+
     async def mark_failed(
         self,
         message_id: str,
@@ -353,7 +353,7 @@ from cqrs_ddd_core.ports.locking import ILockStrategy
 @runtime_checkable
 class ILockStrategy(Protocol):
     """Protocol for distributed locking."""
-    
+
     async def acquire(
         self,
         resource: str,
@@ -363,11 +363,11 @@ class ILockStrategy(Protocol):
     ) -> bool:
         """Acquire lock on resource."""
         ...
-    
+
     async def release(self, resource: str) -> None:
         """Release lock."""
         ...
-    
+
     async def extend(self, resource: str, ttl: float) -> bool:
         """Extend lock TTL."""
         ...
@@ -385,12 +385,12 @@ async def transfer_funds(
 ):
     # Acquire locks in sorted order (prevent deadlocks)
     resources = sorted([from_account, to_account])
-    
+
     for resource in resources:
         acquired = await lock.acquire(resource, timeout=10.0)
         if not acquired:
             raise LockAcquisitionError(f"Failed to lock {resource}")
-    
+
     try:
         # Perform transfer
         ...
@@ -412,19 +412,19 @@ from cqrs_ddd_core.ports.cache import ICacheStrategy
 @runtime_checkable
 class ICacheStrategy(Protocol):
     """Protocol for caching."""
-    
+
     async def get(self, key: str) -> Any | None:
         """Get cached value."""
         ...
-    
+
     async def set(self, key: str, value: Any, ttl: float | None = None) -> None:
         """Set cached value."""
         ...
-    
+
     async def delete(self, key: str) -> None:
         """Delete cached value."""
         ...
-    
+
     async def clear(self) -> None:
         """Clear all cached values."""
         ...
@@ -442,7 +442,7 @@ from cqrs_ddd_core.ports.validation import IValidator
 @runtime_checkable
 class IValidator(Protocol):
     """Protocol for validation."""
-    
+
     async def validate(self, obj: Any) -> ValidationResult:
         """Validate object."""
         ...
@@ -460,15 +460,15 @@ from cqrs_ddd_core.ports.background_worker import IBackgroundWorker
 @runtime_checkable
 class IBackgroundWorker(Protocol):
     """Protocol for background job processing."""
-    
+
     async def start(self) -> None:
         """Start worker."""
         ...
-    
+
     async def stop(self) -> None:
         """Stop worker."""
         ...
-    
+
     async def enqueue(self, job: Any) -> str:
         """Enqueue job."""
         ...
@@ -486,16 +486,16 @@ from cqrs_ddd_core.ports.search_result import SearchResult
 class SearchResult(Generic[T]):
     """
     Result from repository search.
-    
+
     Features:
     - Await for list
     - Stream for async iteration
     """
-    
+
     async def __await__(self) -> list[T]:
         """Get all results as list."""
         ...
-    
+
     async def stream(self, batch_size: int = 100) -> AsyncIterator[T]:
         """Stream results."""
         ...
@@ -540,10 +540,10 @@ class CreateOrderHandler(CommandHandler[str]):
 class InMemoryOrderRepository(IOrderRepository):
     async def add(self, entity: Order, uow: UnitOfWork | None = None) -> str:
         ...
-    
+
     async def get(self, entity_id: str, uow: UnitOfWork | None = None) -> Order | None:
         ...
-    
+
     # Implement all methods
 ```
 
@@ -553,7 +553,7 @@ class InMemoryOrderRepository(IOrderRepository):
 class IncompleteRepository(IOrderRepository):
     async def add(self, entity: Order, uow: UnitOfWork | None = None) -> str:
         ...
-    
+
     # Missing get(), delete(), search() - BAD!
 ```
 
@@ -578,5 +578,5 @@ class IncompleteRepository(IOrderRepository):
 
 ---
 
-**Last Updated:** February 22, 2026  
+**Last Updated:** February 22, 2026
 **Package:** `cqrs_ddd_core.ports`

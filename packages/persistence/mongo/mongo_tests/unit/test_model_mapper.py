@@ -1,7 +1,6 @@
 """Unit tests for MongoDBModelMapper — BSON preservation, round-trip, field mapping."""
 
 from decimal import Decimal
-from uuid import UUID
 
 import pytest
 from pydantic import BaseModel

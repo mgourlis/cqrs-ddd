@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import pytest
 
+from cqrs_ddd_advanced_core.projections.worker import ProjectionWorker
 from cqrs_ddd_core.adapters.memory.event_store import InMemoryEventStore
 from cqrs_ddd_core.ports.event_store import StoredEvent
-
-from cqrs_ddd_advanced_core.projections.worker import ProjectionWorker
 
 
 class InMemoryPositionStore:
@@ -99,7 +98,9 @@ async def test_worker_replay_from_position_advances_position(
     handled: list[int] = []
 
     class Handler:
-        async def handle(self, event: StoredEvent, *, uow: object | None = None) -> None:
+        async def handle(
+            self, event: StoredEvent, *, uow: object | None = None
+        ) -> None:
             assert event.position is not None
             handled.append(event.position)
 
@@ -146,7 +147,9 @@ async def test_worker_resumes_from_last_position(
     handled: list[int] = []
 
     class Handler:
-        async def handle(self, event: StoredEvent, *, uow: object | None = None) -> None:
+        async def handle(
+            self, event: StoredEvent, *, uow: object | None = None
+        ) -> None:
             handled.append(event.position or -1)
 
     worker = ProjectionWorker(
@@ -190,7 +193,9 @@ async def test_worker_catch_up_skips_to_latest_when_no_position(
     handled: list[int] = []
 
     class Handler:
-        async def handle(self, event: StoredEvent, *, uow: object | None = None) -> None:
+        async def handle(
+            self, event: StoredEvent, *, uow: object | None = None
+        ) -> None:
             handled.append(event.position or -1)
 
     worker = ProjectionWorker(

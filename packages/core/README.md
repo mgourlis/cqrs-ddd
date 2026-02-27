@@ -1,7 +1,7 @@
 # CQRS-DDD Core - Complete Implementation Guide
 
-**Package:** `cqrs-ddd-core`  
-**Version:** 0.1.0  
+**Package:** `cqrs-ddd-core`
+**Version:** 0.1.0
 **Purpose:** Pure Python foundation for Domain-Driven Design and CQRS
 
 The pure-Python foundation of the CQRS-DDD Toolkit. **Zero infrastructure dependencies** — only `pydantic` and `typing-extensions`.
@@ -569,25 +569,25 @@ from cqrs_ddd_core.domain.aggregate import AggregateRoot
 
 class Order(AggregateRoot[UUID]):
     """Order aggregate with business logic."""
-    
+
     customer_id: str
     status: str = "pending"
     total: float = 0.0
-    
+
     def add_item(self, item: OrderItem) -> None:
         """Business logic in domain method."""
         if self.status != "pending":
             raise ValueError("Cannot modify confirmed order")
-        
+
         # Update state (Pydantic frozen workaround)
         items = self._items.copy()
         items.append(item)
         object.__setattr__(self, "_items", items)
-        
+
         # Recalculate total
         new_total = sum(i.price * i.quantity for i in items)
         object.__setattr__(self, "total", new_total)
-        
+
         # Record event
         event = ItemAdded(aggregate_id=str(self.id), item_id=item.id)
         self._domain_events.append(event)
@@ -727,6 +727,6 @@ class OrderService:
 
 ---
 
-**Last Updated:** February 22, 2026  
-**Package Version:** 0.1.0  
+**Last Updated:** February 22, 2026
+**Package Version:** 0.1.0
 **Maintained by:** CQRS-DDD Toolkit Team

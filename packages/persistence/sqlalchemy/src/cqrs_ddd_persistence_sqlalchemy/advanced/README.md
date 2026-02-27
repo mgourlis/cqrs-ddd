@@ -108,18 +108,18 @@ class OrderFulfillmentSaga(SagaState):
     payment_id: str | None = None
     shipment_id: str | None = None
     status: SagaStatus = SagaStatus.RUNNING
-    
+
     @saga_step(compensation="cancel_payment")
     async def process_payment(self, payment_service):
         self.payment_id = await payment_service.charge(self.order_id)
-    
+
     @saga_step(compensation="cancel_shipment")
     async def create_shipment(self, shipment_service):
         self.shipment_id = await shipment_service.ship(self.order_id)
-    
+
     async def cancel_payment(self, payment_service):
         await payment_service.refund(self.payment_id)
-    
+
     async def cancel_shipment(self, shipment_service):
         await shipment_service.cancel(self.shipment_id)
 
@@ -176,25 +176,25 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
     def to_model(self, entity: SagaState) -> SagaStateModel:
         """Custom mapping with step history."""
         model = super().to_model(entity)
-        
+
         # Map step_history to events JSON column
         model.events = [s.model_dump(mode="json") for s in entity.step_history]
-        
+
         # Store full state (excluding history) in state JSON column
         model.state = entity.model_dump(mode="json", exclude={"step_history"})
-        
+
         return model
-    
+
     def from_model(self, model: SagaStateModel) -> SagaState:
         """Reconstruct saga with history."""
         data = model.state.copy() if model.state else {}
-        
+
         # Override with column values
         data["id"] = model.id
         data["correlation_id"] = model.correlation_id
         data["status"] = DomainSagaStatus(model.status.value)
         data["step_history"] = model.events  # Restore history
-        
+
         return self._saga_domain_cls(**data)
 ```
 
@@ -260,7 +260,7 @@ async with SQLAlchemyUnitOfWork(session_factory) as uow:
         "_version": 1,
         "_last_event_id": "event-456",
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id="order-123",
@@ -306,11 +306,11 @@ async def handle_order_created(event: OrderCreated):
         collection="order_summaries",
         doc_id=event.order_id,
     )
-    
+
     if existing and existing.get("_last_event_id") == event.event_id:
         logger.info(f"Event {event.event_id} already processed, skipping")
         return
-    
+
     # Upsert projection
     doc = {
         "order_id": event.order_id,
@@ -318,7 +318,7 @@ async def handle_order_created(event: OrderCreated):
         "_version": (existing.get("_version", 0) + 1) if existing else 1,
         "_last_event_id": event.event_id,
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id=event.order_id,
@@ -356,17 +356,17 @@ async def update_projection(order_id: str, new_status: str):
             doc_id=order_id,
             uow=uow,
         )
-        
+
         if not projection:
             raise ValueError(f"Order {order_id} not found")
-        
+
         # Update with version check
         updated_doc = {
             **projection,
             "status": new_status,
             "_version": projection["_version"] + 1,
         }
-        
+
         await projection_store.upsert(
             collection="order_summaries",
             doc_id=order_id,
@@ -404,7 +404,7 @@ async def reconstitute_order(order_id: str, event_store):
         aggregate_type="Order",
         aggregate_id=order_id,
     )
-    
+
     if snapshot:
         # Start from snapshot
         order = Order(**snapshot["snapshot_data"])
@@ -415,13 +415,13 @@ async def reconstitute_order(order_id: str, event_store):
         order = Order(id=order_id)
         version = 0
         logger.info("No snapshot found, starting from scratch")
-    
+
     # Replay only events after snapshot
     events = await event_store.get_events(order_id, after_version=version)
-    
+
     for event in events:
         order.apply(event)
-    
+
     # Save snapshot every 50 events
     if len(events) >= 50:
         await snapshot_store.save_snapshot(
@@ -431,7 +431,7 @@ async def reconstitute_order(order_id: str, event_store):
             version=order.version,
         )
         logger.info(f"Saved snapshot at version {order.version}")
-    
+
     return order
 
 # Delete snapshots (cleanup)
@@ -463,7 +463,7 @@ async def snapshot_old_aggregates():
     aggregates = await repo.find_not_updated_since(
         threshold=datetime.now(timezone.utc) - timedelta(hours=24)
     )
-    
+
     for aggregate in aggregates:
         await snapshot_store.save_snapshot(
             aggregate_type=type(aggregate).__name__,
@@ -496,7 +496,7 @@ from cqrs_ddd_advanced_core.background_jobs.entity import BaseBackgroundJob
 class EmailBatchJob(BaseBackgroundJob):
     email_ids: list[str]
     template_id: str
-    
+
     async def execute(self, email_service):
         """Send batch emails."""
         for i, email_id in enumerate(self.email_ids):
@@ -531,31 +531,31 @@ async def job_worker():
                 limit=10,
                 uow=uow,
             )
-            
+
             for job in jobs:
                 try:
                     job.mark_as_running()
                     await job_repo.add(job, uow=uow)
                     await uow.commit()
-                    
+
                     # Execute job
                     await job.execute(email_service)
-                    
+
                     # Mark as completed
                     job.mark_as_completed()
                     await job_repo.add(job, uow=uow)
                     await uow.commit()
-                    
+
                 except Exception as e:
                     # Handle failure
                     if job.retry_count < job.max_retries:
                         job.mark_for_retry()
                     else:
                         job.mark_as_failed(str(e))
-                    
+
                     await job_repo.add(job, uow=uow)
                     await uow.commit()
-        
+
         await asyncio.sleep(1)
 
 # Detect stale jobs
@@ -610,7 +610,7 @@ events = await event_store.get_events_after(position, limit=1000)
 for event in events:
     # Update projection
     await update_projection(event)
-    
+
     # Update position
     await position_store.save_position(
         projection_name="OrderSummaryProjection",
@@ -640,30 +640,30 @@ async def fulfill_order(order_id: str):
             correlation_id=order_id,
             saga_type="OrderFulfillmentSaga",
         )
-        
+
         if not saga:
             saga = OrderFulfillmentSaga(
                 id=str(uuid4()),
                 order_id=order_id,
                 correlation_id=order_id,
             )
-        
+
         try:
             # Execute steps
             if not saga.payment_id:
                 await saga.process_payment(payment_service)
-            
+
             if not saga.shipment_id:
                 await saga.create_shipment(shipment_service)
-            
+
             # Mark as completed
             saga.mark_as_completed()
-            
+
         except Exception as e:
             # Compensate on failure
             await saga.compensate_all()
             saga.mark_as_cancelled(str(e))
-        
+
         await saga_repo.add(saga, uow=uow)
         await uow.commit()
 ```
@@ -680,11 +680,11 @@ async def build_order_summary_projection(event: OrderCreated):
             doc_id=event.order_id,
             uow=uow,
         )
-        
+
         if existing and existing.get("_last_event_id") == event.event_id:
             logger.info(f"Event {event.event_id} already processed")
             return
-        
+
         # Build projection
         doc = {
             "order_id": event.order_id,
@@ -696,14 +696,14 @@ async def build_order_summary_projection(event: OrderCreated):
             "_version": (existing["_version"] + 1) if existing else 1,
             "_last_event_id": event.event_id,
         }
-        
+
         await projection_store.upsert(
             collection="order_summaries",
             doc_id=event.order_id,
             doc=doc,
             uow=uow,
         )
-        
+
         await uow.commit()
 ```
 
@@ -718,26 +718,26 @@ async def process_large_file(file_id: str):
         file_id=file_id,
         total_items=await count_lines(file_id),
     )
-    
+
     async with SQLAlchemyUnitOfWork(session_factory) as uow:
         await job_repo.add(job, uow=uow)
         await uow.commit()
-    
+
     # Process file (separate transaction per chunk)
     async for chunk in read_file_chunks(file_id, chunk_size=100):
         async with SQLAlchemyUnitOfWork(session_factory) as uow:
             # Reload job
             job = await job_repo.get(job.id, uow=uow)
-            
+
             # Process chunk
             for line in chunk:
                 await process_line(line)
                 job.processed_items += 1
-            
+
             # Update progress
             await job_repo.add(job, uow=uow)
             await uow.commit()
-    
+
     # Mark as completed
     async with SQLAlchemyUnitOfWork(session_factory) as uow:
         job = await job_repo.get(job.id, uow=uow)
@@ -803,17 +803,17 @@ from cqrs_ddd_persistence_sqlalchemy.exceptions import OptimisticConcurrencyErro
 async def handle_saga_timeout():
     """Handle expired suspended sagas."""
     expired = await saga_repo.find_expired_suspended_sagas(limit=10)
-    
+
     for saga in expired:
         async with SQLAlchemyUnitOfWork(session_factory) as uow:
             try:
                 # Compensate all completed steps
                 await saga.compensate_all()
                 saga.mark_as_cancelled("Timeout exceeded")
-                
+
                 await saga_repo.add(saga, uow=uow)
                 await uow.commit()
-                
+
             except OptimisticConcurrencyError:
                 # Saga was updated by another process
                 logger.info(f"Saga {saga.id} already handled")
@@ -832,13 +832,13 @@ async def update_with_retry(order_id: str, new_status: str, max_retries: int = 3
                     doc_id=order_id,
                     uow=uow,
                 )
-                
+
                 updated_doc = {
                     **projection,
                     "status": new_status,
                     "_version": projection["_version"] + 1,
                 }
-                
+
                 await projection_store.upsert(
                     collection="order_summaries",
                     doc_id=order_id,
@@ -846,10 +846,10 @@ async def update_with_retry(order_id: str, new_status: str, max_retries: int = 3
                     expected_version=projection["_version"],
                     uow=uow,
                 )
-                
+
                 await uow.commit()
                 return
-                
+
             except OptimisticConcurrencyError:
                 if attempt == max_retries - 1:
                     raise
@@ -868,6 +868,6 @@ async def update_with_retry(order_id: str, new_status: str, max_retries: int = 3
 | `SQLAlchemyBackgroundJobRepository` | Job queue | Progress tracking, retry logic, stale detection |
 | `SQLAlchemyProjectionPositionStore` | Cursor tracking | Multi-projection support, atomic updates |
 
-**Total Lines:** ~1200  
-**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-advanced-core, cqrs-ddd-persistence-sqlalchemy[core]  
+**Total Lines:** ~1200
+**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-advanced-core, cqrs-ddd-persistence-sqlalchemy[core]
 **Python Version:** 3.11+

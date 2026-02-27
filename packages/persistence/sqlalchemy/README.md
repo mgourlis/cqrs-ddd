@@ -63,7 +63,7 @@ from sqlalchemy import String, Numeric
 
 class OrderModel(Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     customer_id: Mapped[str] = mapped_column(String, ForeignKey("customers.id"))
     total: Mapped[float] = mapped_column(Numeric(10, 2))
@@ -288,10 +288,10 @@ from cqrs_ddd_persistence_sqlalchemy.mixins import (
 
 class OrderModel(VersionMixin, AuditableModelMixin, Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     # ... other fields
-    
+
     # Automatically adds:
     # - version (for optimistic concurrency)
     # - created_at, updated_at (for auditing)
@@ -318,7 +318,7 @@ from cqrs_ddd_persistence_sqlalchemy.types import JSONType
 
 class OrderModel(Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     metadata: Mapped[dict] = mapped_column(JSONType())  # Works on both PG and SQLite
 ```
@@ -385,11 +385,11 @@ from cqrs_ddd_advanced_core.sagas.state import SagaState
 class OrderFulfillmentSaga(SagaState):
     order_id: str
     payment_id: str | None = None
-    
+
     @saga_step(compensation="cancel_payment")
     async def process_payment(self, payment_service):
         self.payment_id = await payment_service.charge(self.order_id)
-    
+
     async def cancel_payment(self, payment_service):
         await payment_service.refund(self.payment_id)
 
@@ -412,7 +412,7 @@ async def handle_order_created(event: OrderCreated):
         "total_amount": event.total,
         "_version": 1,
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id=event.order_id,
@@ -464,7 +464,7 @@ async def ship_order(order_id: str):
         order = await repo.get(order_id, uow=uow)
         order.ship()
         await repo.add(order, uow=uow)
-        
+
         # Save events to outbox (same transaction)
         events = order.pull_domain_events()
         await outbox.save_messages([
@@ -475,7 +475,7 @@ async def ship_order(order_id: str):
             )
             for e in events
         ], uow=uow)
-        
+
         # Atomic commit
         await uow.commit()
 
@@ -550,32 +550,32 @@ from dependency_injector import containers, providers
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
-    
+
     # Infrastructure
     engine = providers.Singleton(
         create_async_engine,
         config.database_url,
     )
-    
+
     session_factory = providers.Singleton(
         async_sessionmaker,
         engine,
         expire_on_commit=False,
     )
-    
+
     # Unit of Work
     uow = providers.Factory(
         SQLAlchemyUnitOfWork,
         session_factory=session_factory,
     )
-    
+
     # Repositories
     order_repo = providers.Singleton(
         SQLAlchemyRepository,
         entity_cls=Order,
         db_model_cls=OrderModel,
     )
-    
+
     # Services
     order_service = providers.Factory(
         OrderService,
@@ -609,7 +609,7 @@ async def test_create_order(uow: SQLAlchemyUnitOfWork):
     order = Order(id="123", customer_id="456", total=99.99)
     await order_repo.add(order, uow=uow)
     await uow.commit()
-    
+
     loaded = await order_repo.get("123", uow=uow)
     assert loaded.id == "123"
     assert loaded.total == 99.99
@@ -717,12 +717,12 @@ for order in orders:
 # Create indexes for common queries
 class OrderModel(Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     customer_id: Mapped[str] = mapped_column(String, ForeignKey("customers.id"))
     status: Mapped[str] = mapped_column(String(50), index=True)  # Index for filtering
     created_at: Mapped[datetime] = mapped_column(DateTime, index=True)  # Index for ordering
-    
+
     __table_args__ = (
         Index("ix_orders_customer_status", "customer_id", "status"),  # Composite index
     )
@@ -853,6 +853,6 @@ Built on top of:
 - [cqrs-ddd-core](https://github.com/your-org/cqrs-ddd-core) - Domain primitives
 - [cqrs-ddd-specifications](https://github.com/your-org/cqrs-ddd-specifications) - Specification pattern
 
-**Total Package Lines:** ~4000  
-**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-core, cqrs-ddd-specifications  
+**Total Package Lines:** ~4000
+**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-core, cqrs-ddd-specifications
 **Python Version:** 3.11+

@@ -99,7 +99,7 @@ class Order(AggregateRoot):
 # SQLAlchemy model
 class OrderModel(Base):
     __tablename__ = "orders"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     customer_id: Mapped[str] = mapped_column(String, ForeignKey("customers.id"))
     total: Mapped[float] = mapped_column(Numeric(10, 2))
@@ -188,7 +188,7 @@ class Container(containers.DeclarativeContainer):
     session_factory = providers.Factory(
         sessionmaker(engine, class_=AsyncSession)
     )
-    
+
     uow = providers.Factory(
         SQLAlchemyUnitOfWork,
         session=session_factory,  # DI container manages session lifecycle
@@ -234,13 +234,13 @@ from cqrs_ddd_core.ports.unit_of_work import UnitOfWorkHooks
 class LoggingHooks(UnitOfWorkHooks):
     async def pre_commit(self, uow: UnitOfWork) -> None:
         logger.info("About to commit transaction")
-    
+
     async def post_commit(self, uow: UnitOfWork) -> None:
         logger.info("Transaction committed successfully")
-    
+
     async def pre_rollback(self, uow: UnitOfWork) -> None:
         logger.warning("Rolling back transaction")
-    
+
     async def post_rollback(self, uow: UnitOfWork) -> None:
         logger.info("Transaction rolled back")
 
@@ -313,10 +313,10 @@ async def reconstitute_order(order_id: str, event_store: SQLAlchemyEventStore) -
     """Rebuild order from event history."""
     # Get all events for aggregate
     events = await event_store.get_events(order_id)
-    
+
     # Start with empty order
     order = Order(id=order_id)
-    
+
     # Apply each event
     for event in events:
         if event.event_type == "OrderCreated":
@@ -324,7 +324,7 @@ async def reconstitute_order(order_id: str, event_store: SQLAlchemyEventStore) -
         elif event.event_type == "OrderShipped":
             order.apply(OrderShipped(**event.payload))
         # ... more event handlers
-    
+
     return order
 ```
 
@@ -351,7 +351,7 @@ async with SQLAlchemyUnitOfWork(session_factory) as uow:
     # Modify aggregate
     order.ship()
     await order_repo.add(order, uow=uow)
-    
+
     # Save domain events to outbox
     domain_events = order.pull_domain_events()
     outbox_messages = [
@@ -364,7 +364,7 @@ async with SQLAlchemyUnitOfWork(session_factory) as uow:
         for event in domain_events
     ]
     await outbox.save_messages(outbox_messages, uow=uow)
-    
+
     # Both aggregate and outbox committed atomically
     await uow.commit()
 
@@ -373,7 +373,7 @@ async def outbox_publisher():
     while True:
         # Get pending messages
         messages = await outbox.get_pending(limit=100)
-        
+
         for msg in messages:
             try:
                 # Publish to message broker
@@ -382,14 +382,14 @@ async def outbox_publisher():
                     key=msg.message_id,
                     value=msg.payload,
                 )
-                
+
                 # Mark as published
                 await outbox.mark_published([msg.message_id])
-                
+
             except Exception as e:
                 # Mark as failed (will be retried)
                 await outbox.mark_failed(msg.message_id, str(e))
-        
+
         await asyncio.sleep(1)
 ```
 
@@ -399,7 +399,7 @@ from cqrs_ddd_persistence_sqlalchemy.core.models import OutboxMessage, OutboxSta
 
 class OutboxMessage(Base):
     __tablename__ = "outbox"
-    
+
     event_id: Mapped[str] = mapped_column(String, primary_key=True)
     event_type: Mapped[str] = mapped_column(String(200))
     payload: Mapped[dict] = mapped_column(JSON)
@@ -436,7 +436,7 @@ class Customer(AggregateRoot):
 # SQLAlchemy model
 class CustomerModel(Base):
     __tablename__ = "customers"
-    
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
     email: Mapped[str] = mapped_column(String(200))
@@ -470,7 +470,7 @@ class OrderRepository(SQLAlchemyRepository[Order, str]):
         model.total_items = len(entity.items)
         model.discounted_total = entity.total * 0.9  # 10% discount
         return model
-    
+
     def from_model(self, model: OrderModel) -> Order:
         """Custom mapping with derived fields."""
         entity = super().from_model(model)
@@ -515,10 +515,10 @@ async def create_order_handler(cmd: CreateOrderCommand):
     async with SQLAlchemyUnitOfWork(session_factory) as uow:
         # Create order
         order = Order.create(cmd.customer_id, cmd.items)
-        
+
         # Save order
         await order_repo.add(order, uow=uow)
-        
+
         # Save events to outbox
         events = order.pull_domain_events()
         await outbox.save_messages([
@@ -530,10 +530,10 @@ async def create_order_handler(cmd: CreateOrderCommand):
             )
             for e in events
         ], uow=uow)
-        
+
         # Atomic commit
         await uow.commit()
-        
+
         # Events will be published by background worker
 ```
 
@@ -552,13 +552,13 @@ async def ship_order_handler(cmd: ShipOrderCommand):
     async with SQLAlchemyUnitOfWork(session_factory) as uow:
         # Load from write model
         order = await order_repo.get(cmd.order_id, uow=uow)
-        
+
         # Business logic
         order.ship()
-        
+
         # Save to write model
         await order_repo.add(order, uow=uow)
-        
+
         # Events will update projections asynchronously
         await uow.commit()
 ```
@@ -681,7 +681,7 @@ async def test_repository_add(uow: SQLAlchemyUnitOfWork):
     order = Order(id="order-1", customer_id="cust-1", total=99.99)
     await order_repo.add(order, uow=uow)
     await uow.commit()
-    
+
     # Verify
     loaded = await order_repo.get("order-1", uow=uow)
     assert loaded.id == "order-1"
@@ -700,6 +700,6 @@ async def test_repository_add(uow: SQLAlchemyUnitOfWork):
 | `SQLAlchemyOutboxStorage` | Reliable event publishing | `save_messages`, `get_pending`, `mark_published` |
 | `ModelMapper` | Entity ↔ Model conversion | `to_model`, `from_model` |
 
-**Total Lines:** ~1200  
-**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-core, cqrs-ddd-specifications  
+**Total Lines:** ~1200
+**Dependencies:** SQLAlchemy 2.0+, cqrs-ddd-core, cqrs-ddd-specifications
 **Python Version:** 3.11+

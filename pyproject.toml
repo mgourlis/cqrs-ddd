@@ -37,7 +37,14 @@ persistence-redis = ["redlock-ng>=1.0.1", "redis>=5.0.0"]
 projections = []
 
 # Group 3: Security & Isolation
-identity = ["python-jose[cryptography]>=3.3.0"]
+identity = [
+    "joserfc>=1.6.2",
+    "pyotp>=2.9",
+    "bcrypt>=4.0",
+]
+identity-keycloak = ["python-keycloak>=3.0"]
+identity-ldap = ["python-ldap>=3.4"]
+identity-fastapi = ["fastapi>=0.100", "starlette>=0.27"]
 access-control = []
 multitenancy = []
 
@@ -50,6 +57,14 @@ messaging-kafka = ["aiokafka>=0.10.0"]
 messaging-sqs = ["aiobotocore>=2.9.0"]
 observability = ["opentelemetry-api>=1.22.0", "opentelemetry-sdk>=1.22.0", "prometheus-client", "sentry-sdk"]
 health = ["sqlalchemy[asyncio]>=2.0.0", "redis>=5.0.0"]
+# Notifications (cqrs-ddd-notifications package extras)
+notifications = []
+notifications-smtp = ["cqrs-ddd-notifications[smtp]"]
+notifications-http = ["cqrs-ddd-notifications[http]"]
+notifications-aws = ["cqrs-ddd-notifications[aws]"]
+notifications-jinja2 = ["cqrs-ddd-notifications[jinja2]"]
+notifications-twilio = ["cqrs-ddd-notifications[twilio]"]
+notifications-all = ["cqrs-ddd-notifications[all]"]
 
 # Geometry support (for in-memory and SQLAlchemy operators)
 geometry = [
@@ -60,35 +75,77 @@ geometry = [
     "pydantic-shapely>=1.0a6",
 ]
 
-# Development
+# Development: tooling + all optional deps so .[dev] runs full test suite
 dev = [
+    # Tooling
     "ruff>=0.1.11",
     "mypy>=1.8.0",
     "pre-commit>=3.6.0",
     "pytest>=7.4.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-archon>=0.0.6",
     "httpx>=0.26.0",
     "polyfactory>=2.14.0",
     "dirty-equals>=0.7.1",
     "hypothesis>=6.92.0",
-    "pytest-archon>=0.0.6",
     "complexipy>=0.5.0",
     "vulture>=2.10",
     "nox>=2023.4.22",
-    "pytest-mock>=3.12.0",
+    # Test / integration
     "aiosqlite>=0.19.0",
     "types-redis>=4.0.0",
     "testcontainers>=4.0.0",
-    "pika>=1.3.0",  # required by testcontainers.rabbitmq for integration tests,
-    "mongomock-motor>=0.0.0", # required for MongoDB integration tests
-    "mongodb-memory-server>=0.1.0", # required for MongoDB integration tests
+    "pika>=1.3.0",
+    "mongomock-motor>=0.0.0",
+    "requests>=2.31.0",
+    # persistence-sqlalchemy
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+    # persistence-mongo
+    "motor>=3.3.0",
+    # persistence-redis
+    "redlock-ng>=1.0.1",
+    "redis>=5.0.0",
+    # identity
+    "joserfc>=1.6.2",
+    "pyotp>=2.9",
+    "bcrypt>=4.0",
+    # identity-keycloak
+    "python-keycloak>=3.0",
+    # identity-ldap omitted: requires system OpenLDAP dev headers (e.g. apt install libldap2-dev); use .[identity-ldap] if needed
+    # identity-fastapi
+    "fastapi>=0.100",
+    "starlette>=0.27",
+    # file-storage
+    "boto3>=1.34.0",
+    "azure-storage-blob>=12.19.0",
+    # messaging
+    "aio-pika>=9.3.0",
+    "aiokafka>=0.10.0",
+    "aiobotocore>=2.9.0",
+    # observability
+    "opentelemetry-api>=1.22.0",
+    "opentelemetry-sdk>=1.22.0",
+    # notifications
+    "aiosmtplib>=3.0.0",
+    "Jinja2>=3.1.0",
+    "twilio>=9.0.0",
+    "prometheus-client",
+    "sentry-sdk",
+    # geometry
+    "geojson-pydantic>=1.0",
+    "shapely>=2.0",
+    "geoalchemy2>=0.14.0",
+    "pyproj>=3.0",
+    "pydantic-shapely>=1.0a6",
 ]
 
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/persistence/mongo/src", "packages/infrastructure/redis/src", "packages/infrastructure/messaging/src", "packages/infrastructure/observability/src", "packages/infrastructure/health/src", "packages/advanced/src", "packages/specifications/src", "packages/features/filtering/src", "packages/engines/projections/src"]
+src = ["packages/core/src", "packages/persistence/sqlalchemy/src", "packages/persistence/mongo/src", "packages/infrastructure/redis/src", "packages/infrastructure/messaging/src", "packages/infrastructure/observability/src", "packages/infrastructure/health/src", "packages/infrastructure/notifications/src", "packages/advanced/src", "packages/specifications/src", "packages/features/filtering/src", "packages/features/identity/src", "packages/engines/projections/src"]
 
 [tool.ruff.lint]
 select = [
@@ -142,7 +199,9 @@ known-first-party = [
     "cqrs_ddd_messaging",
     "cqrs_ddd_observability",
     "cqrs_ddd_health",
+    "cqrs_ddd_notifications",
     "cqrs_ddd_filtering",
+    "cqrs_ddd_identity",
     "cqrs_ddd_projections",
 ]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
@@ -161,8 +220,8 @@ show_error_codes = true
 plugins = ["pydantic.mypy"]
 explicit_package_bases = false
 namespace_packages = false
-exclude = ["(?x)(^|/)(tests|mongo_tests|messaging_tests|health_tests)/", "(^|/)build/"]
-mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/persistence/mongo/src:packages/infrastructure/redis/src:packages/infrastructure/messaging/src:packages/infrastructure/observability/src:packages/infrastructure/health/src:packages/specifications/src:packages/features/filtering/src:packages/engines/projections/src"
+exclude = ["(?x)(^|/)(tests|mongo_tests|messaging_tests|health_tests|identity_tests|notifications_tests)/", "(^|/)build/"]
+mypy_path = "packages/core/src:packages/advanced/src:packages/persistence/sqlalchemy/src:packages/persistence/mongo/src:packages/infrastructure/redis/src:packages/infrastructure/messaging/src:packages/infrastructure/observability/src:packages/infrastructure/health/src:packages/infrastructure/notifications/src:packages/specifications/src:packages/features/filtering/src:packages/features/identity/src:packages/engines/projections/src"
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
@@ -190,6 +249,16 @@ disallow_untyped_defs = false
 check_untyped_defs = false
 
 [[tool.mypy.overrides]]
+module = "identity_tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "notifications_tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
 module = "noxfile"
 disallow_untyped_decorators = false
 
@@ -206,9 +275,11 @@ include = [
     "packages/infrastructure/messaging/src",
     "packages/infrastructure/observability/src",
     "packages/infrastructure/health/src",
+    "packages/infrastructure/notifications/src",
     "packages/advanced/src",
     "packages/specifications/src",
     "packages/features/filtering/src",
+    "packages/features/identity/src",
     "packages/engines/projections/src",
     "tests"
 ]
@@ -241,8 +312,10 @@ testpaths = [
     "packages/infrastructure/messaging/messaging_tests",
     "packages/infrastructure/observability/tests",
     "packages/infrastructure/health/health_tests",
+    "packages/infrastructure/notifications/notifications_tests",
     "packages/advanced/tests",
     "packages/specifications/tests",
+    "packages/features/identity/identity_tests",
     "packages/engines/projections/tests",
     "packages/persistence/mongo/mongo_tests",
     "tests",
@@ -258,8 +331,10 @@ source = [
     "packages/infrastructure/messaging/src/cqrs_ddd_messaging",
     "packages/infrastructure/observability/src/cqrs_ddd_observability",
     "packages/infrastructure/health/src/cqrs_ddd_health",
+    "packages/infrastructure/notifications/src/cqrs_ddd_notifications",
     "packages/advanced/src/cqrs_ddd_advanced_core",
     "packages/specifications/src/cqrs_ddd_specifications",
+    "packages/features/identity/src/cqrs_ddd_identity",
     "packages/engines/projections/src/cqrs_ddd_projections",
 ]
 omit = [
@@ -268,6 +343,21 @@ omit = [
     "**/__init__.py",
     "noxfile.py",
     "setup.py",
+    # Integration-only: Keycloak HTTP client and admin (require live server)
+    #"**/identity/**/oauth2/keycloak.py",
+    #"**/identity/**/admin/keycloak.py",
+    # Optional observability SDKs (OTEL/Sentry) – exercised via integration
+    #"**/identity/**/observability/metrics.py",
+    #"**/identity/**/observability/tracing.py",
+    #"**/observability/**/tracing.py",
+    #"**/observability/**/metrics.py",
+    #"**/observability/**/sentry.py",
+    #"**/observability/**/payload_tracing.py",
+    #"**/observability/**/hooks.py",
+    #"**/observability/**/context.py",
+    # Platform-specific / compatibility
+    #"**/persistence/sqlalchemy/**/compat.py",
+    #"**/persistence/sqlalchemy/**/types/spatialite.py",
 ]
 
 [tool.coverage.report]

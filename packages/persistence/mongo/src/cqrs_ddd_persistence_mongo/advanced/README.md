@@ -105,7 +105,7 @@ async with MongoUnitOfWork(connection=connection) as uow:
         "_version": 1,
         "_last_event_id": "event-456",
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id="order-123",
@@ -160,11 +160,11 @@ async def handle_order_created(event: OrderCreated):
         collection="order_summaries",
         doc_id=event.order_id,
     )
-    
+
     if existing and existing.get("_last_event_id") == event.event_id:
         logger.info(f"Event {event.event_id} already processed, skipping")
         return
-    
+
     # Upsert projection
     doc = {
         "id": event.order_id,
@@ -172,7 +172,7 @@ async def handle_order_created(event: OrderCreated):
         "_version": (existing.get("_version", 0) + 1) if existing else 1,
         "_last_event_id": event.event_id,
     }
-    
+
     await projection_store.upsert(
         collection="order_summaries",
         doc_id=event.order_id,
@@ -193,17 +193,17 @@ async def update_projection(order_id: str, new_status: str):
             doc_id=order_id,
             uow=uow,
         )
-        
+
         if not projection:
             raise ValueError(f"Order {order_id} not found")
-        
+
         # Update with version check
         updated_doc = {
             **projection,
             "status": new_status,
             "_version": projection["_version"] + 1,
         }
-        
+
         await projection_store.upsert(
             collection="order_summaries",
             doc_id=order_id,
@@ -301,7 +301,7 @@ async def reconstitute_order(order_id: str, event_store):
         aggregate_type="Order",
         aggregate_id=order_id,
     )
-    
+
     if snapshot:
         # Start from snapshot
         order = Order(**snapshot["snapshot_data"])
@@ -312,13 +312,13 @@ async def reconstitute_order(order_id: str, event_store):
         order = Order(id=order_id)
         version = 0
         logger.info("No snapshot found, starting from scratch")
-    
+
     # Replay only events after snapshot
     events = await event_store.get_events(order_id, after_version=version)
-    
+
     for event in events:
         order.apply(event)
-    
+
     # Save snapshot every 50 events
     if len(events) >= 50:
         await snapshot_store.save_snapshot(
@@ -328,7 +328,7 @@ async def reconstitute_order(order_id: str, event_store):
             version=order.version,
         )
         logger.info(f"Saved snapshot at version {order.version}")
-    
+
     return order
 
 # Delete snapshots (cleanup)
@@ -358,7 +358,7 @@ async def maybe_snapshot(aggregate: AggregateRoot):
 async def snapshot_old_aggregates():
     """Snapshot aggregates not updated in 24 hours."""
     threshold = datetime.now(timezone.utc) - timedelta(hours=24)
-    
+
     # Query aggregates not updated recently
     pipeline = [
         {"$match": {
@@ -369,7 +369,7 @@ async def snapshot_old_aggregates():
             "latest_version": {"$max": "$version"},
         }},
     ]
-    
+
     # For each aggregate, create snapshot
     async for doc in event_store.aggregate(pipeline):
         # Reconstitute and snapshot
@@ -436,7 +436,7 @@ events = await event_store.get_events_after(position, limit=1000)
 for event in events:
     # Update projection
     await update_projection(event)
-    
+
     # Update position
     await position_store.save_position(
         projection_name="OrderSummaryProjection",
@@ -463,13 +463,13 @@ async def save_position(
 ) -> None:
     """
     Atomically update position using find_one_and_update.
-    
+
     - Upsert: Creates document if not exists
     - Atomic: No race conditions
     - Fast: Single round-trip
     """
     collection = self._db()["projection_positions"]
-    
+
     await collection.find_one_and_update(
         {"projection_name": projection_name},
         {"$set": {"position": position, "updated_at": datetime.now(timezone.utc)}},
@@ -508,11 +508,11 @@ async def build_order_summary_projection(event: OrderCreated):
             doc_id=event.order_id,
             uow=uow,
         )
-        
+
         if existing and existing.get("_last_event_id") == event.event_id:
             logger.info(f"Event {event.event_id} already processed")
             return
-        
+
         # Build projection
         doc = {
             "id": event.order_id,
@@ -524,14 +524,14 @@ async def build_order_summary_projection(event: OrderCreated):
             "_version": (existing["_version"] + 1) if existing else 1,
             "_last_event_id": event.event_id,
         }
-        
+
         await projection_store.upsert(
             collection="order_summaries",
             doc_id=event.order_id,
             doc=doc,
             uow=uow,
         )
-        
+
         await uow.commit()
 ```
 
@@ -546,28 +546,28 @@ async def continuous_projection_builder():
             position = await position_store.get_position("OrderSummaryProjection")
             if position is None:
                 position = 0
-            
+
             # Get events after position
             events = await event_store.get_events_after(position, limit=100)
-            
+
             if not events:
                 await asyncio.sleep(1)
                 continue
-            
+
             # Process each event
             async with MongoUnitOfWork(connection=connection) as uow:
                 for event in events:
                     await build_projection(event, uow=uow)
-                
+
                 # Update position after processing all events
                 await position_store.save_position(
                     projection_name="OrderSummaryProjection",
                     position=events[-1].position,
                     uow=uow,
                 )
-                
+
                 await uow.commit()
-        
+
         except Exception as e:
             logger.error(f"Projection builder error: {e}")
             await asyncio.sleep(5)
@@ -583,7 +583,7 @@ async def reconstitute_with_snapshot_and_projection(aggregate_id: str):
         aggregate_type="Order",
         aggregate_id=aggregate_id,
     )
-    
+
     if snapshot and snapshot["version"] >= 50:
         # Snapshot is recent enough
         order = Order(**snapshot["snapshot_data"])
@@ -594,13 +594,13 @@ async def reconstitute_with_snapshot_and_projection(aggregate_id: str):
         for event in events:
             order.apply(event)
         return order
-    
+
     # Fall back to projection (read model)
     projection = await projection_store.find_one(
         collection="order_summaries",
         doc_id=aggregate_id,
     )
-    
+
     if projection:
         # Rebuild from projection (faster than full replay)
         order = Order(
@@ -611,7 +611,7 @@ async def reconstitute_with_snapshot_and_projection(aggregate_id: str):
         )
         # May need to replay some events if projection is stale
         return order
-    
+
     # Full replay (last resort)
     return await reconstitute_order(aggregate_id, event_store)
 ```
@@ -705,13 +705,13 @@ async def update_with_retry(order_id: str, new_status: str, max_retries: int = 3
                     doc_id=order_id,
                     uow=uow,
                 )
-                
+
                 updated_doc = {
                     **projection,
                     "status": new_status,
                     "_version": projection["_version"] + 1,
                 }
-                
+
                 await projection_store.upsert(
                     collection="order_summaries",
                     doc_id=order_id,
@@ -719,10 +719,10 @@ async def update_with_retry(order_id: str, new_status: str, max_retries: int = 3
                     expected_version=projection["_version"],
                     uow=uow,
                 )
-                
+
                 await uow.commit()
                 return
-                
+
             except DuplicateKeyError:
                 if attempt == max_retries - 1:
                     raise
@@ -760,7 +760,7 @@ async def safe_build_projection(event: StoredEvent):
 | `MongoSnapshotStore` | Aggregate snapshots | Performance optimization, automatic versioning |
 | `MongoProjectionPositionStore` | Cursor tracking | Multi-projection support, atomic updates |
 
-**Total Lines:** ~700  
-**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-advanced-core, cqrs-ddd-persistence-mongo[core]  
-**Python Version:** 3.11+  
+**Total Lines:** ~700
+**Dependencies:** Motor 3.0+, pymongo 4.0+, cqrs-ddd-advanced-core, cqrs-ddd-persistence-mongo[core]
+**Python Version:** 3.11+
 **MongoDB Version:** 4.0+
