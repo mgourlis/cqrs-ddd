@@ -112,6 +112,7 @@ dev = [
     "joserfc>=1.6.2",
     "pyotp>=2.9",
     "bcrypt>=4.0",
+    "argon2-cffi>=23.0",
     # identity-keycloak
     "python-keycloak>=3.0",
     # identity-ldap omitted: requires system OpenLDAP dev headers (e.g. apt install libldap2-dev); use .[identity-ldap] if needed
