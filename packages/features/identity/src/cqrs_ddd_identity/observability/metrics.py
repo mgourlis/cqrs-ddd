@@ -132,7 +132,7 @@ class AuthMetrics:
 
         try:
             yield
-        except Exception:
+        except Exception:  # noqa: BLE001
             result = "error"
             raise
         finally:
@@ -145,7 +145,7 @@ class AuthMetrics:
                         method=method,
                         operation=operation,
                     ).observe(duration)
-                except Exception:
+                except Exception:  # noqa: BLE001
                     _logger.debug("Failed to record histogram")
 
             if _registry.counter:
@@ -156,7 +156,7 @@ class AuthMetrics:
                         operation=operation,
                         result=result,
                     ).inc()
-                except Exception:
+                except Exception:  # noqa: BLE001
                     _logger.debug("Failed to record counter")
 
     @staticmethod
@@ -176,7 +176,7 @@ class AuthMetrics:
                 operation=event.event_type.value,
                 result="success" if event.success else "failure",
             ).inc()
-        except Exception:
+        except Exception:  # noqa: BLE001
             _logger.debug("Failed to record audit event metric")
 
     @staticmethod
@@ -189,7 +189,7 @@ class AuthMetrics:
         if _registry.session_gauge:
             try:
                 _registry.session_gauge.labels(provider=provider).inc()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 _logger.debug("Failed to increment session gauge")
 
     @staticmethod
@@ -202,12 +202,12 @@ class AuthMetrics:
         if _registry.session_gauge:
             try:
                 _registry.session_gauge.labels(provider=provider).dec()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 _logger.debug("Failed to decrement session gauge")
 
 
 # Convenience functions
-def record_login_success(user_id: str, provider: str, method: str = "jwt") -> None:
+def record_login_success(_user_id: str, provider: str, method: str = "jwt") -> None:
     """Record a successful login."""
     if _registry.counter:
         _registry.counter.labels(

@@ -58,7 +58,9 @@ class FileSystemTemplateLoader(ITemplateProvider):
             # Parse frontmatter or use convention for subject/body
             # For simplicity, we treat the entire file as body template
             # Subject can be defined via frontmatter: Subject: line
-            template_source = template.module.__dict__.get("template_source") or getattr(template, "source", "")
+            template_source = template.module.__dict__.get("template_source") or getattr(
+                template, "source", ""
+            )
             subject, body = self._parse_template_content(template_source or "")
 
             return NotificationTemplate(
@@ -99,5 +101,6 @@ class FileSystemTemplateLoader(ITemplateProvider):
     async def save(self, event_type: str, template: NotificationTemplate) -> None:
         """Not implemented for filesystem loader (read-only)."""
         raise NotImplementedError(
-            "FileSystemTemplateLoader is read-only. Use InMemoryTemplateProvider for runtime registration."
+            "FileSystemTemplateLoader is read-only. "
+            "Use InMemoryTemplateProvider for runtime registration."
         )

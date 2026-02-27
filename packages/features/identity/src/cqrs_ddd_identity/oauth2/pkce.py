@@ -90,7 +90,6 @@ def generate_pkce_challenge(verifier: str) -> str:
     return base64.urlsafe_b64encode(digest).decode().rstrip("=")
 
 
-
 def create_pkce_data(verifier_length: int = 64) -> PKCEData:
     """Create complete PKCE data with verifier and challenge.
 

@@ -134,7 +134,8 @@ class ProjectionBackedSpecPersistence(
         - ``collection``: Projection collection/table name
         - ``to_dto(doc: dict) -> T_Result``: Convert raw doc to DTO
         - ``get_reader() -> IProjectionReader``: Provide projection reader
-        - ``build_filter(spec) -> dict``: Convert ISpecification to filter dict (optional)
+        - ``build_filter(spec) -> dict``: Convert ISpecification to filter
+          dict (optional)
     """
 
     collection: str

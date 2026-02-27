@@ -45,12 +45,12 @@ def get_principal() -> Principal:
     """
     try:
         return get_current_principal()
-    except LookupError:
+    except LookupError as err:
         raise HTTPException(
             status_code=401,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from err
 
 
 def get_principal_optional() -> Principal | None:
@@ -90,7 +90,9 @@ def require_role(role: str) -> Callable[[Any], Principal]:
         ```
     """
 
-    def dependency(principal: Principal = Depends(get_principal)) -> Principal:
+    def dependency(
+        principal: Principal = Depends(get_principal),  # noqa: B008
+    ) -> Principal:
         if not principal.has_role(role):
             raise HTTPException(
                 status_code=403,
@@ -121,7 +123,9 @@ def require_permission(permission: str) -> Callable[[Any], Principal]:
         ```
     """
 
-    def dependency(principal: Principal = Depends(get_principal)) -> Principal:
+    def dependency(
+        principal: Principal = Depends(get_principal),  # noqa: B008
+    ) -> Principal:
         if not principal.has_permission(permission):
             raise HTTPException(
                 status_code=403,
@@ -142,7 +146,9 @@ def require_roles(*roles: str) -> Callable[[Any], Principal]:
         Dependency function.
     """
 
-    def dependency(principal: Principal = Depends(get_principal)) -> Principal:
+    def dependency(
+        principal: Principal = Depends(get_principal),  # noqa: B008
+    ) -> Principal:
         missing = [r for r in roles if not principal.has_role(r)]
         if missing:
             raise HTTPException(
@@ -164,7 +170,9 @@ def require_any_role(*roles: str) -> Callable[[Any], Principal]:
         Dependency function.
     """
 
-    def dependency(principal: Principal = Depends(get_principal)) -> Principal:
+    def dependency(
+        principal: Principal = Depends(get_principal),  # noqa: B008
+    ) -> Principal:
         if not principal.has_any_role(*roles):
             raise HTTPException(
                 status_code=403,

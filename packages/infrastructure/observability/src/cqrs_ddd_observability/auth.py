@@ -178,7 +178,7 @@ class AuthMetrics:
                         method=method,
                         operation=operation,
                     ).observe(duration)
-                except Exception:
+                except Exception:  # noqa: BLE001
                     _logger.debug("Failed to record auth histogram")
 
             if _metrics.counter:
@@ -189,7 +189,7 @@ class AuthMetrics:
                         operation=operation,
                         result=result,
                     ).inc()
-                except Exception:
+                except Exception:  # noqa: BLE001
                     _logger.debug("Failed to record auth counter")
 
     @staticmethod
@@ -207,7 +207,7 @@ class AuthMetrics:
                     operation=labels.operation,
                     result=labels.result,
                 ).inc()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 _logger.debug("Failed to record auth event")
 
     @staticmethod
@@ -222,7 +222,7 @@ class AuthMetrics:
         if _metrics.session_gauge:
             try:
                 _metrics.session_gauge.labels(provider=provider).inc()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 _logger.debug("Failed to increment session gauge")
 
     @staticmethod
@@ -237,7 +237,7 @@ class AuthMetrics:
         if _metrics.session_gauge:
             try:
                 _metrics.session_gauge.labels(provider=provider).dec()
-            except Exception:
+            except Exception:  # noqa: BLE001
                 _logger.debug("Failed to decrement session gauge")
 
 
@@ -480,7 +480,8 @@ class AuthTracing:
 
 
 def record_login_success(
-    user_id: str,
+    *,
+    user_id: str = "",  # noqa: ARG001
     provider: str,
     method: str = "jwt",
 ) -> None:
@@ -502,8 +503,9 @@ def record_login_success(
 
 
 def record_login_failure(
+    *,
     provider: str,
-    error_code: str = "unknown",
+    error_code: str = "unknown",  # noqa: ARG001
     method: str = "unknown",
 ) -> None:
     """Record a failed login event.

@@ -309,7 +309,7 @@ class TestMongoRepositorySerialization:
         assert retrieved.id == entity.id
         assert retrieved.name == entity.name
         assert retrieved.value == entity.value
-        assert type(retrieved) == SampleReadModel
+        assert isinstance(retrieved, SampleReadModel)
 
 
 class TestMongoRepositoryConfiguration:

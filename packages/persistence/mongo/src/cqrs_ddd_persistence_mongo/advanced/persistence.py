@@ -401,15 +401,15 @@ class MongoQuerySpecificationPersistence(
     def fetch(
         self,
         criteria: ISpecification[Any] | Any,
-        uow: UnitOfWork,  # Match protocol signature (non-optional)
-        # noqa: ARG002
+        uow: UnitOfWork,  # Match protocol signature (non-optional)  # noqa: ARG002
     ) -> SearchResult[T_Result]:
         """
         Fetch result DTOs by specification or QueryOptions.
 
         Args:
             criteria: An ``ISpecification`` or ``QueryOptions`` instance.
-            uow: UnitOfWork (session not typically used for reads but required by protocol).
+            uow: UnitOfWork (session not typically used for reads but
+            required by protocol).
 
         Returns:
             A ``SearchResult`` supporting both batch and streaming access.
@@ -455,11 +455,11 @@ class MongoQuerySpecificationPersistence(
             return results
 
         # Create async iterator for streaming
-        async def _stream(batch_size: int | None = None) -> AsyncIterator[T_Result]:
+        async def _stream(_batch_size: int | None = None) -> AsyncIterator[T_Result]:
             """Stream results as an async iterator.
 
             Args:
-                batch_size: Batch size hint (not used for MongoDB cursor).
+                _batch_size: Batch size hint (not used for MongoDB cursor).
 
             Yields:
                 DTO instances one by one.

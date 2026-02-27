@@ -20,4 +20,4 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [pydantic, sqlalchemy, pytest, types-redis]
-        exclude: ^tests/|/tests/|^test_.*\.py$|/test_.*\.py$|^.*_test\.py$|/.*_test\.py$
+        exclude: ^tests/|/tests/|^test_.*\.py$|/test_.*\.py$|^.*_test\.py$|/.*_test\.py$|/conftest\.py$

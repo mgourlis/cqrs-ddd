@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+from pathlib import Path
 
 from sqlalchemy import Column, Integer, String
 
@@ -104,13 +105,11 @@ def test_schema_save_and_load_file():
         path = f.name
     try:
         registry.save_to_file(path)
-        with open(path) as fp:
+        with Path(path).open() as fp:
             data = json.load(fp)
         assert "schemas" in data
         assert "initialization_order" in data
         loaded = ProjectionSchemaRegistry.load_from_file(path)
         assert loaded.get("file_test") is not None
     finally:
-        import os
-
-        os.unlink(path)
+        Path(path).unlink()

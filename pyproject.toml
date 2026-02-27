@@ -177,16 +177,16 @@ ignore = [
     "ANN401", # Dynamically typed expressions (typing.Any) are allowed
     "COM812", # Missing trailing comma (handled by formatter)
     "FBT001", # Boolean-typed positional argument in function definition
+    "FBT002", # Boolean default positional argument in function definition
     "FBT003", # Boolean positional value in function call
     "S101",   # Use of assert (standard in pytest)
-    "ANN101", # Missing type annotation for self in method
-    "ANN102", # Missing type annotation for cls in classmethod
     "A003",   # Class attribute shadowing builtin (e.g. id)
+    "S110",   # try-except-pass with logging is acceptable
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**" = ["ANN", "ARG", "S101", "ERA001", "A002", "N806", "E501"]
-"**/*_tests/**" = ["ANN", "ARG", "S101", "ERA001", "A002", "N806", "E501"]
+"**/tests/**" = ["ANN", "ARG", "S101", "ERA001", "A002", "N806", "E501", "E402", "PT011", "F401", "S105", "S106", "S608", "BLE001", "B017"]
+"**/*_tests/**" = ["ANN", "ARG", "S101", "ERA001", "A002", "N806", "E501", "E402", "PT011", "F401", "S105", "S106", "S608", "BLE001", "B017"]
 
 [tool.ruff.lint.isort]
 known-first-party = [

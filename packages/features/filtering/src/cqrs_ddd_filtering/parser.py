@@ -37,13 +37,14 @@ class FilterParser:
 
         Args:
             registry: MemoryOperatorRegistry for specification evaluation.
-            default_syntax: Optional filter syntax parser (defaults to ColonSeparatedSyntax).
+            default_syntax: Optional filter syntax parser (defaults to
+                ColonSeparatedSyntax).
         """
         if registry is None:
             raise ValueError(
                 "registry parameter is required. "
-                "Use build_default_registry() from cqrs_ddd_specifications.operators_memory "
-                "to create one."
+                "Use build_default_registry() from "
+                "cqrs_ddd_specifications.operators_memory to create one."
             )
         self._registry = registry
         self._syntax = default_syntax or ColonSeparatedSyntax()

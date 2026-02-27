@@ -145,10 +145,11 @@ class TestKeycloakIdentityProviderResolve:
             # joserfc decode returns a token object with .claims
             decoded = MagicMock()
             decoded.claims = payload
-            with patch(
-                "cqrs_ddd_identity.oauth2.keycloak.jwt.decode", return_value=decoded
-            ), patch.object(
-                provider, "_get_public_key", return_value=MagicMock()
+            with (
+                patch(
+                    "cqrs_ddd_identity.oauth2.keycloak.jwt.decode", return_value=decoded
+                ),
+                patch.object(provider, "_get_public_key", return_value=MagicMock()),
             ):
                 principal = await provider.resolve("fake-jwt")
 

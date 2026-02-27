@@ -7,11 +7,13 @@ during active use.
 from __future__ import annotations
 
 import contextlib
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, cast
 
-from starlette.middleware.base import BaseHTTPMiddleware
+if TYPE_CHECKING:
+    from starlette.middleware.base import BaseHTTPMiddleware
 
 from ...context import (
     clear_tokens,
@@ -28,6 +30,8 @@ if TYPE_CHECKING:
     from fastapi import Request, Response
 
     from ...principal import Principal
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -112,6 +116,32 @@ class TokenRefreshAdapter(IIdentityProvider):
 
         return expires_at <= now + threshold
 
+    def _store_new_tokens(self, new_tokens: TokenResponse) -> None:
+        """Store new tokens in context if configured."""
+        if self._config.store_refreshed_tokens:
+            set_access_token(new_tokens.access_token)
+            if new_tokens.refresh_token:
+                set_refresh_token(new_tokens.refresh_token)
+
+    def _notify_token_refreshed(self, new_tokens: TokenResponse) -> None:
+        """Call refresh callback if set."""
+        if self._config.on_token_refreshed:
+            with contextlib.suppress(Exception):  # noqa: BLE001
+                self._config.on_token_refreshed(new_tokens)
+
+    async def _handle_token_refresh(self) -> None:
+        """Handle proactive token refresh logic."""
+        refresh_token = get_refresh_token()
+
+        if not refresh_token:
+            return
+
+        new_tokens = await self._do_refresh(refresh_token)
+
+        if new_tokens:
+            self._store_new_tokens(new_tokens)
+            self._notify_token_refreshed(new_tokens)
+
     async def _do_refresh(self, refresh_token: str) -> TokenResponse | None:
         """Attempt to refresh the token.
 
@@ -125,8 +155,8 @@ class TokenRefreshAdapter(IIdentityProvider):
         for _attempt in range(self._config.max_refresh_attempts):
             try:
                 return await self._provider.refresh(refresh_token)
-            except Exception:
-                # Log warning about failed attempt (would use logging in production)
+            except Exception as e:  # noqa: BLE001
+                logger.warning("Refresh attempt %s failed: %s", _attempt + 1, e)
                 continue
 
         # All attempts failed
@@ -150,24 +180,7 @@ class TokenRefreshAdapter(IIdentityProvider):
 
         # Check if we should proactively refresh
         if self._should_refresh(principal.expires_at):
-            refresh_token = get_refresh_token()
-
-            if refresh_token:
-                new_tokens = await self._do_refresh(refresh_token)
-
-                if new_tokens:
-                    # Store new tokens in context if configured
-                    if self._config.store_refreshed_tokens:
-                        set_access_token(new_tokens.access_token)
-                        if new_tokens.refresh_token:
-                            set_refresh_token(new_tokens.refresh_token)
-
-                    # Call refresh callback if set
-                    if self._config.on_token_refreshed:
-                        try:
-                            self._config.on_token_refreshed(new_tokens)
-                        except Exception:
-                            pass  # Don't fail on callback errors
+            await self._handle_token_refresh()
 
         return principal
 
@@ -200,7 +213,13 @@ class TokenRefreshAdapter(IIdentityProvider):
             clear_tokens()
 
 
-class TokenRefreshMiddleware(BaseHTTPMiddleware):
+if TYPE_CHECKING:
+    BaseHTTPMiddleware = object
+else:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+
+class TokenRefreshMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
     """FastAPI middleware for proactive token refresh.
 
     This middleware intercepts responses and checks if the access token
@@ -244,7 +263,7 @@ class TokenRefreshMiddleware(BaseHTTPMiddleware):
         *,
         identity_provider: IIdentityProvider,
         config: TokenRefreshConfig | None = None,
-        token_header: str = "X-New-Access-Token",
+        token_header: str = "X-New-Access-Token",  # noqa: S107
         refresh_header: str = "X-New-Refresh-Token",
     ) -> None:
         """Initialize the middleware.
@@ -272,7 +291,9 @@ class TokenRefreshMiddleware(BaseHTTPMiddleware):
 
         return expires_at <= now + threshold
 
-    async def dispatch(self, request: Request, call_next: Callable[[Request], Any]) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Any]
+    ) -> Response:
         """Process the request.
 
         Args:
@@ -300,30 +321,35 @@ class TokenRefreshMiddleware(BaseHTTPMiddleware):
 
         if self.config.sliding_session:
             # Perform refresh for sliding sessions
-            try:
-                new_tokens = await self.identity_provider.refresh(refresh_token)
-
-                # Update context
-                if self.config.store_refreshed_tokens:
-                    set_access_token(new_tokens.access_token)
-                    if new_tokens.refresh_token:
-                        set_refresh_token(new_tokens.refresh_token)
-
-                # Add new tokens to response headers
-                response.headers[self.token_header] = new_tokens.access_token
-                if new_tokens.refresh_token:
-                    response.headers[self.refresh_header] = new_tokens.refresh_token
-
-                # Call callback if set
-                if self.config.on_token_refreshed:
-                    with contextlib.suppress(Exception):
-                        self.config.on_token_refreshed(new_tokens)
-
-            except Exception:
-                # Refresh failed - return response without new tokens
-                pass
+            await self._handle_sliding_refresh(refresh_token, response)
 
         return cast("Response", response)
+
+    async def _handle_sliding_refresh(
+        self, refresh_token: str, response: Response
+    ) -> None:
+        """Handle sliding session token refresh."""
+        try:
+            new_tokens = await self.identity_provider.refresh(refresh_token)
+
+            # Update context
+            if self.config.store_refreshed_tokens:
+                set_access_token(new_tokens.access_token)
+                if new_tokens.refresh_token:
+                    set_refresh_token(new_tokens.refresh_token)
+
+            # Add new tokens to response headers
+            response.headers[self.token_header] = new_tokens.access_token
+            if new_tokens.refresh_token:
+                response.headers[self.refresh_header] = new_tokens.refresh_token
+
+            # Call callback if set
+            if self.config.on_token_refreshed:
+                with contextlib.suppress(Exception):
+                    self.config.on_token_refreshed(new_tokens)
+
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Token refresh failed: %s", e)
 
 
 __all__: list[str] = [

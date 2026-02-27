@@ -62,11 +62,15 @@ async def test_repository_rollback_on_exception(real_mongo_connection):
 
     # Test rollback
     uow = MongoUnitOfWork(connection=real_mongo_connection, require_replica_set=False)
-    with pytest.raises(ValueError):
+
+    async def _rollback_scenario():
         async with uow:
             await repo.add(entity, uow=uow)
             await uow.commit()
             raise ValueError("Simulated error")
+
+    with pytest.raises(ValueError):
+        await _rollback_scenario()
 
     # Note: With standalone MongoDB, rollback is no-op
     # With replica sets and transactions, changes would be rolled back

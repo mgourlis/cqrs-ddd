@@ -485,7 +485,7 @@ class TestMongoQuerySpecificationPersistence:
                 "val": "Test",
             }
 
-        results = await persistence.fetch(SimpleSpec())
+        results = persistence.fetch(SimpleSpec(), uow=None)
         result_list = await results
 
         assert len(result_list) == 1
@@ -508,7 +508,7 @@ class TestMongoQuerySpecificationPersistence:
             specification = {}
             limit = 2
 
-        results = await persistence.fetch(QueryOptions())
+        results = persistence.fetch(QueryOptions(), uow=None)
         result_list = await results
 
         assert len(result_list) == 2
@@ -531,7 +531,7 @@ class TestMongoQuerySpecificationPersistence:
             specification = {}
             offset = 2
 
-        results = await persistence.fetch(QueryOptions())
+        results = persistence.fetch(QueryOptions(), uow=None)
         result_list = await results
 
         assert len(result_list) == 3  # 5 total - 2 offset
@@ -553,7 +553,7 @@ class TestMongoQuerySpecificationPersistence:
             specification = {}
             order_by = [("value", 1)]
 
-        results = await persistence.fetch(QueryOptions())
+        results = persistence.fetch(QueryOptions(), uow=None)
         result_list = await results
 
         assert len(result_list) == 3
@@ -573,7 +573,7 @@ class TestMongoQuerySpecificationPersistence:
         class EmptySpec:
             specification = {}
 
-        results = await persistence.fetch(EmptySpec())
+        results = persistence.fetch(EmptySpec(), uow=None)
         assert isinstance(results, SearchResult)
 
         result_list = await results
@@ -591,7 +591,7 @@ class TestMongoQuerySpecificationPersistence:
         class EmptySpec:
             specification = {}
 
-        results = await persistence.fetch(EmptySpec())
+        results = persistence.fetch(EmptySpec(), uow=None)
         assert isinstance(results, SearchResult)
 
         streamed_results = []
@@ -612,8 +612,8 @@ class TestMongoQuerySpecificationPersistence:
         class SpecWithAttr:
             specification = {}
 
-        results1 = await persistence.fetch(SpecWithAttr())
-        results2 = await persistence.fetch(SpecWithAttr())
+        results1 = persistence.fetch(SpecWithAttr(), uow=None)
+        results2 = persistence.fetch(SpecWithAttr(), uow=None)
 
         # Both should work
         list1 = await results1
@@ -641,9 +641,9 @@ class TestMongoQuerySpecificationPersistence:
         class EmptySpec:
             specification = {}
 
-        results = await persistence.fetch(EmptySpec(), uow=uow)
+        results = persistence.fetch(EmptySpec(), uow=uow)
 
-        result_list = await results
+        result_list = [dto async for dto in results.stream()]
         assert len(result_list) == 1
 
     @pytest.mark.asyncio
@@ -661,7 +661,7 @@ class TestMongoQuerySpecificationPersistence:
         class EmptySpec:
             specification = {}
 
-        results = await persistence.fetch(EmptySpec())
+        results = persistence.fetch(EmptySpec(), uow=None)
         result_list = await results
 
         assert len(result_list) == 1

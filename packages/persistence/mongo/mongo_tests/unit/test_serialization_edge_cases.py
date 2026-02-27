@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import uuid4
 
@@ -183,7 +183,7 @@ class TestSerializationCustomTypes:
 
     def test_serialization_custom_types(self):
         """Test serialization of datetime, Decimal, and UUID types."""
-        timestamp = datetime(2024, 1, 1, 12, 0, 0)
+        timestamp = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         decimal_val = Decimal("123.45")
         uuid_val = str(uuid4())
 

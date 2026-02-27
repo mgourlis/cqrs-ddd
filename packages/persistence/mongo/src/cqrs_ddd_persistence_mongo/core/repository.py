@@ -57,11 +57,14 @@ class MongoRepository(IRepository[T, str], Generic[T]):
         return self._connection.client.get_database(database_name)
 
     def _collection(self, session: Any = None) -> Any:
-        """Get the MongoDB collection, optionally with a session for transactions."""
+        """Get the MongoDB collection, optionally with a session for
+        transactions.
+        """
         db = self._db()
         if session is None:
             return db.get_collection(self._collection_name)
-        # Try to use session; fall back gracefully for mock clients that don't support it
+        # Try to use session; fall back gracefully for mock clients
+        # that don't support it
         try:
             return db.get_collection(self._collection_name, session=session)
         except TypeError:
@@ -69,7 +72,9 @@ class MongoRepository(IRepository[T, str], Generic[T]):
             return db.get_collection(self._collection_name)
 
     async def add(self, entity: T, uow: UnitOfWork | None = None) -> str:
-        """Insert or replace document with optimistic concurrency check. Returns entity id."""
+        """Insert or replace document with optimistic concurrency check.
+        Returns entity id.
+        """
         session = uow.session if isinstance(uow, MongoUnitOfWork) else None
         coll = self._collection(session)
         doc = self._mapper.to_doc(entity)
@@ -103,8 +108,9 @@ class MongoRepository(IRepository[T, str], Generic[T]):
                 existing = await coll.find_one({"_id": doc["_id"]}, session=session)
                 if existing:
                     raise OptimisticConcurrencyError(
-                        f"Concurrent modification detected: expected version {expected_version}, "
-                        f"but document has version {existing.get('version', 0)}"
+                        f"Concurrent modification detected: expected version "
+                        f"{expected_version}, but document has version "
+                        f"{existing.get('version', 0)}"
                     )
                 # Document doesn't exist, create it with version 1
                 doc["version"] = 1
@@ -112,7 +118,8 @@ class MongoRepository(IRepository[T, str], Generic[T]):
         else:
             # No versioning, simple upsert
             if session and session_in_transaction(session):
-                # Try with session; fall back for mongomock which doesn't support sessions
+                # Try with session; fall back for mongomock which
+                # doesn't support sessions
                 try:
                     await coll.replace_one(
                         {"_id": doc["_id"]},

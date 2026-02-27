@@ -17,7 +17,9 @@ class StringFormatRenderer(ITemplateRenderer):
     No external dependencies.
     """
 
-    async def render(self, template: NotificationTemplate, context: dict[str, Any]) -> RenderedNotification:
+    async def render(
+        self, template: NotificationTemplate, context: dict[str, Any]
+    ) -> RenderedNotification:
         """Render template using str.format()."""
         try:
             subject = None

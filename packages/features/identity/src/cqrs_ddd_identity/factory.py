@@ -116,7 +116,7 @@ class CompositeIdentityProvider(IIdentityProvider):
         for provider in self._providers:
             try:
                 await provider.logout(token)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 errors.append(e)
 
         # If all failed, raise the first error

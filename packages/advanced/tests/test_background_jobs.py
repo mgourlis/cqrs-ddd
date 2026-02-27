@@ -928,7 +928,7 @@ class TestBackgroundJobAdminService:
         old.updated_at = datetime.now(timezone.utc) - timedelta(days=10)
         await persistence.add(old)
         admin = BackgroundJobAdminService(repository=persistence)
-        naive_cutoff = datetime.now() - timedelta(days=5)
+        naive_cutoff = datetime.now(timezone.utc) - timedelta(days=5)
 
         deleted = await admin.purge_completed(before=naive_cutoff)
 

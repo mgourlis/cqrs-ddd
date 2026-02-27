@@ -28,6 +28,6 @@ class SentryMiddleware(IMiddleware):
                 sentry_sdk.capture_exception(e)
             except ImportError:
                 pass
-            except Exception:
+            except Exception:  # noqa: BLE001
                 pass  # do not let Sentry reporting failures mask the original error
             raise

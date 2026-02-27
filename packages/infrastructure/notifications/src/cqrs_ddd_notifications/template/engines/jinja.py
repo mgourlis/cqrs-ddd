@@ -17,7 +17,7 @@ try:
     _JINJA2_AVAILABLE = True
 except ImportError:
     _JINJA2_AVAILABLE = False
-    JinjaTemplate = None  # type: ignore
+    JinjaTemplate = None
 
 
 class JinjaTemplateRenderer(ITemplateRenderer):
@@ -31,7 +31,9 @@ class JinjaTemplateRenderer(ITemplateRenderer):
                 "Jinja2 is required. Install with: pip install 'cqrs-ddd-notifications[jinja2]'"
             )
 
-    async def render(self, template: NotificationTemplate, context: dict[str, Any]) -> RenderedNotification:
+    async def render(
+        self, template: NotificationTemplate, context: dict[str, Any]
+    ) -> RenderedNotification:
         """Render template using Jinja2."""
         try:
             # Render Subject (if applicable to the channel, like Email)

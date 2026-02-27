@@ -27,7 +27,7 @@ class ConsoleSender(INotificationSender):
         recipient: str,
         content: RenderedNotification,
         channel: NotificationChannel,
-        metadata: dict[str, object] | None = None,
+        _metadata: dict[str, object] | None = None,
     ) -> DeliveryRecord:
         output = [
             "═" * 50,

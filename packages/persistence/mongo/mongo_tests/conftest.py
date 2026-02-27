@@ -36,8 +36,8 @@ class MockSession:
         """Abort the transaction."""
         self._in_transaction = False
 
-    def end_session(self):
-        """End the session (sync like Motor)."""
+    async def end_session(self):
+        """End the session (async for compatibility)."""
         self._in_transaction = False
 
 

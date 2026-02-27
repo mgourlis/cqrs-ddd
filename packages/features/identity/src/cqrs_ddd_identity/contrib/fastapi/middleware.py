@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
 
 from ...context import (
@@ -21,11 +20,16 @@ from ...token import TokenExtractor
 
 if TYPE_CHECKING:
     from fastapi import Request
+    from starlette.middleware.base import BaseHTTPMiddleware
 
     from ...ports import IIdentityProvider
+else:
+    BaseHTTPMiddleware = object
+
+    from starlette.middleware.base import BaseHTTPMiddleware  # noqa: F811
 
 
-class AuthenticationMiddleware(BaseHTTPMiddleware):
+class AuthenticationMiddleware(BaseHTTPMiddleware):  # type: ignore[misc]
     """FastAPI middleware for authentication.
 
     Order of Operations:

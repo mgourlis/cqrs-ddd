@@ -33,7 +33,6 @@ __all__: list[str] = [
     "OAuthStateData",
     "generate_oauth_state",
     "OAuthStateManager",
-    # Keycloak (optional)
     "GroupPathStrategy",
     "KeycloakConfig",
     "KeycloakIdentityProvider",

@@ -47,7 +47,7 @@ class MongoBackgroundJobRepository(
     async def get_stale_jobs(
         self,
         timeout_seconds: int | None = None,
-        uow: UnitOfWork | None = None,
+        _uow: UnitOfWork | None = None,
     ) -> list[BaseBackgroundJob]:
         """Fetch RUNNING jobs that have exceeded their timeout."""
         timeout = timeout_seconds or self.stale_job_timeout_seconds
@@ -70,7 +70,7 @@ class MongoBackgroundJobRepository(
         statuses: list[DomainJobStatus],  # Match protocol signature (list of statuses)
         limit: int = 50,
         offset: int = 0,
-        uow: UnitOfWork | None = None,
+        _uow: UnitOfWork | None = None,
     ) -> list[BaseBackgroundJob]:
         """Find jobs by status."""
         # Build query to match any of the provided statuses
@@ -94,8 +94,8 @@ class MongoBackgroundJobRepository(
     async def claim_next_job(
         self,
         worker_id: str,
-        timeout_seconds: int = 300,
-        uow: UnitOfWork | None = None,
+        _timeout_seconds: int = 300,
+        _uow: UnitOfWork | None = None,
     ) -> BaseBackgroundJob | None:
         """
         Atomically claim next pending job using findAndModify.
@@ -193,7 +193,7 @@ class MongoBackgroundJobRepository(
         self,
         job_id: str,
         result_data: dict[str, Any] | None = None,
-        uow: UnitOfWork | None = None,
+        _uow: UnitOfWork | None = None,
     ) -> None:
         """Mark a job as completed."""
         now = datetime.now(timezone.utc)

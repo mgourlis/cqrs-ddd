@@ -2,7 +2,8 @@
 
 .. deprecated::
     Prefer :class:`cqrs_ddd_persistence_mongo.core.model_mapper.MongoDBModelMapper`
-    for BSON type preservation (mode='python', Decimal128). See docs/mongodb_model_mapper.md.
+    for BSON type preservation (mode='python', Decimal128).
+    See docs/mongodb_model_mapper.md.
 """
 
 from __future__ import annotations

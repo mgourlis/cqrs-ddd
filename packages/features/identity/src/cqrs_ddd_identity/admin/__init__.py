@@ -43,7 +43,6 @@ __all__: list[str] = [
     "RoleData",
     "GroupData",
     "UserFilters",
-    # Keycloak (optional)
     "KeycloakAdminAdapter",
     "KeycloakAdminConfig",
     "UserManagementError",

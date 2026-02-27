@@ -35,7 +35,7 @@ class TwilioSMSSender(INotificationSender):
         recipient: str,
         content: RenderedNotification,
         channel: NotificationChannel,
-        metadata: dict[str, object] | None = None,
+        _metadata: dict[str, object] | None = None,
     ) -> DeliveryRecord:
         if channel != NotificationChannel.SMS:
             raise ValueError(f"TwilioSMSSender does not support {channel}")

@@ -43,8 +43,8 @@ class SecurityConstraintInjector:
         if registry is None:
             raise ValueError(
                 "registry parameter is required. "
-                "Use build_default_registry() from cqrs_ddd_specifications.operators_memory "
-                "to create one."
+                "Use build_default_registry() from "
+                "cqrs_ddd_specifications.operators_memory to create one."
             )
         self._registry = registry
         self._get_tenant_id = get_tenant_id

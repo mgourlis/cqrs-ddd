@@ -242,6 +242,7 @@ class OAuth2TokenClient(ABC):
             This is a placeholder for subclasses to implement.
         """
         # NOTE: Implementations should override this method
+        raise NotImplementedError("Subclasses must implement revoke with HTTP client")
 
     def get_logout_url(
         self,

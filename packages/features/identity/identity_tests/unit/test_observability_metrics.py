@@ -22,11 +22,8 @@ class TestAuthMetrics:
             patch("prometheus_client.Counter", MagicMock()),
             patch("prometheus_client.Histogram", MagicMock()),
             patch("prometheus_client.Gauge", MagicMock()),
+            AuthMetrics.operation("authenticate", provider="keycloak", method="jwt"),
         ):
-            with AuthMetrics.operation(
-                "authenticate", provider="keycloak", method="jwt"
-            ):
-                pass
             assert True
 
     def test_operation_without_prometheus(self):
@@ -46,9 +43,11 @@ class TestAuthMetrics:
                 raise ImportError("No module named 'prometheus_client'")
             return real_import(name, *args, **kwargs)
 
-        with patch("builtins.__import__", side_effect=raise_for_prometheus):
-            with AuthMetrics.operation("authenticate", provider="keycloak"):
-                pass
+        with (
+            patch("builtins.__import__", side_effect=raise_for_prometheus),
+            AuthMetrics.operation("authenticate", provider="keycloak"),
+        ):
+            pass
         assert True
 
     def test_record_event_success(self):

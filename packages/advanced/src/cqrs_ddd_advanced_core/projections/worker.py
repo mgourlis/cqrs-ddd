@@ -26,7 +26,8 @@ class ProjectionEventHandler(Protocol):
 # Type for handler map: event_type -> handler
 HandlerMap = dict[str, ProjectionEventHandler]
 
-# Type for UoW factory: callable returning an async context manager that yields UnitOfWork
+# Type for UoW factory: callable returning an async context manager
+# that yields UnitOfWork
 AsyncUoWFactory = Any  # Callable[[], AbstractAsyncContextManager[UnitOfWork]]
 
 

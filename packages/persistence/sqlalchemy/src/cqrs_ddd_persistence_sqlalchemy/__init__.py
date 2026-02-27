@@ -61,7 +61,7 @@ __all__ = [
     "OutboxMessage",
     "StoredEventModel",
     "OutboxStatus",
-    # Projections (IProjectionWriter / IProjectionPositionStore)
+    # Projections (IProjectionWriter / IProjectionPositionStore)  # noqa: ERA001
     "SQLAlchemyProjectionStore",
     "SQLAlchemyProjectionPositionStore",
     "ProjectionCheckpoint",

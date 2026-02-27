@@ -293,7 +293,7 @@ class TestIntegrationStreaming:
 
         count = 0
         result = await repository.search(EmptySpec())
-        async for entity in result.stream(batch_size=10):
+        async for _ in result.stream(batch_size=10):
             count += 1
 
         assert count == num_docs

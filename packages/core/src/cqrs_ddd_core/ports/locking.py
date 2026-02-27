@@ -1,12 +1,14 @@
 """ILockStrategy — protocol for pessimistic and distributed locking.
 
 Lock TTL guidance:
-- Short-lived operations (e.g. command handlers): default ttl (e.g. 30s) is usually fine.
-- DDL / schema / initialize-once (e.g. creating collections, geospatial or heavy indexes):
-  Use a conservative TTL (e.g. DDL_LOCK_TTL_SECONDS = 300) or run a background
-  heartbeat that calls extend(resource, token, ttl=...) periodically while holding
-  the lock. If the lock TTL is too low (e.g. 60s), slow DDL can expire so another
-  pod acquires the lock and runs the same DDL, causing races or duplicate work.
+- Short-lived operations (e.g. command handlers): default ttl (e.g. 30s)
+  is usually fine.
+- DDL / schema / initialize-once (e.g. creating collections, geospatial
+  or heavy indexes): Use a conservative TTL (e.g. DDL_LOCK_TTL_SECONDS = 300)
+  or run a background heartbeat that calls extend(resource, token, ttl=...)
+  periodically while holding the lock. If the lock TTL is too low (e.g. 60s),
+  slow DDL can expire so another pod acquires the lock and runs the same DDL,
+  causing races or duplicate work.
 """
 
 from __future__ import annotations

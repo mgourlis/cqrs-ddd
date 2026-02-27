@@ -53,7 +53,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         if session is not None:
             r = await session.execute(
                 text(
-                    f"SELECT position FROM {self._table} WHERE projection_name = :name"
+                    f"SELECT position FROM {self._table} WHERE projection_name = :name"  # noqa: S608
                 ),
                 {"name": projection_name},
             )
@@ -62,7 +62,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         async with self._session_factory() as session:
             r = await session.execute(
                 text(
-                    f"SELECT position FROM {self._table} WHERE projection_name = :name"
+                    f"SELECT position FROM {self._table} WHERE projection_name = :name"  # noqa: S608
                 ),
                 {"name": projection_name},
             )
@@ -84,7 +84,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
                     INSERT INTO {self._table} (projection_name, position)
                     VALUES (:name, :position)
                     ON CONFLICT (projection_name) DO UPDATE SET position = :position
-                    """
+                    """  # noqa: S608
                 ),
                 {"name": projection_name, "position": position},
             )
@@ -96,7 +96,7 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
                     INSERT INTO {self._table} (projection_name, position)
                     VALUES (:name, :position)
                     ON CONFLICT (projection_name) DO UPDATE SET position = :position
-                    """
+                    """  # noqa: S608
                 ),
                 {"name": projection_name, "position": position},
             )
@@ -111,13 +111,13 @@ class SQLAlchemyProjectionPositionStore(IProjectionPositionStore):
         session = self._get_session(uow)
         if session is not None:
             await session.execute(
-                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),
+                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),  # noqa: S608
                 {"name": projection_name},
             )
             return
         async with self._session_factory() as session:
             await session.execute(
-                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),
+                text(f"DELETE FROM {self._table} WHERE projection_name = :name"),  # noqa: S608
                 {"name": projection_name},
             )
             await session.commit()

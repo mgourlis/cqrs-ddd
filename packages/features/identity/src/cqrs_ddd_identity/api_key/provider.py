@@ -80,9 +80,8 @@ class ApiKeyIdentityProvider(IIdentityProvider):
             raise InvalidApiKeyError("API key is disabled")
 
         # Check expiration
-        if key_record.expires_at:
-            if datetime.now(timezone.utc) > key_record.expires_at:
-                raise ExpiredApiKeyError("API key has expired")
+        if key_record.expires_at and datetime.now(timezone.utc) > key_record.expires_at:
+            raise ExpiredApiKeyError("API key has expired")
 
         # Record usage
         await self.api_key_repository.record_usage(key_record.key_id)

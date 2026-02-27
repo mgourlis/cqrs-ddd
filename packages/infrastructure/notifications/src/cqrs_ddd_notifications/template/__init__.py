@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib.util
+
 from .engines.string import StringFormatRenderer
 from .providers.memory import InMemoryTemplateProvider
 from .registry import TemplateRegistry
@@ -13,10 +15,8 @@ __all__ = [
 ]
 
 # Optional Jinja2 components
-try:
-    from .engines.jinja import JinjaTemplateRenderer
-    from .providers.filesystem import FileSystemTemplateLoader
+if importlib.util.find_spec("jinja2") is not None:
+    from .engines.jinja import JinjaTemplateRenderer  # noqa: F401
+    from .providers.filesystem import FileSystemTemplateLoader  # noqa: F401
 
     __all__.extend(["FileSystemTemplateLoader", "JinjaTemplateRenderer"])
-except ImportError:
-    pass

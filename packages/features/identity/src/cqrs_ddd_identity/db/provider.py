@@ -1,8 +1,8 @@
 """Database authentication provider with session support.
 
 Provides username/password authentication against a local database.
-Generates session tokens that can be resolved via resolve() for middleware compatibility.
-Requires IUserCredentialsRepository implementation from the application.
+Generates session tokens that can be resolved via resolve() for middleware
+compatibility. Requires IUserCredentialsRepository from the application.
 """
 
 from __future__ import annotations
@@ -289,7 +289,7 @@ class DatabaseIdentityProvider(IIdentityProvider):
         return TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            token_type="Bearer",
+            token_type="Bearer",  # noqa: S106
             expires_in=self.session_ttl_seconds,
             expires_at=access_expires_at,
         )

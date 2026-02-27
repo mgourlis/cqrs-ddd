@@ -76,7 +76,8 @@ class MongoQueryBuilder:
         """Build $match stage from a specification.
 
         Accepts either a specification instance (with to_dict()), a dict AST
-        (with attr/op/conditions), or a raw MongoDB filter dict (e.g. {"field": {"$gte": 5}}).
+        (with attr/op/conditions), or a raw MongoDB filter dict
+        (e.g. {"field": {"$gte": 5}}).
         """
         if hasattr(spec, "to_dict"):
             data = spec.to_dict()
@@ -86,7 +87,8 @@ class MongoQueryBuilder:
             raise MongoQueryError("spec must be BaseSpecification or dict")
         if not data:
             return {}
-        # Raw MongoDB filter: top-level keys are field names, no "attr"/"op"/"conditions"
+        # Raw MongoDB filter: top-level keys are field names, no
+        # "attr"/"op"/"conditions"
         if not any(k in data for k in ("attr", "op", "conditions")):
             return data if isinstance(data, dict) else {}
         return _compile_node(data)

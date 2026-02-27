@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from sqlalchemy import Column, Integer, MetaData, String, Table, select
-
-_metadata = MetaData()
-
 from typing import TYPE_CHECKING
+
+from sqlalchemy import Column, Integer, MetaData, String, Table, select
 
 from cqrs_ddd_persistence_sqlalchemy.specifications.utils import (
     _extract_tables_recursive,
@@ -15,6 +13,8 @@ from cqrs_ddd_persistence_sqlalchemy.specifications.utils import (
 
 if TYPE_CHECKING:
     from sqlalchemy.sql.selectable import Join
+
+_metadata = MetaData()
 
 
 def test_extract_tables_single_table() -> None:

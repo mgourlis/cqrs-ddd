@@ -3,9 +3,10 @@
 
 import subprocess
 import sys
+from collections.abc import Sequence
 
 
-def run_tests(args=None):
+def run_tests(args: Sequence[str] | None = None) -> int:
     """Run the integration tests."""
     cmd = [
         sys.executable,
@@ -21,7 +22,7 @@ def run_tests(args=None):
         cmd.extend(args)
 
     print(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(cmd, cwd="..")  # Run from tests/ directory parent
+    result = subprocess.run(cmd, cwd="..")  # noqa: S603
 
     return result.returncode
 

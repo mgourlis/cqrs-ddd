@@ -128,12 +128,15 @@ class MongoUnitOfWork(UnitOfWork):
         """
         if self._session is None:
             raise MongoUnitOfWorkError(
-                "Session not available. Use the Unit of Work as a context manager first."
+                "Session not available. Use the Unit of Work as a context "
+                "manager first."
             )
         return self._session
 
     async def _check_replica_set(self) -> None:
-        """Raise RuntimeError if require_replica_set and MongoDB is not a replica set."""
+        """Raise RuntimeError if require_replica_set and MongoDB is not a
+        replica set.
+        """
         client = getattr(self._session, "client", None) if self._session else None
         if client is None and self._connection:
             client = self._connection.client
@@ -163,11 +166,13 @@ class MongoUnitOfWork(UnitOfWork):
                 self._session = await self._create_session()
             else:
                 raise MongoUnitOfWorkError(
-                    "No session_factory or connection provided for self-managed session."
+                    "No session_factory or connection provided for "
+                    "self-managed session."
                 )
         if self._session and self._require_replica_set:
             await self._check_replica_set()
-        # Only start a transaction when we require replica set (transactions need replica set)
+        # Only start a transaction when we require replica set
+        # (transactions need replica set)
         if (
             self._session
             and self._require_replica_set

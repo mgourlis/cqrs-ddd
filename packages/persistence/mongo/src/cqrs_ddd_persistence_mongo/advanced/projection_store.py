@@ -142,7 +142,7 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
     async def find(
         self,
         collection: str,
-        filter: dict[str, Any],
+        filter_dict: dict[str, Any],
         *,
         limit: int = 100,
         offset: int = 0,
@@ -151,7 +151,7 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         """Query documents by filter dict."""
         session = self._get_session(uow)
         coll = self._coll(collection)
-        cursor = coll.find(filter, session=session).skip(offset).limit(limit)
+        cursor = coll.find(filter_dict, session=session).skip(offset).limit(limit)
         results = []
         async for doc in cursor:
             results.append(dict(doc))
@@ -163,7 +163,9 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         *,
         schema: ProjectionSchema | None = None,
     ) -> None:
-        """MongoDB auto-creates collections; no-op (or optional validation from schema)."""
+        """MongoDB auto-creates collections; no-op (or optional validation
+        from schema).
+        """
 
     async def collection_exists(self, collection: str) -> bool:
         names = await self._db().list_collection_names()
@@ -196,37 +198,64 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         data = dict(data)
 
         # Idempotency check: skip if we've already processed this event
-        if event_id:
-            existing = await coll.find_one(
-                {"_last_event_id": event_id}, session=session
+        if event_id and await self._is_duplicate_event(coll, event_id, session):
+            logger.debug(
+                "Skipping duplicate event %s for %s/%s",
+                event_id,
+                collection,
+                doc_id,
             )
-            if existing:
-                logger.debug(
-                    "Skipping duplicate event %s for %s/%s",
-                    event_id,
-                    collection,
-                    doc_id,
-                )
-                return False
+            return False
 
         # Version check: skip if existing version is >= event_position
         if event_position is not None:
-            existing = await coll.find_one(filter_doc, session=session)
-            if existing:
-                existing_version = existing.get("_version", 0)
-                if existing_version >= event_position:
-                    logger.debug(
-                        "Skipping stale event at position %s (current: %s) for %s/%s",
-                        event_position,
-                        existing_version,
-                        collection,
-                        doc_id,
-                    )
-                    return False
+            should_skip = await self._should_skip_stale_event(
+                coll, filter_doc, event_position, collection, doc_id, session
+            )
+            if should_skip:
+                return False
             data["_version"] = event_position
             data["_last_event_id"] = event_id
             data["_last_event_position"] = event_position
 
+        self._normalize_id_field(data, filter_doc)
+
+        result = await coll.replace_one(filter_doc, data, upsert=True, session=session)
+        return cast("bool", result.acknowledged)
+
+    async def _is_duplicate_event(self, coll: Any, event_id: str, session: Any) -> bool:
+        """Check if event has already been processed."""
+        existing = await coll.find_one({"_last_event_id": event_id}, session=session)
+        return existing is not None
+
+    async def _should_skip_stale_event(
+        self,
+        coll: Any,
+        filter_doc: dict[str, Any],
+        event_position: int,
+        collection: str,
+        doc_id: DocId,
+        session: Any,
+    ) -> bool:
+        """Check if event is stale (existing version >= event_position)."""
+        existing = await coll.find_one(filter_doc, session=session)
+        if existing:
+            existing_version = existing.get("_version", 0)
+            if existing_version >= event_position:
+                logger.debug(
+                    "Skipping stale event at position %s (current: %s) for %s/%s",
+                    event_position,
+                    existing_version,
+                    collection,
+                    doc_id,
+                )
+                return True
+        return False
+
+    def _normalize_id_field(
+        self, data: dict[str, Any], filter_doc: dict[str, Any]
+    ) -> None:
+        """Normalize ID field in document."""
         if "_id" not in data and "_id" in filter_doc:
             data["_id"] = filter_doc["_id"]
         elif self._id_field in data and "_id" not in data:
@@ -236,9 +265,6 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         # Remove id_field from doc when it was used as _id source (e.g. custom_id)
         if self._id_field in data and data.get("_id") is not None:
             data.pop(self._id_field, None)
-
-        result = await coll.replace_one(filter_doc, data, upsert=True, session=session)
-        return cast("bool", result.acknowledged)
 
     async def upsert_batch(
         self,
@@ -297,7 +323,7 @@ class MongoProjectionStore(IProjectionWriter, IProjectionReader):
         collection: str,
         doc_id: DocId,
         *,
-        cascade: bool = False,
+        cascade: bool = False,  # noqa: ARG002
         uow: UnitOfWork | None = None,
     ) -> None:
         session = self._get_session(uow)

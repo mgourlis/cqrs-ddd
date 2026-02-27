@@ -46,7 +46,7 @@ class SmtpEmailSender(INotificationSender):
             raise ValueError(f"SmtpEmailSender does not support {channel}")
 
         from_addr = (metadata or {}).get("from_email") or self.from_email
-        if not from_addr:
+        if not from_addr or not isinstance(from_addr, str):
             raise ValueError("Sender email (from_email) is required.")
 
         # Lazy import of aiosmtplib
@@ -59,28 +59,7 @@ class SmtpEmailSender(INotificationSender):
             ) from e
 
         try:
-            # Build email message
-            message = email.message.EmailMessage(policy=email.policy.default)
-            message["To"] = recipient
-            message["From"] = from_addr
-            if content.subject:
-                message["Subject"] = content.subject
-
-            if content.body_html:
-                # Multipart with both text and HTML
-                message.set_content(content.body_text, subtype="plain", charset="utf-8")
-                message.add_alternative(content.body_html, subtype="html", charset="utf-8")
-            else:
-                message.set_content(content.body_text, charset="utf-8")
-
-            # Add attachments
-            for attachment in content.attachments or []:
-                message.add_attachment(
-                    attachment.content,
-                    maintype=attachment.mimetype.split("/")[0],
-                    subtype=attachment.mimetype.split("/")[1],
-                    filename=attachment.filename,
-                )
+            message = self._build_email_message(recipient, content, from_addr)
 
             # Send via SMTP
             async with aiosmtplib.SMTP(
@@ -101,3 +80,34 @@ class SmtpEmailSender(INotificationSender):
         except Exception as e:
             logger.error(f"Failed to send email to {recipient}: {str(e)}")
             return DeliveryRecord.failed(recipient, channel, error=str(e))
+
+    def _build_email_message(
+        self,
+        recipient: str,
+        content: RenderedNotification,
+        from_addr: str,
+    ) -> email.message.EmailMessage:
+        """Build email message from rendered notification."""
+        message = email.message.EmailMessage(policy=email.policy.default)
+        message["To"] = recipient
+        message["From"] = from_addr
+        if content.subject:
+            message["Subject"] = content.subject
+
+        if content.body_html:
+            # Multipart with both text and HTML
+            message.set_content(content.body_text, subtype="plain", charset="utf-8")
+            message.add_alternative(content.body_html, subtype="html", charset="utf-8")
+        else:
+            message.set_content(content.body_text, charset="utf-8")
+
+        # Add attachments
+        for attachment in content.attachments or []:
+            message.add_attachment(
+                attachment.content,
+                maintype=attachment.mimetype.split("/")[0],
+                subtype=attachment.mimetype.split("/")[1],
+                filename=attachment.filename,
+            )
+
+        return message

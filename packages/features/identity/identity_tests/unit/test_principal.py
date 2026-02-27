@@ -180,7 +180,7 @@ class TestPrincipalExpiration:
         principal = Principal(
             user_id="user-1",
             username="user1",
-            expires_at=datetime.now() + timedelta(hours=1),  # Naive
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=1),  # Naive
         )
 
         assert principal.is_expired is False

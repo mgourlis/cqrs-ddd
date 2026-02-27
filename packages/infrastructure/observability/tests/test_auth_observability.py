@@ -28,13 +28,15 @@ class TestAuthMetrics:
 
     def test_operation_context_manager_failure(self):
         """Test that operation context manager records failure."""
-        with pytest.raises(ValueError):
-            with auth_observability.AuthMetrics.operation(
+        with (
+            pytest.raises(ValueError),
+            auth_observability.AuthMetrics.operation(
                 "resolve",
                 provider="keycloak",
                 method="jwt",
-            ):
-                raise ValueError("Auth failed")
+            ),
+        ):
+            raise ValueError("Auth failed")
 
         # Should record failure metric before re-raising
 

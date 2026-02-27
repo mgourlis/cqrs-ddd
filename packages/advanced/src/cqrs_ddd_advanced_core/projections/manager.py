@@ -18,7 +18,8 @@ class ProjectionManager:
     distributed locking so only one process performs DDL in multi-pod deployments.
 
     Uses ILockStrategy (e.g. Redis-based) with ResourceIdentifier
-    resource_type="projection_initialization", resource_id=collection, lock_mode="write".
+    resource_type="projection_initialization", resource_id=collection,
+    lock_mode="write".
     """
 
     def __init__(

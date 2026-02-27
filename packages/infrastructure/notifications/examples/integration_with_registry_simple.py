@@ -132,7 +132,9 @@ async def bootstrap_notification_system() -> EventDispatcher[Any]:
             template_id="order_shipped_sms",
             channel=NotificationChannel.SMS,
             subject_template=None,
-            body_template="Hi {customer_name}, your order {order_id} has shipped! Track it: {tracking_number}",
+            body_template=(
+                "Hi {customer_name}, your order {order_id} has shipped! Track it: {tracking_number}"
+            ),
             locale="en",
         ),
     )

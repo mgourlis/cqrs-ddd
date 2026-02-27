@@ -24,9 +24,9 @@ class AuthEventType(Enum):
     LOGOUT = "auth.logout"
 
     # Token events
-    TOKEN_REFRESHED = "auth.token.refreshed"
-    TOKEN_REVOKED = "auth.token.revoked"
-    TOKEN_EXPIRED = "auth.token.expired"
+    TOKEN_REFRESHED = "auth.token.refreshed"  # noqa: S105
+    TOKEN_REVOKED = "auth.token.revoked"  # noqa: S105
+    TOKEN_EXPIRED = "auth.token.expired"  # noqa: S105
 
     # MFA events
     MFA_ENABLED = "auth.mfa.enabled"
@@ -47,10 +47,10 @@ class AuthEventType(Enum):
     SESSION_EXPIRED = "auth.session.expired"
 
     # Password events
-    PASSWORD_CHANGED = "auth.password.changed"
-    PASSWORD_RESET_REQUESTED = "auth.password.reset_requested"
-    PASSWORD_RESET_COMPLETED = "auth.password.reset_completed"
-    PASSWORD_FAILED = "auth.password.failed"
+    PASSWORD_CHANGED = "auth.password.changed"  # noqa: S105
+    PASSWORD_RESET_REQUESTED = "auth.password.reset_requested"  # noqa: S105
+    PASSWORD_RESET_COMPLETED = "auth.password.reset_completed"  # noqa: S105
+    PASSWORD_FAILED = "auth.password.failed"  # noqa: S105
 
     # User management events
     USER_CREATED = "auth.user.created"

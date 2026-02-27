@@ -89,7 +89,7 @@ token = set_principal(principal)
 try:
     # Get user ID anywhere in request
     user_id = get_user_id()
-    
+
     # Require role for sensitive operations
     require_role("admin")
 finally:

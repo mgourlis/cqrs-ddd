@@ -117,7 +117,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
                     {"name": collection},
                 )
                 return r.scalar() is not None
-            except Exception:
+            except Exception:  # noqa: BLE001
                 r = await session.execute(
                     text(
                         "SELECT 1 FROM sqlite_master "
@@ -130,17 +130,17 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
     async def truncate_collection(self, collection: str) -> None:
         collection = self._validate_table_name(collection)
         async with self._session_factory() as session:
-            await session.execute(text(f"TRUNCATE TABLE {collection}"))
+            await session.execute(text(f"TRUNCATE TABLE {collection}"))  # noqa: S608
             await session.commit()
 
     async def drop_collection(self, collection: str) -> None:
         collection = self._validate_table_name(collection)
         async with self._session_factory() as session:
-            await session.execute(text(f"DROP TABLE IF EXISTS {collection} CASCADE"))
+            await session.execute(text(f"DROP TABLE IF EXISTS {collection} CASCADE"))  # noqa: S608
             await session.commit()
 
     def _where_from_doc_id(
-        self, collection: str, doc_id: DocId
+        self, _collection: str, doc_id: DocId
     ) -> tuple[str, dict[str, Any], list[str]]:
         """
         Build WHERE clause from doc_id.
@@ -172,13 +172,15 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         session = self._get_session(uow)
         if session is not None:
             r = await session.execute(
-                text(f"SELECT * FROM {collection} WHERE {where}"), params
+                text(f"SELECT * FROM {collection} WHERE {where}"),  # noqa: S608
+                params,
             )
             row = r.mappings().fetchone()
             return dict(row) if row else None
         async with self._session_factory() as session:
             r = await session.execute(
-                text(f"SELECT * FROM {collection} WHERE {where}"), params
+                text(f"SELECT * FROM {collection} WHERE {where}"),  # noqa: S608
+                params,
             )
             row = r.mappings().fetchone()
             return dict(row) if row else None
@@ -204,7 +206,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             placeholders = ", ".join(f":id_{i}" for i in range(len(doc_ids)))
             params = {f"id_{i}": d for i, d in enumerate(doc_ids)}
             query = text(
-                f"SELECT * FROM {collection} WHERE {id_col} IN ({placeholders})"
+                f"SELECT * FROM {collection} WHERE {id_col} IN ({placeholders})"  # noqa: S608
             )
 
             session = self._get_session(uow)
@@ -229,7 +231,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
     async def find(
         self,
         collection: str,
-        filter: dict[str, Any],
+        filter_dict: dict[str, Any],
         *,
         limit: int = 100,
         offset: int = 0,
@@ -239,19 +241,19 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         collection = self._validate_table_name(collection)
 
         # Validate filter column names
-        for k in filter:
+        for k in filter_dict:
             self._validate_column_name(k)
 
         where_parts = []
         params: dict[str, Any] = {}
-        for i, (k, v) in enumerate(filter.items()):
+        for i, (k, v) in enumerate(filter_dict.items()):
             param_name = f"param_{i}"
             where_parts.append(f"{k} = :{param_name}")
             params[param_name] = v
 
         where_clause = " AND ".join(where_parts) if where_parts else "1=1"
         query = text(
-            f"SELECT * FROM {collection} WHERE {where_clause} "
+            f"SELECT * FROM {collection} WHERE {where_clause} "  # noqa: S608
             f"LIMIT :limit OFFSET :offset"
         )
         params["limit"] = limit
@@ -277,7 +279,27 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         uow: UnitOfWork | None = None,
     ) -> bool:
         collection = self._validate_table_name(collection)
+        data = self._prepare_upsert_data(data, doc_id)
 
+        # Idempotency and version checks
+        if await self._should_skip_upsert(
+            collection, doc_id, event_id, event_position, uow
+        ):
+            return False
+
+        # Add version metadata
+        self._add_event_metadata(data, event_position, event_id)
+
+        session = self._get_session(uow)
+        if session is None:
+            async with self._session_factory() as session:
+                return await self._upsert_impl(session, collection, doc_id, data)
+        return await self._upsert_impl(session, collection, doc_id, data)
+
+    def _prepare_upsert_data(
+        self, data: dict[str, Any] | Any, doc_id: DocId
+    ) -> dict[str, Any]:
+        """Prepare data for upsert by converting to dict and merging doc_id."""
         if hasattr(data, "model_dump"):
             data = data.model_dump(mode="json")
         data = dict(data)
@@ -286,6 +308,17 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         if isinstance(doc_id, dict):
             data.update(doc_id)
 
+        return data
+
+    async def _should_skip_upsert(
+        self,
+        collection: str,
+        doc_id: DocId,
+        event_id: str | None,
+        event_position: int | None,
+        uow: UnitOfWork | None,
+    ) -> bool:
+        """Check if upsert should be skipped due to idempotency or stale event."""
         # Idempotency check: skip if we've already processed this event
         if event_id:
             existing = await self.get(collection, doc_id, uow=uow)
@@ -296,24 +329,23 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
                     collection,
                     doc_id,
                 )
-                return False
+                return True
 
         # Version check: skip if existing version is >= event_position
         if event_position is not None:
-            existing = await self.get(collection, doc_id, uow=uow)
-            if existing:
-                existing_version = existing.get("_version", 0)
-                if existing_version >= event_position:
-                    logger.debug(
-                        "Skipping stale event at position %s (current: %s) for %s/%s",
-                        event_position,
-                        existing_version,
-                        collection,
-                        doc_id,
-                    )
-                    return False
+            return await self._should_skip_stale_event(
+                collection, doc_id, event_position, uow
+            )
 
-        # Add version metadata
+        return False
+
+    def _add_event_metadata(
+        self,
+        data: dict[str, Any],
+        event_position: int | None,
+        event_id: str | None,
+    ) -> None:
+        """Add event metadata fields to data dict."""
         if event_position is not None:
             data["_version"] = event_position
         if event_id is not None:
@@ -321,11 +353,27 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         if event_position is not None:
             data["_last_event_position"] = event_position
 
-        session = self._get_session(uow)
-        if session is None:
-            async with self._session_factory() as session:
-                return await self._upsert_impl(session, collection, doc_id, data)
-        return await self._upsert_impl(session, collection, doc_id, data)
+    async def _should_skip_stale_event(
+        self,
+        collection: str,
+        doc_id: DocId,
+        event_position: int,
+        uow: UnitOfWork | None,
+    ) -> bool:
+        """Check if event is stale (existing version >= event_position)."""
+        existing = await self.get(collection, doc_id, uow=uow)
+        if existing:
+            existing_version = existing.get("_version", 0)
+            if existing_version >= event_position:
+                logger.debug(
+                    "Skipping stale event at position %s (current: %s) for %s/%s",
+                    event_position,
+                    existing_version,
+                    collection,
+                    doc_id,
+                )
+                return True
+        return False
 
     async def _upsert_impl(
         self,
@@ -359,7 +407,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             INSERT INTO {collection} ({cols})
             VALUES ({placeholders})
             ON CONFLICT ({conflict_target}) DO UPDATE SET {updates}
-            """
+            """  # noqa: S608
         )
         await session.execute(stmt, data)
         return True
@@ -417,7 +465,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
             INSERT INTO {collection} ({cols_str})
             VALUES {", ".join(values_parts)}
             ON CONFLICT ({id_field}) DO UPDATE SET {updates}
-            """
+            """  # noqa: S608
         )
 
         session = self._get_session(uow)
@@ -433,7 +481,7 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         collection: str,
         doc_id: DocId,
         *,
-        cascade: bool = False,
+        cascade: bool = False,  # noqa: ARG002
         uow: UnitOfWork | None = None,
     ) -> None:
         collection = self._validate_table_name(collection)
@@ -442,11 +490,15 @@ class SQLAlchemyProjectionStore(IProjectionWriter, IProjectionReader):
         if session is None:
             async with self._session_factory() as session:
                 await session.execute(
-                    text(f"DELETE FROM {collection} WHERE {where}"), params
+                    text(f"DELETE FROM {collection} WHERE {where}"),  # noqa: S608
+                    params,
                 )
                 await session.commit()
             return
-        await session.execute(text(f"DELETE FROM {collection} WHERE {where}"), params)
+        await session.execute(
+            text(f"DELETE FROM {collection} WHERE {where}"),  # noqa: S608
+            params,
+        )
 
     async def ensure_ttl_index(
         self,

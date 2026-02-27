@@ -40,7 +40,7 @@ class RedisProjectionPositionStore(IProjectionPositionStore):
         self,
         projection_name: str,
         *,
-        uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
     ) -> int | None:
         value = await self._redis.get(self._key(projection_name))
         return int(value) if value else None
@@ -50,7 +50,7 @@ class RedisProjectionPositionStore(IProjectionPositionStore):
         projection_name: str,
         position: int,
         *,
-        uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
     ) -> None:
         await self._redis.set(self._key(projection_name), str(position))
 
@@ -58,6 +58,6 @@ class RedisProjectionPositionStore(IProjectionPositionStore):
         self,
         projection_name: str,
         *,
-        uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
     ) -> None:
         await self._redis.delete(self._key(projection_name))

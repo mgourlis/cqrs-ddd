@@ -1,4 +1,4 @@
-"""MongoCheckpointStore — implements ICheckpointStore for projection position tracking."""
+"""MongoCheckpointStore — ICheckpointStore for projection position tracking."""
 
 from __future__ import annotations
 

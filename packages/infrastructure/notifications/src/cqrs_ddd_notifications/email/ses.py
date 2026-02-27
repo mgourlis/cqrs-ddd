@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import logging
 from typing import Any
 
@@ -32,13 +33,11 @@ class SesEmailSender(INotificationSender):
     async def _get_client(self) -> Any:
         """Lazy-initialize AWS SES client."""
         if self._client is None:
-            try:
-                import aiobotocore
-            except ImportError as e:
+            if importlib.util.find_spec("aiobotocore") is None:
                 raise ImportError(
                     "aiobotocore is required for SesEmailSender. "
                     "Install with: pip install 'cqrs-ddd-notifications[aws]'"
-                ) from e
+                )
 
             from aiobotocore import AioSession
 

@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, Union, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from cqrs_ddd_advanced_core.projections.schema import ProjectionSchema
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
 
-DocId = Union[str, int, dict[str, Any]]  # Simple or composite key
+DocId = str | int | dict[str, Any]  # Simple or composite key
 
 
 @runtime_checkable
@@ -223,7 +223,7 @@ class IProjectionReader(Protocol):
     async def find(
         self,
         collection: str,
-        filter: dict[str, Any],
+        filter_dict: dict[str, Any],
         *,
         limit: int = 100,
         offset: int = 0,
@@ -234,7 +234,7 @@ class IProjectionReader(Protocol):
 
         Args:
             collection: Table/collection name
-            filter: Filter conditions (e.g., {"status": "active"})
+            filter_dict: Filter conditions (e.g., {"status": "active"})
             limit: Max results (default: 100)
             offset: Skip first N results (default: 0)
 

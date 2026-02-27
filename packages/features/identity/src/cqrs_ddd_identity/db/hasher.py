@@ -121,7 +121,10 @@ class PasswordHasher:
         """Verify password with bcrypt."""
         bcrypt_module = self._get_bcrypt()
         try:
-            return cast("bool", bcrypt_module.checkpw(password.encode(), hashed_password.encode()))
+            return cast(
+                "bool",
+                bcrypt_module.checkpw(password.encode(), hashed_password.encode()),
+            )
         except ValueError:
             # Invalid hash format or malformed hash
             return False
@@ -132,7 +135,7 @@ class PasswordHasher:
         try:
             hasher.verify(hashed_password, password)
             return True
-        except Exception:
+        except Exception:  # noqa: BLE001
             # Invalid hash or verification failed
             return False
 
@@ -157,7 +160,7 @@ class PasswordHasher:
             hasher = self._get_argon2()
             try:
                 return cast("bool", hasher.check_needs_rehash(hashed_password))
-            except Exception:
+            except Exception:  # noqa: BLE001
                 return False
 
         # bcrypt hash

@@ -163,7 +163,7 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
                     }
                 ]
 
-            return self._admin.create_user(payload, exist_ok=False)
+            return str(self._admin.create_user(payload, exist_ok=False))
 
         except KeycloakError as e:
             raise UserManagementError(str(e)) from e
@@ -199,20 +199,7 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
     async def update_user(self, user_id: str, updates: UpdateUserData) -> None:
         """Update user attributes."""
         try:
-            payload: dict[str, Any] = {}
-
-            if updates.email is not None:
-                payload["email"] = updates.email
-            if updates.first_name is not None:
-                payload["firstName"] = updates.first_name
-            if updates.last_name is not None:
-                payload["lastName"] = updates.last_name
-            if updates.enabled is not None:
-                payload["enabled"] = updates.enabled
-            if updates.email_verified is not None:
-                payload["emailVerified"] = updates.email_verified
-            if updates.attributes is not None:
-                payload["attributes"] = updates.attributes
+            payload = self._build_update_payload(updates)
 
             if payload:
                 self._admin.update_user(user_id, payload)
@@ -221,6 +208,25 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
             if "404" in str(e):
                 raise UserNotFoundError(f"User {user_id} not found") from e
             raise UserManagementError(str(e)) from e
+
+    def _build_update_payload(self, updates: UpdateUserData) -> dict[str, Any]:
+        """Build update payload from UpdateUserData."""
+        payload: dict[str, Any] = {}
+
+        if updates.email is not None:
+            payload["email"] = updates.email
+        if updates.first_name is not None:
+            payload["firstName"] = updates.first_name
+        if updates.last_name is not None:
+            payload["lastName"] = updates.last_name
+        if updates.enabled is not None:
+            payload["enabled"] = updates.enabled
+        if updates.email_verified is not None:
+            payload["emailVerified"] = updates.email_verified
+        if updates.attributes is not None:
+            payload["attributes"] = updates.attributes
+
+        return payload
 
     async def delete_user(self, user_id: str) -> None:
         """Delete a user."""
@@ -258,7 +264,7 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
             if filters and filters.search:
                 params["search"] = filters.search
 
-            return self._admin.users_count(params)
+            return int(self._admin.users_count(params))
 
         except KeycloakError as e:
             raise UserManagementError(str(e)) from e
@@ -441,7 +447,7 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
     async def get_user_sessions(self, user_id: str) -> list[dict[str, Any]]:
         """Get active sessions for a user."""
         try:
-            return self._admin.get_sessions(user_id)
+            return list[dict[str, Any]](self._admin.get_sessions(user_id))
         except KeycloakError as e:
             if "404" in str(e):
                 raise UserNotFoundError(f"User {user_id} not found") from e
@@ -459,7 +465,7 @@ class KeycloakAdminAdapter(IIdentityProviderAdmin, IGroupRolesCapability):
     async def revoke_user_session(self, session_id: str) -> None:
         """Revoke a specific user session."""
         try:
-            self._admin.user_logout_all_session(session_id)  # type: ignore[attr-defined]
+            self._admin.user_logout_all_session(session_id)
         except KeycloakError as e:
             raise UserManagementError(str(e)) from e
 

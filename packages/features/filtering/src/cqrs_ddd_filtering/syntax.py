@@ -62,7 +62,7 @@ class ColonSeparatedSyntax(FilterSyntax):
         clauses = []
 
         # Smart split: split by comma but preserve commas in values after colon
-        # Example: "field:op:val1,val2,field2:op2:val3" → ["field:op:val1,val2", "field2:op2:val3"]
+        # Example: "field:op:val1,val2,field2:op2:val3" -> ["field:op:val1,val2", ...]
         parts = self._smart_split(raw)
 
         for part in parts:

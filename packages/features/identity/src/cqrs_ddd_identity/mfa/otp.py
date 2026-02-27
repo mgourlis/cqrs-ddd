@@ -79,7 +79,8 @@ class EmailOtpService:
             challenge_store: Storage for OTP challenges.
             delivery_hook: Hook to send OTP via email.
             config: OTP configuration.
-            rate_limit_store: Storage for rate limiting (optional, uses in-memory if not provided).
+            rate_limit_store: Storage for rate limiting (optional, uses
+                in-memory if not provided).
         """
         self.challenge_store = challenge_store
         self.delivery_hook = delivery_hook
@@ -229,7 +230,8 @@ class SmsOtpService:
             challenge_store: Storage for OTP challenges.
             delivery_hook: Hook to send OTP via SMS.
             config: OTP configuration.
-            rate_limit_store: Storage for rate limiting (optional, uses in-memory if not provided).
+            rate_limit_store: Storage for rate limiting (optional, uses
+                in-memory if not provided).
         """
         self.challenge_store = challenge_store
         self.delivery_hook = delivery_hook

@@ -36,7 +36,8 @@ class AsyncioJobTaskRegistry(IJobKillStrategy):
         """Register an ``asyncio.Task`` for a running job."""
         if not isinstance(handle, asyncio.Task):
             raise TypeError(
-                f"AsyncioJobTaskRegistry expects asyncio.Task, got {type(handle).__name__}"
+                f"AsyncioJobTaskRegistry expects asyncio.Task, "
+                f"got {type(handle).__name__}"
             )
         self._tasks[job_id] = handle
 

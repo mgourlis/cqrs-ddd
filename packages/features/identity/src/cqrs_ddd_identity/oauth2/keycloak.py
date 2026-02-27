@@ -6,6 +6,7 @@ python-keycloak for OpenID Connect operations and joserfc for JWT handling.
 
 from __future__ import annotations
 
+import contextlib
 import json
 from dataclasses import dataclass
 from enum import Enum
@@ -191,49 +192,14 @@ class KeycloakIdentityProvider(IIdentityProvider):
             # joserfc: validate exp (required); optionally validate aud when present
             claims_registry = jwt.JWTClaimsRegistry(exp={"essential": True})
             claims_registry.validate(decoded.claims)
-            aud = decoded.claims.get("aud")
-            if aud is not None:
-                allowed = [self.config.client_id, "account"]
-                token_auds = [aud] if isinstance(aud, str) else aud
-                if not any(a in token_auds for a in allowed):
-                    # Strict: require client_id when aud is present
-                    if self.config.client_id not in token_auds:
-                        raise InvalidTokenError("audience not allowed")
+            self._validate_audience(decoded.claims.get("aud"))
             payload = decoded.claims
 
             principal = self._payload_to_principal(payload)
-            # When the token omits preferred_username (e.g. some admin-cli configs), fill
-            # from userinfo so principal.username is set
+            # When the token omits preferred_username (e.g. some admin-cli
+            # configs), fill from userinfo so principal.username is set
             if not principal.username:
-                try:
-                    user_info = await self.get_user_info(token)
-                    if isinstance(user_info, bytes):
-                        user_info = json.loads(user_info.decode("utf-8"))
-                    ui_username = (
-                        user_info.get("preferred_username")
-                        or user_info.get("username")
-                        or user_info.get("email")
-                        or user_info.get("sub")
-                        or principal.user_id
-                    )
-                    ui_user_id = user_info.get("sub") or principal.user_id
-                    if ui_username or ui_user_id:
-                        principal = Principal(
-                            user_id=principal.user_id or str(ui_user_id or ""),
-                            username=str(
-                                ui_username or principal.user_id or ui_user_id or ""
-                            ),
-                            roles=principal.roles,
-                            permissions=principal.permissions,
-                            claims=principal.claims,
-                            tenant_id=principal.tenant_id,
-                            mfa_verified=principal.mfa_verified,
-                            auth_method=principal.auth_method,
-                            session_id=principal.session_id,
-                            expires_at=principal.expires_at,
-                        )
-                except Exception:
-                    pass
+                principal = await self._enrich_from_userinfo(token, principal)
             return principal
 
         except (DecodeError, BadSignatureError) as e:
@@ -242,6 +208,52 @@ class KeycloakIdentityProvider(IIdentityProvider):
             raise InvalidTokenError(str(e)) from e
         except Exception as e:
             raise InvalidTokenError(str(e)) from e
+
+    def _validate_audience(self, aud: Any) -> None:
+        """Validate JWT audience claim."""
+        if aud is None:
+            return
+
+        allowed = [self.config.client_id, "account"]
+        token_auds = [aud] if isinstance(aud, str) else aud
+        if (
+            not any(a in token_auds for a in allowed)
+            and self.config.client_id not in token_auds
+        ):
+            raise InvalidTokenError("audience not allowed")
+
+    async def _enrich_from_userinfo(
+        self, token: str, principal: Principal
+    ) -> Principal:
+        """Enrich principal with userinfo when username is missing."""
+        try:
+            user_info = await self.get_user_info(token)
+            if isinstance(user_info, bytes):
+                user_info = json.loads(user_info.decode("utf-8"))
+            ui_username = (
+                user_info.get("preferred_username")
+                or user_info.get("username")
+                or user_info.get("email")
+                or user_info.get("sub")
+                or principal.user_id
+            )
+            ui_user_id = user_info.get("sub") or principal.user_id
+            if ui_username or ui_user_id:
+                return Principal(
+                    user_id=principal.user_id or str(ui_user_id or ""),
+                    username=str(ui_username or principal.user_id or ui_user_id or ""),
+                    roles=principal.roles,
+                    permissions=principal.permissions,
+                    claims=principal.claims,
+                    tenant_id=principal.tenant_id,
+                    mfa_verified=principal.mfa_verified,
+                    auth_method=principal.auth_method,
+                    session_id=principal.session_id,
+                    expires_at=principal.expires_at,
+                )
+        except Exception:  # noqa: BLE001
+            pass
+        return principal
 
     async def refresh(self, refresh_token: str) -> TokenResponse:
         """Refresh tokens using a refresh token.
@@ -275,11 +287,8 @@ class KeycloakIdentityProvider(IIdentityProvider):
         Args:
             token: Refresh token to invalidate.
         """
-        try:
+        with contextlib.suppress(Exception):  # noqa: BLE001
             self._keycloak.logout(token)
-        except Exception:
-            # Logout is best-effort
-            pass
 
     async def get_user_info(self, access_token: str) -> dict[str, Any]:
         """Get user info from Keycloak's userinfo endpoint.

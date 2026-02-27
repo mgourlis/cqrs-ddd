@@ -36,7 +36,9 @@ class MongoProjectionQueryPersistence(
     MongoDB-based ID query persistence backed by projections.
 
     Usage:
-        class CustomerSummaryQuery(MongoProjectionQueryPersistence[CustomerSummaryDTO, str]):
+        class CustomerSummaryQuery(
+            MongoProjectionQueryPersistence[CustomerSummaryDTO, str]
+        ):
             collection = "customer_summaries"
 
             def to_dto(self, doc: dict) -> CustomerSummaryDTO:
@@ -63,7 +65,9 @@ class MongoProjectionSpecPersistence(
     via build_filter().
 
     Usage:
-        class CustomerSummarySpecQuery(MongoProjectionSpecPersistence[CustomerSummaryDTO]):
+        class CustomerSummarySpecQuery(
+            MongoProjectionSpecPersistence[CustomerSummaryDTO]
+        ):
             collection = "customer_summaries"
 
             def to_dto(self, doc: dict) -> CustomerSummaryDTO:

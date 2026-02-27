@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 else:
     try:
         from .template.engines.jinja import JinjaTemplateRenderer as _JinjaTemplateRenderer
+
         JinjaTemplateRenderer = _JinjaTemplateRenderer  # type: ignore[misc]
         _jinja_available = True
     except ImportError:

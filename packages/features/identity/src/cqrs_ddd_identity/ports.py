@@ -146,7 +146,7 @@ class TokenResponse:
 
     access_token: str
     refresh_token: str | None = None
-    token_type: str = "Bearer"
+    token_type: str = "Bearer"  # noqa: S105
     expires_in: int = 3600
     id_token: str | None = None
     scope: str | None = None
@@ -159,7 +159,7 @@ class TokenResponse:
                 self,
                 "expires_at",
                 datetime.now(timezone.utc) + timedelta(seconds=self.expires_in),
-                )
+            )
 
 
 # ═══════════════════════════════════════════════════════════════

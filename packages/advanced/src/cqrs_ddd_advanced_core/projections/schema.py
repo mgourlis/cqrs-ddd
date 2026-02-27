@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, func
@@ -154,13 +154,13 @@ class ProjectionSchema:
 
     def save_to_file(self, path: str) -> None:
         """Save schema to JSON file."""
-        with open(path, "w") as f:
+        with Path(path).open("w") as f:
             json.dump(self.to_json(), f, indent=2)
 
     @classmethod
     def load_from_file(cls, path: str) -> ProjectionSchema:
         """Load schema from JSON file."""
-        with open(path) as f:
+        with Path(path).open() as f:
             data = json.load(f)
         return cls.from_json(data)
 
@@ -266,24 +266,22 @@ class ProjectionSchemaRegistry:
 
     def save_to_file(self, path: str) -> None:
         """Save registry to JSON file."""
-        with open(path, "w") as f:
+        with Path(path).open("w") as f:
             json.dump(self.to_json(), f, indent=2)
 
     @classmethod
     def load_from_file(cls, path: str) -> ProjectionSchemaRegistry:
         """Load registry from JSON file."""
-        with open(path) as f:
+        with Path(path).open() as f:
             data = json.load(f)
         return cls.from_json(data)
 
     @classmethod
     def load_from_directory(cls, directory: str) -> ProjectionSchemaRegistry:
         """Load all JSON schema files from directory."""
-        import glob
-
         registry = cls()
-        for filepath in glob.glob(os.path.join(directory, "*.json")):
-            with open(filepath) as f:
+        for filepath in Path(directory).glob("*.json"):
+            with filepath.open() as f:
                 data = json.load(f)
             schema = ProjectionSchema.from_json(data)
             registry.register(schema)

@@ -71,7 +71,7 @@ class BackupCodesService(IBackupCodesStore):
         # Split into groups of 4
         return "-".join(code[i : i + 4] for i in range(0, len(code), 4))
 
-    async def generate(self, user_id: str, count: int = 10) -> list[str]:
+    async def generate(self, _user_id: str, count: int = 10) -> list[str]:
         """Generate backup codes for a user.
 
         NOTE: This method returns plaintext codes that should be shown
@@ -79,7 +79,7 @@ class BackupCodesService(IBackupCodesStore):
         must hash these codes before storing.
 
         Args:
-            user_id: User identifier.
+            _user_id: User identifier (unused in base implementation).
             count: Number of codes to generate.
 
         Returns:
@@ -168,7 +168,7 @@ class InMemoryBackupCodesService(BackupCodesService):
         return codes
 
     def _normalize_code(self, code: str) -> str:
-        """Normalize backup code input: strip whitespace, accept with or without dash."""
+        """Normalize backup code: strip whitespace, accept with or without dash."""
         code = code.strip().upper()
         # If 8 chars without dash, add dash for lookup (format is XXXX-XXXX)
         if len(code) == 8 and "-" not in code:

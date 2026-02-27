@@ -8,7 +8,7 @@ from cqrs_ddd_notifications.template.engines.string import StringFormatRenderer
 
 # Check if jinja2 is installed
 try:
-    import jinja2
+    import jinja2  # noqa: F401
 
     from cqrs_ddd_notifications.template.engines.jinja import JinjaTemplateRenderer
 

@@ -36,7 +36,9 @@ class SQLAlchemyProjectionQueryPersistence(
     SQLAlchemy-based ID query persistence backed by projections.
 
     Usage:
-        class CustomerSummaryQuery(SQLAlchemyProjectionQueryPersistence[CustomerSummaryDTO, str]):
+        class CustomerSummaryQuery(
+            SQLAlchemyProjectionQueryPersistence[CustomerSummaryDTO, str]
+        ):
             collection = "customer_summaries"
 
             def to_dto(self, doc: dict) -> CustomerSummaryDTO:
@@ -63,7 +65,9 @@ class SQLAlchemyProjectionSpecPersistence(
     SQL WHERE clause conditions.
 
     Usage:
-        class CustomerSummarySpecQuery(SQLAlchemyProjectionSpecPersistence[CustomerSummaryDTO]):
+        class CustomerSummarySpecQuery(
+            SQLAlchemyProjectionSpecPersistence[CustomerSummaryDTO]
+        ):
             collection = "customer_summaries"
 
             def to_dto(self, doc: dict) -> CustomerSummaryDTO:
