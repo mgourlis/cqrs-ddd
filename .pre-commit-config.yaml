@@ -28,4 +28,5 @@ repos:
           - fastapi
           - pyarrow
           - aiofiles
+          - prometheus-client
         exclude: ^tests/|/tests/|^test_.*\.py$|/test_.*\.py$|^.*_test\.py$|/.*_test\.py$|/conftest\.py$

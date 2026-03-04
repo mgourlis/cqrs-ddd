@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Generator
 
+
 _logger = logging.getLogger(__name__)
 
 # Try to import Prometheus (optional dependency)
@@ -23,8 +24,8 @@ try:
     HAS_PROMETHEUS = True
 except ImportError:
     HAS_PROMETHEUS = False
-    Counter = None
-    Histogram = None
+    Counter = None  # type: ignore[assignment, misc]
+    Histogram = None  # type: ignore[assignment, misc]
 
 
 @dataclass(frozen=True)
