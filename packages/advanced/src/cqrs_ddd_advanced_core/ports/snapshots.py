@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from cqrs_ddd_core.domain.aggregate import AggregateRoot
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 @runtime_checkable
@@ -31,6 +32,8 @@ class ISnapshotStore(Protocol):
         aggregate_id: Any,
         snapshot_data: dict[str, Any],
         version: int,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> None:
         """Save a snapshot of an aggregate's state.
 
@@ -39,6 +42,7 @@ class ISnapshotStore(Protocol):
             aggregate_id: The aggregate's ID.
             snapshot_data: Serialized state dict.
             version: The event version at the time of snapshot.
+            specification: Optional specification for tenant filtering.
         """
         ...
 
@@ -46,12 +50,15 @@ class ISnapshotStore(Protocol):
         self,
         aggregate_type: str,
         aggregate_id: Any,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> dict[str, Any] | None:
         """Retrieve the most recent snapshot for an aggregate.
 
         Args:
             aggregate_type: Type name of the aggregate.
             aggregate_id: The aggregate's ID.
+            specification: Optional specification for tenant filtering.
 
         Returns:
             Dict with snapshot_data, version, and created_at.
@@ -63,8 +70,14 @@ class ISnapshotStore(Protocol):
         self,
         aggregate_type: str,
         aggregate_id: Any,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> None:
-        """Delete all snapshots for an aggregate."""
+        """Delete all snapshots for an aggregate.
+
+        Args:
+            specification: Optional specification for tenant filtering.
+        """
         ...
 
 

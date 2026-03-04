@@ -5,7 +5,7 @@ SQLAlchemy implementation of Background Job persistence.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy import delete, func, select
 
@@ -16,9 +16,11 @@ from cqrs_ddd_advanced_core.background_jobs.entity import BaseBackgroundJob
 from cqrs_ddd_advanced_core.ports.background_jobs import IBackgroundJobRepository
 
 from ..core.repository import SQLAlchemyRepository, UnitOfWorkFactory
+from ..specifications.compiler import build_sqla_filter
 from .models import BackgroundJobModel, JobStatus
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..core.uow import SQLAlchemyUnitOfWork
@@ -52,6 +54,9 @@ class SQLAlchemyBackgroundJobRepository(
         model = super().to_model(entity)
         # Handle metadata mapping (domain uses 'metadata', model uses 'job_metadata')
         model.job_metadata = entity.metadata
+        # Map tenant_id from metadata if present
+        if isinstance(entity.metadata, dict):
+            model.tenant_id = entity.metadata.get("tenant_id")
         return cast("BackgroundJobModel", model)
 
     def from_model(self, model: BackgroundJobModel) -> BaseBackgroundJob:
@@ -84,6 +89,8 @@ class SQLAlchemyBackgroundJobRepository(
         self,
         timeout_seconds: int | None = None,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[BaseBackgroundJob]:
         """Fetch RUNNING jobs that have exceeded their timeout.
 
@@ -91,6 +98,7 @@ class SQLAlchemyBackgroundJobRepository(
             timeout_seconds: Override the default timeout.
                 If None, uses ``self.stale_job_timeout_seconds``.
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
 
         Returns:
             List of stale jobs.
@@ -106,6 +114,10 @@ class SQLAlchemyBackgroundJobRepository(
             BackgroundJobModel.status == JobStatus.RUNNING,
             BackgroundJobModel.updated_at < threshold,
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(BackgroundJobModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
 
@@ -115,6 +127,8 @@ class SQLAlchemyBackgroundJobRepository(
         limit: int = 50,
         offset: int = 0,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[BaseBackgroundJob]:
         """Return jobs matching any of the given statuses, ordered by updated_at desc.
 
@@ -123,6 +137,7 @@ class SQLAlchemyBackgroundJobRepository(
             limit: Maximum number of results.
             offset: Number of results to skip.
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
         """
         active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
         if not active_uow:
@@ -136,17 +151,24 @@ class SQLAlchemyBackgroundJobRepository(
             .limit(limit)
             .offset(offset)
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(BackgroundJobModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
 
     async def count_by_status(
         self,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> dict[str, int]:
         """Return a mapping of status value → job count (omits zero-count statuses).
 
         Args:
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
         """
         active_uow = self._get_active_uow(cast("SQLAlchemyUnitOfWork | None", uow))
         if not active_uow:
@@ -156,6 +178,10 @@ class SQLAlchemyBackgroundJobRepository(
             BackgroundJobModel.status,
             func.count().label("cnt"),
         ).group_by(BackgroundJobModel.status)
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(BackgroundJobModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return {row.status.value: row.cnt for row in result.all()}
 
@@ -182,12 +208,15 @@ class SQLAlchemyBackgroundJobRepository(
         self,
         before: datetime,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> int:
         """Delete COMPLETED and CANCELLED jobs with updated_at older than before.
 
         Args:
             before: UTC datetime threshold.
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
 
         Returns:
             Number of jobs deleted.
@@ -200,6 +229,10 @@ class SQLAlchemyBackgroundJobRepository(
             BackgroundJobModel.status.in_(_TERMINAL_STATUSES),
             BackgroundJobModel.updated_at < before,
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(BackgroundJobModel, spec_data))
         result = await active_uow.session.execute(stmt)
         # CursorResult.rowcount; Result type stubs may not expose it
         n: int = int(getattr(result, "rowcount", 0) or 0)

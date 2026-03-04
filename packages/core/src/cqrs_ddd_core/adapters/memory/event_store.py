@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from cqrs_ddd_core.correlation import get_correlation_id
 from cqrs_ddd_core.instrumentation import get_hook_registry
@@ -11,6 +11,8 @@ from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 class InMemoryEventStore(IEventStore):
@@ -82,8 +84,22 @@ class InMemoryEventStore(IEventStore):
             else:
                 self._events.append(e)
 
+    def _apply_specification(
+        self,
+        events: list[StoredEvent],
+        specification: ISpecification[Any] | None,
+    ) -> list[StoredEvent]:
+        """Filter events using specification's ``is_satisfied_by``."""
+        if specification is None:
+            return events
+        return [e for e in events if specification.is_satisfied_by(e)]
+
     async def get_events_after(
-        self, position: int, limit: int = 1000
+        self,
+        position: int,
+        limit: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """Return events after a given position (exclusive), up to limit."""
         out: list[StoredEvent] = []
@@ -92,6 +108,8 @@ class InMemoryEventStore(IEventStore):
             if p is None:
                 p = i
             if p > position:
+                if specification is not None and not specification.is_satisfied_by(e):
+                    continue
                 out.append(e)
                 if len(out) >= limit:
                     break
@@ -102,12 +120,15 @@ class InMemoryEventStore(IEventStore):
         position: int,
         *,
         limit: int | None = None,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[StoredEvent]:
         """Stream events starting from position (exclusive)."""
         batch_size = limit if limit is not None else 1000
         current = position
         while True:
-            batch = await self.get_events_after(current, batch_size)
+            batch = await self.get_events_after(
+                current, batch_size, specification=specification
+            )
             for e in batch:
                 yield e
             if len(batch) < batch_size:
@@ -116,29 +137,41 @@ class InMemoryEventStore(IEventStore):
             p = getattr(last, "position", None)
             current = current + len(batch) if p is None else p
 
-    async def get_latest_position(self) -> int | None:
+    async def get_latest_position(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> int | None:
         """Return the highest position in the store, or None if empty."""
-        if not self._events:
+        events = self._events
+        if specification is not None:
+            events = [e for e in events if specification.is_satisfied_by(e)]
+        if not events:
             return None
         positions = [
             getattr(e, "position", None)
-            for e in self._events
+            for e in events
             if getattr(e, "position", None) is not None
         ]
         if not positions:
-            return len(self._events) - 1
+            return len(self._events) - 1 if self._events else None
         # Filter out None values before max
         return cast("int", max(p for p in positions if p is not None))
 
     def get_all_streaming(
-        self, batch_size: int = 1000
+        self,
+        batch_size: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[list[StoredEvent]]:
         """Stream all events in batches."""
 
         async def _stream() -> AsyncIterator[list[StoredEvent]]:
             pos = -1
             while True:
-                batch = await self.get_events_after(pos, batch_size)
+                batch = await self.get_events_after(
+                    pos, batch_size, specification=specification
+                )
                 if not batch:
                     break
                 yield batch
@@ -153,25 +186,33 @@ class InMemoryEventStore(IEventStore):
         aggregate_id: str,
         *,
         after_version: int = 0,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
-        return [
+        results = [
             e
             for e in self._events
             if e.aggregate_id == aggregate_id and e.version > after_version
         ]
+        return self._apply_specification(results, specification)
 
     async def get_by_aggregate(
         self,
         aggregate_id: str,
         aggregate_type: str | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         results = [e for e in self._events if e.aggregate_id == aggregate_id]
         if aggregate_type is not None:
             results = [e for e in results if e.aggregate_type == aggregate_type]
-        return results
+        return self._apply_specification(results, specification)
 
-    async def get_all(self) -> list[StoredEvent]:
-        return list(self._events)
+    async def get_all(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[StoredEvent]:
+        return self._apply_specification(list(self._events), specification)
 
     # ── Test helpers ─────────────────────────────────────────────
 

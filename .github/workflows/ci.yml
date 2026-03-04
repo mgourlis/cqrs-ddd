@@ -33,6 +33,10 @@ jobs:
           pip install -e ./packages/infrastructure/redis
           pip install -e ./packages/features/filtering
           pip install -e "./packages/features/identity[dev]"
+          pip install -e "./packages/features/multitenancy[fastapi,sqlalchemy,advanced,specifications]"
+          pip install -e "./packages/features/access[all]"
+          pip install -e "./packages/features/analytics[geo]"
+          pip install -e "./packages/infrastructure/file-storage[local]"
           pip install -e "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]"
           pip install -e "./packages/infrastructure/observability[opentelemetry,prometheus,sentry]"
           pip install -e "./packages/infrastructure/health[sqlalchemy,redis]"

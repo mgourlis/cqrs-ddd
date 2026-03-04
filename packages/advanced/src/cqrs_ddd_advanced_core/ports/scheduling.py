@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from cqrs_ddd_core.cqrs.command import Command
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 @runtime_checkable
@@ -48,8 +49,16 @@ class ICommandScheduler(Protocol):
         """
         ...
 
-    async def get_due_commands(self) -> list[tuple[str, Command[Any]]]:
+    async def get_due_commands(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[tuple[str, Command[Any]]]:
         """Retrieve all commands due for execution (now or before).
+
+        Args:
+            specification: Optional specification for additional filtering
+                (e.g. tenant isolation).
 
         Returns:
             List of (schedule_id, command) tuples.

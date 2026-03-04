@@ -90,6 +90,28 @@ class SagaManager:
 
     # ── Core processing ──────────────────────────────────────────────
 
+    def _inject_tenant_metadata(
+        self, state: SagaState, event: DomainEvent | None
+    ) -> None:
+        """Capture tenant_id from event metadata into saga state."""
+        if event is None:
+            return
+        event_metadata = getattr(event, "metadata", {}) or {}
+        tenant_id = event_metadata.get("tenant_id")
+        if tenant_id and "tenant_id" not in state.metadata:
+            metadata = dict(state.metadata)
+            metadata["tenant_id"] = tenant_id
+            object.__setattr__(state, "metadata", metadata)
+
+    async def _dispatch_and_persist_commands(
+        self, state: SagaState, commands: list[Command]
+    ) -> None:
+        """Dispatch commands and persist state after each for recovery."""
+        for i, cmd in enumerate(commands):
+            await self.command_bus.send(cmd)
+            state.pending_commands[i]["dispatched"] = True
+            await self.repository.add(state)
+
     async def _process_saga(
         self,
         saga_class: type[Saga[Any]],
@@ -103,49 +125,33 @@ class SagaManager:
         Returns the saga id on success, ``None`` if skipped.
         """
         saga_type_name = saga_class.__name__
-
-        # 1. Load existing or create new state.
         state = await self.repository.find_by_correlation_id(
             correlation_id, saga_type=saga_type_name
         )
 
         if state is None:
-            state_cls = _resolve_state_class(saga_class)
-            state = state_cls(
-                id=str(uuid.uuid4()),
-                saga_type=saga_type_name,
-                correlation_id=correlation_id,
+            state = await self._create_initial_saga_state(
+                saga_class, saga_type_name, correlation_id, event
             )
-            await self.repository.add(state)
 
-        # Skip terminal sagas.
         if state.is_terminal:
             return None
 
-        # 2. Instantiate & handle.
         saga = saga_class(state, self.message_registry)
-
         if event is not None:
             try:
                 await saga.handle(event)
             except Exception:
-                # Persist partial state so recovery can pick it up.
                 await self.repository.add(state)
                 raise
 
-        # 3. Serialise pending commands into state for crash-safety.
         commands = saga.collect_commands()
         for cmd in commands:
             state.pending_commands.append(serialize_command_for_pending(cmd))
         await self.repository.add(state)
 
-        # 4. Dispatch commands, persisting after each so recovery
-        # knows what was dispatched.
         try:
-            for i, cmd in enumerate(commands):
-                await self.command_bus.send(cmd)
-                state.pending_commands[i]["dispatched"] = True
-                await self.repository.add(state)
+            await self._dispatch_and_persist_commands(state, commands)
         except Exception as dispatch_err:
             logger.error(
                 "Saga %s stalled during dispatch: %s",
@@ -159,12 +165,28 @@ class SagaManager:
                     logger.debug("Recovery trigger callback failed", exc_info=True)
             raise
 
-        # 5. Clear dispatched commands and persist final state (single write).
         state.pending_commands.clear()
         state.touch()
         await self.repository.add(state)
-
         return state.id
+
+    async def _create_initial_saga_state(
+        self,
+        saga_class: type[Saga[Any]],
+        saga_type_name: str,
+        correlation_id: str,
+        event: DomainEvent | None,
+    ) -> SagaState:
+        """Create and persist initial saga state; inject tenant from event."""
+        state_cls = _resolve_state_class(saga_class)
+        state = state_cls(
+            id=str(uuid.uuid4()),
+            saga_type=saga_type_name,
+            correlation_id=correlation_id,
+        )
+        self._inject_tenant_metadata(state, event)
+        await self.repository.add(state)
+        return state
 
     # ── Public API ──────────────────────────────────────────────────
 

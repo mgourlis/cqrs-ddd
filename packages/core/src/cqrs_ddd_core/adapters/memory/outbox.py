@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_core.ports.outbox import IOutboxStorage, OutboxMessage
+
+if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 class InMemoryOutboxStorage(IOutboxStorage):
@@ -28,8 +31,12 @@ class InMemoryOutboxStorage(IOutboxStorage):
         self,
         limit: int = 100,
         uow: Any | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[OutboxMessage]:
         pending = [m for m in self._messages if m.published_at is None]
+        if specification is not None:
+            pending = [m for m in pending if specification.is_satisfied_by(m)]
         pending.sort(key=lambda m: m.created_at)
         return pending[:limit]
 

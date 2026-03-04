@@ -46,11 +46,28 @@ class IRetrievalPersistence(ABC, Generic[T_Entity, T_ID]):
     """
     Base class for aggregate retrieval (Command-side Reads).
     Generic over the Entity type and its ID type.
+
+    The optional ``specification`` parameter allows cross-cutting
+    filters (e.g. tenant isolation) to be injected.  Implementations
+    evaluate the specification at the database level.
     """
 
     @abstractmethod
-    async def retrieve(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T_Entity]:
-        """Retrieve aggregates by their IDs."""
+    async def retrieve(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T_Entity]:
+        """Retrieve aggregates by their IDs.
+
+        Args:
+            ids: Sequence of aggregate IDs.
+            uow: Unit of work.
+            specification: Optional specification evaluated at the
+                persistence level (e.g. tenant filter).
+        """
         ...
 
 
@@ -59,11 +76,28 @@ class IQueryPersistence(ABC, Generic[T_Result, T_ID]):
     Base class for ID-based query-side persistence (Read Models).
     Generic over the Result DTO type and the underlying Entity ID type.
     Allows for easy caching of results by ID.
+
+    The optional ``specification`` parameter allows cross-cutting
+    filters (e.g. tenant isolation) to be injected.  Implementations
+    evaluate the specification at the database level.
     """
 
     @abstractmethod
-    async def fetch(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T_Result]:
-        """Fetch result DTOs by their IDs."""
+    async def fetch(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T_Result]:
+        """Fetch result DTOs by their IDs.
+
+        Args:
+            ids: Sequence of entity IDs.
+            uow: Unit of work.
+            specification: Optional specification evaluated at the
+                persistence level (e.g. tenant filter).
+        """
         ...
 
 

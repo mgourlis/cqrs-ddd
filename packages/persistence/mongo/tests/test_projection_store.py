@@ -8,7 +8,7 @@ import pytest
 from mongomock_motor import AsyncMongoMockClient
 from pydantic import BaseModel, Field
 
-from cqrs_ddd_persistence_mongo.core.projection_store import MongoProjectionStore
+from cqrs_ddd_persistence_mongo.advanced.projection_store import MongoProjectionStore
 from cqrs_ddd_persistence_mongo.exceptions import MongoPersistenceError
 
 
@@ -47,7 +47,7 @@ def mock_connection(mock_client):
 @pytest.fixture
 def projection_store(mock_connection):
     """Create a MongoProjectionStore instance for testing."""
-    return MongoProjectionStore(mock_connection, database="test_db")
+    return MongoProjectionStore(connection=mock_connection, database="test_db")
 
 
 # Phase 1, Step 3: Expand MongoProjectionStore Tests (10 tests)
@@ -89,12 +89,14 @@ class TestMongoProjectionStoreUpsert:
     @pytest.mark.asyncio
     async def test_upsert_with_custom_id_field(self, projection_store):
         """Test upsert with custom ID field."""
+        # id_field is set at construction time, not per-call
+        custom_store = MongoProjectionStore(
+            projection_store._client, database="test_db", id_field="custom_id"
+        )
         doc_id = str(uuid4())
         data = {"custom_id": doc_id, "name": "Test", "value": 1}
 
-        await projection_store.upsert(
-            "test_collection", doc_id, data, id_field="custom_id"
-        )
+        await custom_store.upsert("test_collection", doc_id, data)
 
         # Verify document was upserted with custom ID field
         coll = projection_store._coll("test_collection")
@@ -211,11 +213,7 @@ class TestMongoProjectionStoreConfiguration:
         assert db.name == "test_db"
 
     @pytest.mark.asyncio
-    async def test_upsert_batch_requires_id(self):
+    async def test_upsert_batch_requires_id(self, projection_store):
         """Documents in upsert_batch must have an id field."""
-        from unittest.mock import MagicMock
-
-        conn = MagicMock()
-        store = MongoProjectionStore(conn)
         with pytest.raises(MongoPersistenceError, match="must have an id"):
-            await store.upsert_batch("coll", [{"name": "no-id"}])
+            await projection_store.upsert_batch("coll", [{"name": "no-id"}])

@@ -26,4 +26,6 @@ repos:
           - types-redis
           - starlette
           - fastapi
+          - pyarrow
+          - aiofiles
         exclude: ^tests/|/tests/|^test_.*\.py$|/test_.*\.py$|^.*_test\.py$|/.*_test\.py$|/conftest\.py$

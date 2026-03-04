@@ -50,7 +50,13 @@ class CachingRepository(IRepository[T, ID]):
     def _key(self, entity_id: Any) -> str:
         return f"{self._entity_name}:{entity_id}"
 
-    async def get(self, entity_id: ID, uow: UnitOfWork | None = None) -> T | None:
+    async def get(
+        self,
+        entity_id: ID,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> T | None:
         """Retrieve entity with read-through caching."""
         key = self._key(entity_id)
 
@@ -63,7 +69,7 @@ class CachingRepository(IRepository[T, ID]):
             logger.warning("Cache get failed for key %s: %s", key, e)
 
         # 2. Delegate to Inner
-        entity = await self._inner.get(entity_id, uow)
+        entity = await self._inner.get(entity_id, uow, specification=specification)
 
         # 3. Update Cache
         if entity:
@@ -89,10 +95,18 @@ class CachingRepository(IRepository[T, ID]):
 
         return entity_id
 
-    async def delete(self, entity_id: ID, uow: UnitOfWork | None = None) -> ID:
+    async def delete(
+        self,
+        entity_id: ID,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> ID:
         """Delete entity and invalidate cache."""
         # 1. Delegate
-        deleted_id = await self._inner.delete(entity_id, uow)
+        deleted_id = await self._inner.delete(
+            entity_id, uow, specification=specification
+        )
 
         # 2. Invalidate entity cache
         key = self._key(deleted_id)
@@ -104,7 +118,11 @@ class CachingRepository(IRepository[T, ID]):
         return deleted_id
 
     async def list_all(
-        self, entity_ids: list[ID] | None = None, uow: UnitOfWork | None = None
+        self,
+        entity_ids: list[ID] | None = None,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T]:
         """List entities with read-through caching.
 
@@ -115,7 +133,9 @@ class CachingRepository(IRepository[T, ID]):
         if entity_ids is not None:
 
             async def fetch_missing(missing_ids: list[ID]) -> list[T]:
-                return await self._inner.list_all(missing_ids, uow)
+                return await self._inner.list_all(
+                    missing_ids, uow, specification=specification
+                )
 
             return await self._execute_read_through(
                 list(entity_ids),
@@ -124,7 +144,7 @@ class CachingRepository(IRepository[T, ID]):
 
         # For complete list (all entities), delegate directly
         # Caching "all" is problematic since we can't be sure what "all" includes
-        return await self._inner.list_all(None, uow)
+        return await self._inner.list_all(None, uow, specification=specification)
 
     async def search(
         self,

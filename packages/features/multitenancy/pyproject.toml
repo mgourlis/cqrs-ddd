@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-multitenancy"
+version = "0.1.0"
+description = "Tenant isolation for CQRS-DDD applications with ContextVar-based resolution and automatic query filtering"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12"
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[project.optional-dependencies]
+specifications = [
+    "cqrs-ddd-specifications",
+]
+sqlalchemy = [
+    "cqrs-ddd-persistence-sqlalchemy",
+    "sqlalchemy[asyncio]>=2.0",
+]
+fastapi = [
+    "fastapi>=0.100.0",
+    "starlette>=0.27.0",
+]
+identity = [
+    "cqrs-ddd-identity",
+]
+advanced = [
+    "cqrs-ddd-advanced-core",
+]
+redis = [
+    "cqrs-ddd-redis",
+]
+mongo = [
+    "cqrs-ddd-persistence-mongo",
+    "motor>=3.0",
+]
+observability = [
+    "prometheus-client>=0.17.0",
+    "opentelemetry-api>=1.22.0",
+]
+all = [
+    "cqrs-ddd-multitenancy[specifications,sqlalchemy,fastapi,identity,advanced,redis,mongo,observability]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_multitenancy*"]

@@ -14,6 +14,7 @@ from cqrs_ddd_advanced_core.exceptions import HandlerNotRegisteredError
 from cqrs_ddd_advanced_core.ports.scheduling import ICommandScheduler
 
 from ..compat import require_advanced
+from ..specifications.compiler import build_sqla_filter
 from .models import ScheduledCommandModel
 
 if TYPE_CHECKING:
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
     from cqrs_ddd_core.cqrs.command import Command
     from cqrs_ddd_core.cqrs.message_registry import MessageRegistry
+    from cqrs_ddd_core.domain.specification import ISpecification
 
     from ..core.repository import UnitOfWorkFactory
 
@@ -76,12 +78,21 @@ class SQLAlchemyCommandScheduler(ICommandScheduler):
             created_at=datetime.now(timezone.utc),
             description=description,
         )
+        # Extract tenant_id from command metadata if present
+        metadata = getattr(command, "_metadata", None) or {}
+        tenant_id = metadata.get("_tenant_id") or metadata.get("tenant_id")
+        if tenant_id:
+            model.tenant_id = tenant_id
         session = await self._get_session()
         session.add(model)
         # Note: Session commit is external (Unit of Work)
         return schedule_id
 
-    async def get_due_commands(self) -> list[tuple[str, Command[Any]]]:
+    async def get_due_commands(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[tuple[str, Command[Any]]]:
         """
         Retrieve all commands due for execution.
         Returns tuples of (id, command).
@@ -101,6 +112,10 @@ class SQLAlchemyCommandScheduler(ICommandScheduler):
             )
             .order_by(ScheduledCommandModel.execute_at)
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(ScheduledCommandModel, spec_data))
         session = await self._get_session()
         result = await session.execute(stmt)
         models = result.scalars().all()

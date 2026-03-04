@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from cqrs_ddd_core.ports.repository import IRepository
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
+
     from ..sagas.state import SagaState
 
 
@@ -32,23 +34,58 @@ class ISagaRepository(IRepository["SagaState", str], Protocol):
         """Find a saga instance by its ``correlation_id`` and type."""
         ...
 
-    async def find_stalled_sagas(self, limit: int = 10) -> list[SagaState]:
-        """Return sagas that are RUNNING but have stalled (e.g. pending commands)."""
+    async def find_stalled_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[SagaState]:
+        """Return sagas that are RUNNING but have stalled (e.g. pending commands).
+
+        Args:
+            limit: Maximum number of sagas to return.
+            specification: Optional specification for additional filtering.
+        """
         ...
 
-    async def find_suspended_sagas(self, limit: int = 10) -> list[SagaState]:
-        """Return all currently suspended sagas."""
+    async def find_suspended_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[SagaState]:
+        """Return all currently suspended sagas.
+
+        Args:
+            limit: Maximum number of sagas to return.
+            specification: Optional specification for additional filtering.
+        """
         ...
 
     async def find_expired_suspended_sagas(
         self,
         limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[SagaState]:
-        """Return suspended sagas whose ``timeout_at`` has passed."""
+        """Return suspended sagas whose ``timeout_at`` has passed.
+
+        Args:
+            limit: Maximum number of sagas to return.
+            specification: Optional specification for additional filtering.
+        """
         ...
 
     async def find_running_sagas_with_tcc_steps(
-        self, limit: int = 10
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[SagaState]:
-        """Return RUNNING sagas that have TCC steps (state.tcc_steps non-empty)."""
+        """Return RUNNING sagas that have TCC steps (state.tcc_steps non-empty).
+
+        Args:
+            limit: Maximum number of sagas to return.
+            specification: Optional specification for additional filtering.
+        """
         ...

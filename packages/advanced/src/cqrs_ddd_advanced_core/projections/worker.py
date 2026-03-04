@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.event_store import StoredEvent
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
@@ -51,6 +52,7 @@ class ProjectionWorker:
         uow_factory: AsyncUoWFactory,
         *,
         catch_up: bool = False,
+        specification: ISpecification[Any] | None = None,
     ) -> None:
         self._event_store = event_store
         self._position_store = position_store
@@ -58,6 +60,7 @@ class ProjectionWorker:
         self._handler_map = handler_map
         self._uow_factory = uow_factory
         self._catch_up = catch_up
+        self._specification = specification
 
     async def run(self, projection_name: str) -> None:
         """
@@ -69,7 +72,9 @@ class ProjectionWorker:
         start_position: int
 
         if self._catch_up and last_position is None:
-            latest = await self._event_store.get_latest_position()
+            latest = await self._event_store.get_latest_position(
+                specification=self._specification,
+            )
             if latest is not None:
                 async with self._uow_factory() as uow:
                     await self._position_store.save_position(
@@ -81,7 +86,9 @@ class ProjectionWorker:
         else:
             start_position = last_position if last_position is not None else 0
 
-        async for event in self._event_store.get_events_from_position(start_position):
+        async for event in self._event_store.get_events_from_position(
+            start_position, specification=self._specification
+        ):
             position = event.position
             if position is None:
                 continue

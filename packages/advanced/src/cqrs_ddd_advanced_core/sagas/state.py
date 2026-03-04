@@ -153,6 +153,9 @@ class SagaState(AuditableMixin, AggregateRoot[str]):
     # ── Arbitrary Context ────────────────────────────────────────────
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    # ── Multitenancy ────────────────────────────────────────────────
+    tenant_id: str | None = None
+
     # ── Helpers ──────────────────────────────────────────────────────
 
     def model_post_init(self, __context: object) -> None:

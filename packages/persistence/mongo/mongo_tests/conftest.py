@@ -6,8 +6,6 @@ import pytest
 
 from cqrs_ddd_persistence_mongo import MongoConnectionManager
 
-pytest_plugins = ["pytest_asyncio"]
-
 
 class MockSession:
     """Mock MongoDB session for testing with mongomock.

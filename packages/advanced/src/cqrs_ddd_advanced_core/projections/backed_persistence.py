@@ -99,7 +99,9 @@ class ProjectionBackedQueryPersistence(
     async def fetch(
         self,
         ids: Sequence[T_ID],
-        uow: UnitOfWork | None = None,
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,  # noqa: ARG002
     ) -> list[T_Result]:
         """Fetch result DTOs by their IDs."""
         # Use batch fetch if available

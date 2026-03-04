@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-file-storage"
+version = "0.1.0"
+description = "Blob management — IBlobStorage protocol and cloud-provider adapters for file upload, download, and time-limited direct access URLs"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+dependencies = [
+    "cqrs-ddd-core",
+]
+
+[project.optional-dependencies]
+s3 = ["aioboto3>=12.0"]
+azure = ["azure-storage-blob[aio]>=12.19.0"]
+gcs = ["gcloud-aio-storage"]
+local = ["aiofiles"]
+minio = ["aioboto3>=12.0"]
+all = [
+    "cqrs-ddd-file-storage[s3,azure,gcs,local]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_file_storage*"]

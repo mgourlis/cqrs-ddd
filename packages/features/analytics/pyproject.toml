@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cqrs-ddd-analytics"
+version = "0.1.0"
+description = "OLAP connector — flattens domain events to tabular rows and writes partitioned Parquet files for DuckDB/Superset"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Myron Gourlis", email = "myrgourlis@gmail.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "cqrs-ddd-core",
+    "pyarrow",
+]
+
+[project.optional-dependencies]
+geo = ["shapely", "geopandas"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cqrs_ddd_analytics*"]

@@ -14,6 +14,10 @@ LOCATIONS = [
     "packages/engines/projections/src",
     "packages/features/filtering/src",
     "packages/features/identity/src",
+    "packages/features/multitenancy/src",
+    "packages/features/access/src",
+    "packages/features/analytics/src",
+    "packages/infrastructure/file-storage/src",
     "tests",
 ]
 
@@ -26,14 +30,18 @@ def tests(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
     session.install("-e", "./packages/infrastructure/notifications")
-    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
-    session.install("-e", "./packages/features/identity[all]")
+    session.install("-e", "./packages/features/identity")
+    session.install("-e", "./packages/features/multitenancy[all]")
+    session.install("-e", "./packages/features/access[all]")
+    session.install("-e", "./packages/features/analytics")
+    session.install("-e", "./packages/infrastructure/file-storage[local]")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", *session.posargs)
 
@@ -62,14 +70,18 @@ def type_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
     session.install("-e", "./packages/infrastructure/notifications")
-    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
-    session.install("-e", "./packages/features/identity[all]")
+    session.install("-e", "./packages/features/identity")
+    session.install("-e", "./packages/features/multitenancy[all]")
+    session.install("-e", "./packages/features/access[all]")
+    session.install("-e", "./packages/features/analytics")
+    session.install("-e", "./packages/infrastructure/file-storage[local]")
     session.install(
         "mypy",
         "pydantic",
@@ -96,14 +108,18 @@ def arch_check(session: nox.Session) -> None:
     session.install("-e", "./packages/specifications")
     session.install("-e", "./packages/advanced")
     session.install("-e", "./packages/persistence/sqlalchemy")
+    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/persistence/mongo")
     session.install("-e", "./packages/infrastructure/redis")
     session.install("-e", "./packages/infrastructure/messaging[rabbitmq,kafka,sqs]")
     session.install("-e", "./packages/infrastructure/observability")
     session.install("-e", "./packages/infrastructure/notifications")
-    session.install("-e", "./packages/engines/projections")
     session.install("-e", "./packages/features/filtering")
-    session.install("-e", "./packages/features/identity[all]")
+    session.install("-e", "./packages/features/identity")
+    session.install("-e", "./packages/features/multitenancy[all]")
+    session.install("-e", "./packages/features/access[all]")
+    session.install("-e", "./packages/features/analytics")
+    session.install("-e", "./packages/infrastructure/file-storage[local]")
     session.install("-e", ".[dev,geometry]")
     session.run("pytest", "--no-cov", "tests/architecture", *session.posargs)
 

@@ -65,6 +65,8 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         entity_type: type[T_Entity],
         ids: Sequence[T_ID],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Entity]:
         """Fetch domain entities with Read-Through caching."""
         # Check explicit cacheable attribute or use class name
@@ -73,7 +75,9 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         return await self._execute_read_through(
             entity_name,
             list(ids),
-            lambda missing_ids: self._inner.fetch_domain(entity_type, missing_ids, uow),
+            lambda missing_ids: self._inner.fetch_domain(
+                entity_type, missing_ids, uow, specification=specification
+            ),
             cache_key_suffix="",
             cls=entity_type,
         )
@@ -83,17 +87,23 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         result_type: type[T_Result],
         criteria: T_Criteria[Any],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> SearchResult[T_Result]:
         """Fetch read models. Caches only ID-based lookups."""
         # We only cache ID-based lookups for now
         if isinstance(criteria, ISpecification):
-            return await self._inner.fetch(result_type, criteria, uow)
+            return await self._inner.fetch(
+                result_type, criteria, uow, specification=specification
+            )
 
         # Assume criteria is list of IDs
         entity_name = getattr(result_type, "__name__", str(result_type))
         ids_list = list(criteria) if isinstance(criteria, Sequence) else [criteria]
 
-        return self._build_cached_search_result(result_type, entity_name, ids_list, uow)
+        return self._build_cached_search_result(
+            result_type, entity_name, ids_list, uow, specification=specification
+        )
 
     def _build_cached_search_result(
         self,
@@ -101,6 +111,8 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         entity_name: str,
         ids_list: list[Any],
         uow: UnitOfWork | None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> SearchResult[T_Result]:
         """Build a SearchResult with caching support for list and stream modes."""
 
@@ -109,7 +121,7 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
                 entity_name,
                 ids_list,
                 lambda missing_ids: self._inner.fetch(
-                    result_type, missing_ids, uow
+                    result_type, missing_ids, uow, specification=specification
                 ).__await__(),
                 cache_key_suffix=":query",
                 cls=result_type,
@@ -118,7 +130,11 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         async def _stream(batch_size: int | None = None) -> AsyncIterator[T_Result]:
             if batch_size and batch_size > 0:
                 async for item in self._stream_in_batches(
-                    result_type, ids_list, batch_size, uow
+                    result_type,
+                    ids_list,
+                    batch_size,
+                    uow,
+                    specification=specification,
                 ):
                     yield item
             else:
@@ -135,11 +151,15 @@ class CachingPersistenceDispatcher(IPersistenceDispatcher):
         ids_list: list[Any],
         batch_size: int,
         uow: UnitOfWork | None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[T_Result]:
         """Stream results in batches without full caching."""
         for i in range(0, len(ids_list), batch_size):
             batch = ids_list[i : i + batch_size]
-            batch_result = await self._inner.fetch(result_type, batch, uow)
+            batch_result = await self._inner.fetch(
+                result_type, batch, uow, specification=specification
+            )
             batch_items = await batch_result
             for item in batch_items:
                 yield item

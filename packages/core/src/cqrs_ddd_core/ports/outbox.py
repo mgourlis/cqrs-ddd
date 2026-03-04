@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from uuid import uuid4
 
 from ..utils import default_dict_factory
 
 if TYPE_CHECKING:
+    from ..domain.specification import ISpecification
     from ..ports.unit_of_work import UnitOfWork
 
 
@@ -31,6 +32,7 @@ class OutboxMessage:
     causation_id: str | None = field(
         default=None, metadata={"description": "Direct parent message ID"}
     )
+    tenant_id: str | None = None
 
 
 @runtime_checkable
@@ -51,9 +53,20 @@ class IOutboxStorage(Protocol):
         ...
 
     async def get_pending(
-        self, limit: int = 100, uow: UnitOfWork | None = None
+        self,
+        limit: int = 100,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[OutboxMessage]:
-        """Retrieve unpublished messages, ordered by creation time."""
+        """Retrieve unpublished messages, ordered by creation time.
+
+        Args:
+            limit: Maximum number of messages to return.
+            uow: Optional UnitOfWork for transactional consistency.
+            specification: Optional specification for additional filtering
+                (e.g. tenant isolation).
+        """
         ...
 
     async def mark_published(

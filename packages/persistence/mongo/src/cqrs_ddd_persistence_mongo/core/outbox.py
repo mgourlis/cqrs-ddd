@@ -13,9 +13,11 @@ from typing import TYPE_CHECKING, Any
 from cqrs_ddd_core.ports.outbox import IOutboxStorage, OutboxMessage
 
 from ..exceptions import MongoPersistenceError
+from ..query_builder import MongoQueryBuilder
 from .session_utils import session_in_transaction
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..connection import MongoConnectionManager
@@ -131,6 +133,7 @@ class MongoOutboxStorage(IOutboxStorage):
                 "error": msg.error,
                 "correlation_id": msg.correlation_id,
                 "causation_id": msg.causation_id,
+                "tenant_id": msg.tenant_id,
             }
             docs.append(doc)
 
@@ -145,6 +148,8 @@ class MongoOutboxStorage(IOutboxStorage):
         self,
         limit: int = 100,
         uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[OutboxMessage]:
         """
         Retrieve unpublished messages, ordered by creation time.
@@ -152,12 +157,22 @@ class MongoOutboxStorage(IOutboxStorage):
         Args:
             limit: Maximum number of messages to retrieve.
             uow: Optional Unit of Work (unused for reads).
+            specification: Optional specification for additional filtering
+                (e.g. tenant isolation).
 
         Returns:
             List of pending OutboxMessage instances.
         """
         coll = self._collection()
-        cursor = coll.find({"status": "pending"}).sort("created_at", 1).limit(limit)
+        query: dict[str, Any] = {"status": "pending"}
+
+        if specification is not None:
+            builder = MongoQueryBuilder()
+            spec_filter = builder.build_match(specification)
+            if spec_filter:
+                query = {"$and": [query, spec_filter]}
+
+        cursor = coll.find(query).sort("created_at", 1).limit(limit)
         messages = []
 
         async for doc in cursor:
@@ -172,6 +187,7 @@ class MongoOutboxStorage(IOutboxStorage):
                 retry_count=doc.get("retry_count", 0),
                 correlation_id=doc.get("correlation_id", ""),
                 causation_id=doc.get("causation_id"),
+                tenant_id=doc.get("tenant_id"),
             )
             messages.append(message)
 

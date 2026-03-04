@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from cqrs_ddd_core.domain.event_registry import EventTypeRegistry
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..ports.snapshots import ISnapshotStore
@@ -76,7 +77,13 @@ class EventSourcedRepository(
             create_aggregate=self._create_aggregate,
         )
 
-    async def retrieve(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T]:
+    async def retrieve(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T]:
         """Load aggregates by ID from snapshot + event store (with upcasting)."""
         registry = get_hook_registry()
         return cast(
@@ -88,15 +95,21 @@ class EventSourcedRepository(
                     "aggregate.count": len(ids),
                     "correlation_id": get_correlation_id(),
                 },
-                lambda: self._retrieve_internal(ids, uow),
+                lambda: self._retrieve_internal(ids, uow, specification=specification),
             ),
         )
 
-    async def _retrieve_internal(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T]:
+    async def _retrieve_internal(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T]:
         loader = self._loader(uow)
         result: list[T] = []
         for id_val in ids:
-            agg = await loader.load(str(id_val))
+            agg = await loader.load(str(id_val), specification=specification)
             if agg is not None:
                 result.append(agg)
         return result
@@ -136,6 +149,7 @@ class EventSourcedRepository(
 
         stored: list[StoredEvent] = []
         for i, event in enumerate(events):
+            event_metadata = getattr(event, "metadata", {}) or {}
             stored.append(
                 StoredEvent(
                     event_id=getattr(event, "event_id", ""),
@@ -146,11 +160,12 @@ class EventSourcedRepository(
                     version=base_version + i + 1,
                     schema_version=getattr(event, "version", 1),
                     payload=event.model_dump(),
-                    metadata=getattr(event, "metadata", {}),
+                    metadata=event_metadata,
                     occurred_at=getattr(event, "occurred_at", None)
                     or datetime.now(timezone.utc),
                     correlation_id=getattr(event, "correlation_id", None),
                     causation_id=getattr(event, "causation_id", None),
+                    tenant_id=event_metadata.get("tenant_id"),
                 )
             )
         await event_store.append_batch(stored)

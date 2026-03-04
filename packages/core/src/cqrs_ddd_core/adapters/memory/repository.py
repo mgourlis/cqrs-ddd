@@ -35,14 +35,29 @@ class InMemoryRepository(IRepository[Any, ID]):
         self,
         entity_id: ID,
         uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AggregateRoot[ID] | None:
-        return self._store.get(entity_id)
+        entity = self._store.get(entity_id)
+        if (
+            entity is not None
+            and specification is not None
+            and not specification.is_satisfied_by(entity)
+        ):
+            return None
+        return entity
 
     async def delete(
         self,
         entity_id: ID,
         uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> ID:
+        if specification is not None:
+            entity = self._store.get(entity_id)
+            if entity is not None and not specification.is_satisfied_by(entity):
+                return entity_id  # silently deny cross-spec deletes
         self._store.pop(entity_id, None)
         return entity_id
 
@@ -50,14 +65,20 @@ class InMemoryRepository(IRepository[Any, ID]):
         self,
         entity_ids: list[ID] | None = None,
         uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> builtins.list[AggregateRoot[ID]]:
         if entity_ids is None:
-            return list(self._store.values())
-        return [
-            entity
-            for entity_id, entity in self._store.items()
-            if entity_id in entity_ids
-        ]
+            results = list(self._store.values())
+        else:
+            results = [
+                entity
+                for entity_id, entity in self._store.items()
+                if entity_id in entity_ids
+            ]
+        if specification is not None:
+            results = [e for e in results if specification.is_satisfied_by(e)]
+        return results
 
     async def search(
         self,

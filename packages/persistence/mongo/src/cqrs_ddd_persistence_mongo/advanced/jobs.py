@@ -12,8 +12,10 @@ from cqrs_ddd_advanced_core.background_jobs.entity import BaseBackgroundJob
 from cqrs_ddd_advanced_core.ports.background_jobs import IBackgroundJobRepository
 
 from ..core.repository import MongoRepository
+from ..query_builder import MongoQueryBuilder
 
 if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..connection import MongoConnectionManager
@@ -44,21 +46,38 @@ class MongoBackgroundJobRepository(
         )
         self.stale_job_timeout_seconds = stale_job_timeout_seconds
 
+    def _merge_spec(
+        self, query: dict[str, Any], specification: ISpecification[Any] | None
+    ) -> dict[str, Any]:
+        """Merge a specification filter into a MongoDB query dict."""
+        if specification is None:
+            return query
+        builder = MongoQueryBuilder()
+        spec_filter = builder.build_match(specification)
+        if not spec_filter:
+            return query
+        if query:
+            return {"$and": [query, spec_filter]}
+        return spec_filter
+
     async def get_stale_jobs(
         self,
         timeout_seconds: int | None = None,
-        _uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[BaseBackgroundJob]:
         """Fetch RUNNING jobs that have exceeded their timeout."""
         timeout = timeout_seconds or self.stale_job_timeout_seconds
         threshold = datetime.now(timezone.utc) - timedelta(seconds=timeout)
 
-        cursor = self._collection().find(
-            {
-                "status": DomainJobStatus.RUNNING.value,
-                "updated_at": {"$lt": threshold},
-            }
-        )
+        base_query = {
+            "status": DomainJobStatus.RUNNING.value,
+            "updated_at": {"$lt": threshold},
+        }
+        query = self._merge_spec(base_query, specification)
+
+        cursor = self._collection().find(query)
 
         results = []
         async for doc in cursor:
@@ -67,24 +86,21 @@ class MongoBackgroundJobRepository(
 
     async def find_by_status(
         self,
-        statuses: list[DomainJobStatus],  # Match protocol signature (list of statuses)
+        statuses: list[DomainJobStatus],
         limit: int = 50,
         offset: int = 0,
-        _uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[BaseBackgroundJob]:
         """Find jobs by status."""
-        # Build query to match any of the provided statuses
         status_values = [s.value for s in statuses]
-        cursor = (
-            self._collection()
-            .find(
-                {
-                    "status": {"$in": status_values},
-                }
-            )
-            .skip(offset)
-            .limit(limit)
-        )
+        base_query: dict[str, Any] = {
+            "status": {"$in": status_values},
+        }
+        query = self._merge_spec(base_query, specification)
+
+        cursor = self._collection().find(query).skip(offset).limit(limit)
 
         results = []
         async for doc in cursor:
@@ -141,7 +157,7 @@ class MongoBackgroundJobRepository(
         self,
         job_id: str,
         error_message: str | None = None,
-        uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
     ) -> bool:
         """
         Mark a failed job for retry.
@@ -211,3 +227,62 @@ class MongoBackgroundJobRepository(
             {"_id": job_id},
             {"$set": update_doc},
         )
+
+    async def count_by_status(
+        self,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> dict[str, int]:
+        """Return a mapping of status value → job count across all statuses."""
+        coll = self._collection()
+        base_query: dict[str, Any] = {}
+        query = self._merge_spec(base_query, specification)
+
+        pipeline: list[dict[str, Any]] = []
+        if query:
+            pipeline.append({"$match": query})
+        pipeline.append({"$group": {"_id": "$status", "count": {"$sum": 1}}})
+
+        result: dict[str, int] = {}
+        async for doc in coll.aggregate(pipeline):
+            result[doc["_id"]] = doc["count"]
+        return result
+
+    async def purge_completed(
+        self,
+        before: datetime,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> int:
+        """Delete COMPLETED and CANCELLED jobs whose updated_at precedes ``before``."""
+        coll = self._collection()
+        base_query: dict[str, Any] = {
+            "status": {
+                "$in": [
+                    DomainJobStatus.COMPLETED.value,
+                    DomainJobStatus.CANCELLED.value,
+                ]
+            },
+            "updated_at": {"$lt": before},
+        }
+        query = self._merge_spec(base_query, specification)
+
+        result = await coll.delete_many(query)
+        return int(result.deleted_count)
+
+    async def is_cancellation_requested(
+        self,
+        job_id: str,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+    ) -> bool:
+        """Check whether the job's persisted status is CANCELLED."""
+        coll = self._collection()
+        doc = await coll.find_one(
+            {"_id": job_id},
+            projection={"status": 1},
+        )
+        if doc is None:
+            return False
+        return bool(doc.get("status") == DomainJobStatus.CANCELLED.value)

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
     from cqrs_ddd_core.domain.event_registry import EventTypeRegistry
     from cqrs_ddd_core.domain.events import DomainEvent
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.event_store import IEventStore
 
     from ..domain.event_validation import EventValidator
@@ -167,7 +168,12 @@ class EventSourcedLoader(Generic[T]):
                 self._create_aggregate = lambda aid: aggregate_type(id=aid)
         self._aggregate_type_name = aggregate_type.__name__
 
-    async def load(self, aggregate_id: str) -> T | None:
+    async def load(
+        self,
+        aggregate_id: str,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> T | None:
         """Reconstitute an aggregate from snapshot (if any) and events.
 
         1. Try snapshot_store.get_latest_snapshot()
@@ -177,13 +183,20 @@ class EventSourcedLoader(Generic[T]):
         5. Hydrate to DomainEvent via event_registry
         6. Apply each event to the aggregate
         7. Return the reconstituted aggregate, or None if no snapshot and no events
+
+        Args:
+            aggregate_id: The aggregate identifier.
+            specification: Optional specification for tenant filtering,
+                forwarded to event_store and snapshot_store.
         """
         after_version = 0
         aggregate: T | None = None
 
         if self._snapshot_store:
             snapshot = await self._snapshot_store.get_latest_snapshot(
-                self._aggregate_type_name, aggregate_id
+                self._aggregate_type_name,
+                aggregate_id,
+                specification=specification,
             )
             if snapshot:
                 snapshot_data = snapshot.get("snapshot_data") or snapshot
@@ -200,7 +213,9 @@ class EventSourcedLoader(Generic[T]):
             object.__setattr__(aggregate, "_version", 0)
 
         raw_events = await self._event_store.get_events(
-            aggregate_id, after_version=after_version
+            aggregate_id,
+            after_version=after_version,
+            specification=specification,
         )
         if not raw_events and after_version == 0:
             # No snapshot and no events: aggregate never existed

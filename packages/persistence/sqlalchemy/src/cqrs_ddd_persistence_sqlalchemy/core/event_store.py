@@ -3,16 +3,29 @@ SQLAlchemy implementation of the Event Store.
 
 Uses SQLAlchemy Sequence for auto-incremented ``position`` field,
 ensuring atomicity and preventing race conditions without any migration logic.
+
+All read methods accept an optional ``specification`` parameter.  When
+provided the specification is compiled to a SQLAlchemy WHERE clause via
+:func:`build_sqla_filter` and composed with the base query.
 """
 
-from collections.abc import AsyncIterator
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 
+from ..specifications.compiler import build_sqla_filter
 from .models import StoredEventModel
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 class SQLAlchemyEventStore(IEventStore):
@@ -22,6 +35,22 @@ class SQLAlchemyEventStore(IEventStore):
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
+
+    # -- specification helper ------------------------------------------------
+
+    def _apply_spec(
+        self,
+        stmt: Any,
+        specification: ISpecification[Any] | None,
+    ) -> Any:
+        """Compile an ``ISpecification`` to a WHERE clause and apply it."""
+        if specification is None:
+            return stmt
+        spec_data = specification.to_dict()
+        if spec_data:
+            where_clause = build_sqla_filter(StoredEventModel, spec_data)
+            stmt = stmt.where(where_clause)
+        return stmt
 
     async def append(self, stored_event: StoredEvent) -> None:
         """
@@ -42,6 +71,7 @@ class SQLAlchemyEventStore(IEventStore):
             occurred_at=stored_event.occurred_at,
             correlation_id=stored_event.correlation_id,
             causation_id=stored_event.causation_id,
+            tenant_id=stored_event.tenant_id,
             # Position handled by Sequence - don't set manually
         )
         self.session.add(model)
@@ -65,6 +95,7 @@ class SQLAlchemyEventStore(IEventStore):
                 occurred_at=event.occurred_at,
                 correlation_id=event.correlation_id,
                 causation_id=event.causation_id,
+                tenant_id=event.tenant_id,
                 # Position handled by Sequence - don't set manually
             )
             for event in events
@@ -76,6 +107,7 @@ class SQLAlchemyEventStore(IEventStore):
         aggregate_id: str,
         *,
         after_version: int = 0,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return events for an aggregate after *after_version*.
@@ -88,6 +120,7 @@ class SQLAlchemyEventStore(IEventStore):
             )
             .order_by(StoredEventModel.version)
         )
+        stmt = self._apply_spec(stmt, specification)
         result = await self.session.execute(stmt)
         models = result.scalars().all()
         return [self._to_dataclass(m) for m in models]
@@ -96,6 +129,8 @@ class SQLAlchemyEventStore(IEventStore):
         self,
         aggregate_id: str,
         aggregate_type: str | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return all events for an aggregate, optionally filtered by type.
@@ -106,12 +141,17 @@ class SQLAlchemyEventStore(IEventStore):
         if aggregate_type:
             stmt = stmt.where(StoredEventModel.aggregate_type == aggregate_type)
         stmt = stmt.order_by(StoredEventModel.version)
+        stmt = self._apply_spec(stmt, specification)
 
         result = await self.session.execute(stmt)
         models = result.scalars().all()
         return [self._to_dataclass(m) for m in models]
 
-    async def get_all(self) -> list[StoredEvent]:
+    async def get_all(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[StoredEvent]:
         """
         Return every stored event (for projections / catch-up).
 
@@ -119,12 +159,17 @@ class SQLAlchemyEventStore(IEventStore):
         :meth:`get_events_after` or :meth:`get_all_streaming`.
         """
         stmt = select(StoredEventModel).order_by(StoredEventModel.occurred_at)
+        stmt = self._apply_spec(stmt, specification)
         result = await self.session.execute(stmt)
         models = result.scalars().all()
         return [self._to_dataclass(m) for m in models]
 
     async def get_events_after(
-        self, position: int, limit: int = 1000
+        self,
+        position: int,
+        limit: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return events after a given position for cursor-based pagination.
@@ -138,6 +183,7 @@ class SQLAlchemyEventStore(IEventStore):
             .order_by(StoredEventModel.position)
             .limit(limit)
         )
+        stmt = self._apply_spec(stmt, specification)
         result = await self.session.execute(stmt)
         models = result.scalars().all()
         return [self._to_dataclass(m) for m in models]
@@ -147,6 +193,7 @@ class SQLAlchemyEventStore(IEventStore):
         position: int,
         *,
         limit: int | None = None,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[StoredEvent]:
         """
         Stream events starting from a given position (exclusive).
@@ -156,7 +203,9 @@ class SQLAlchemyEventStore(IEventStore):
         batch_size = limit if limit is not None else 1000
         current = position
         while True:
-            batch = await self.get_events_after(current, batch_size)
+            batch = await self.get_events_after(
+                current, batch_size, specification=specification
+            )
             for e in batch:
                 yield e
             if len(batch) < batch_size:
@@ -166,7 +215,11 @@ class SQLAlchemyEventStore(IEventStore):
                 last.position if last.position is not None else current + len(batch)
             )
 
-    async def get_latest_position(self) -> int | None:
+    async def get_latest_position(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> int | None:
         """
         Get the highest event position in the store.
 
@@ -175,12 +228,16 @@ class SQLAlchemyEventStore(IEventStore):
         from sqlalchemy import func
 
         stmt = select(func.max(StoredEventModel.position))
+        stmt = self._apply_spec(stmt, specification)
         result = await self.session.execute(stmt)
         value = result.scalar()
         return int(value) if value is not None else None
 
     async def get_all_streaming(
-        self, batch_size: int = 1000
+        self,
+        batch_size: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[list[StoredEvent]]:
         """
         Stream all events in batches for memory-efficient processing.
@@ -188,14 +245,14 @@ class SQLAlchemyEventStore(IEventStore):
         Yields batches until all events are consumed. Uses the position
         field from StoredEvent for cursor-based iteration.
         """
-        # Track offset manually for events without position (backward compatibility)
         offset = 0
         while True:
-            batch = await self.get_events_after(offset, batch_size)
+            batch = await self.get_events_after(
+                offset, batch_size, specification=specification
+            )
             if not batch:
                 break
             yield batch
-            # Update offset for next batch
             offset += len(batch)
 
     def _to_dataclass(self, model: StoredEventModel) -> StoredEvent:
@@ -218,4 +275,5 @@ class SQLAlchemyEventStore(IEventStore):
             correlation_id=model.correlation_id,
             causation_id=model.causation_id,
             position=model.position,
+            tenant_id=model.tenant_id,
         )

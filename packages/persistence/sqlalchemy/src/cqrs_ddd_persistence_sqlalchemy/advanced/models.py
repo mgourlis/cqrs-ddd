@@ -40,6 +40,7 @@ class SagaStateModel(AuditableModelMixin, Base):
     events: Mapped[list[dict[str, Any]]] = mapped_column(JSONType)
 
     timeout_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
 
 class JobStatus(str, enum.Enum):
@@ -76,6 +77,7 @@ class BackgroundJobModel(AuditableModelMixin, Base):
     correlation_id: Mapped[str | None] = mapped_column(
         String, nullable=True, index=True
     )
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
 
 class ScheduledCommandModel(Base):
@@ -98,6 +100,7 @@ class ScheduledCommandModel(Base):
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
     description: Mapped[str | None] = mapped_column(String, nullable=True)
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
 
 class SnapshotModel(Base):
@@ -120,3 +123,4 @@ class SnapshotModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)

@@ -19,6 +19,7 @@ from .uow import MongoUnitOfWork
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..connection import MongoConnectionManager
@@ -143,49 +144,75 @@ class MongoRepository(IRepository[T, str], Generic[T]):
 
         return str(doc_id)
 
-    async def get(self, entity_id: str, uow: UnitOfWork | None = None) -> T | None:
+    async def get(
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> T | None:
         """Load one document by id."""
         session = uow.session if isinstance(uow, MongoUnitOfWork) else None
         coll = self._collection(session)
-        doc = await coll.find_one({"_id": entity_id}, session=session)
+        filter_query: dict[str, Any] = {"_id": entity_id}
+        if specification is not None:
+            spec_filter = self._query_builder.build_match(specification)
+            if spec_filter:
+                filter_query = {"$and": [filter_query, spec_filter]}
+        doc = await coll.find_one(filter_query, session=session)
         if doc is None:
             return None
         return self._mapper.from_doc(doc)
 
-    async def delete(self, entity_id: str, uow: UnitOfWork | None = None) -> str:
+    async def delete(
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> str:
         """Remove document by id. Returns deleted id."""
         session = uow.session if isinstance(uow, MongoUnitOfWork) else None
         coll = self._collection(session)
+        filter_query: dict[str, Any] = {"_id": entity_id}
+        if specification is not None:
+            spec_filter = self._query_builder.build_match(specification)
+            if spec_filter:
+                filter_query = {"$and": [filter_query, spec_filter]}
         if session and session_in_transaction(session):
             try:
-                await coll.delete_one({"_id": entity_id}, session=session)
+                await coll.delete_one(filter_query, session=session)
             except (NotImplementedError, TypeError):
                 # mongomock doesn't support sessions
-                await coll.delete_one({"_id": entity_id})
+                await coll.delete_one(filter_query)
         else:
-            await coll.delete_one({"_id": entity_id})
+            await coll.delete_one(filter_query)
         return entity_id
 
     async def list_all(
         self,
         entity_ids: list[str] | None = None,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T]:
         """List documents; if entity_ids given, filter by _id in list."""
         session = uow.session if isinstance(uow, MongoUnitOfWork) else None
         coll = self._collection(session)
+        base_filter: dict[str, Any] = {}
         if entity_ids:
-            try:
-                cursor = coll.find({"_id": {"$in": entity_ids}}, session=session)
-            except (NotImplementedError, TypeError):
-                # mongomock doesn't support sessions
-                cursor = coll.find({"_id": {"$in": entity_ids}})
-        else:
-            try:
-                cursor = coll.find({}, session=session)
-            except (NotImplementedError, TypeError):
-                # mongomock doesn't support sessions
-                cursor = coll.find({})
+            base_filter = {"_id": {"$in": entity_ids}}
+        if specification is not None:
+            spec_filter = self._query_builder.build_match(specification)
+            if spec_filter:
+                base_filter = (
+                    {"$and": [base_filter, spec_filter]} if base_filter else spec_filter
+                )
+        try:
+            cursor = coll.find(base_filter, session=session)
+        except (NotImplementedError, TypeError):
+            # mongomock doesn't support sessions
+            cursor = coll.find(base_filter)
         results = []
         async for doc in cursor:
             results.append(self._mapper.from_doc(doc))

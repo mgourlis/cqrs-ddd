@@ -356,6 +356,7 @@ class EventSourcedPersistenceOrchestrator:
             or datetime.now(timezone.utc),
             correlation_id=getattr(command_response, "correlation_id", None),
             causation_id=getattr(command_response, "causation_id", None),
+            tenant_id=(getattr(event, "metadata", {}) or {}).get("tenant_id"),
         )
 
     def unregister_event_sourced_type(self, aggregate_type_name: str) -> None:

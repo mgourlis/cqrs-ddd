@@ -176,9 +176,19 @@ class SQLAlchemyRetrievalPersistence(
         """Convert SQLAlchemy model → domain aggregate."""
         return self._mapper.from_model(model)
 
-    async def retrieve(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T_Entity]:
+    async def retrieve(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T_Entity]:
         session = _session_from(uow)
         stmt = select(self.db_model_cls).where(self.db_model_cls.id.in_(ids))
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(self.db_model_cls, spec_data))
         result = await session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
 
@@ -209,9 +219,19 @@ class SQLAlchemyQueryPersistence(
         """Convert a SQLAlchemy model instance to the result DTO."""
         ...
 
-    async def fetch(self, ids: Sequence[T_ID], uow: UnitOfWork) -> list[T_Result]:
+    async def fetch(
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[T_Result]:
         session = _session_from(uow)
         stmt = select(self.db_model_cls).where(self.db_model_cls.id.in_(ids))
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(self.db_model_cls, spec_data))
         result = await session.execute(stmt)
         return [self.to_dto(m) for m in result.scalars().all()]
 

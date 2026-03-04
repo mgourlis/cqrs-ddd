@@ -66,6 +66,9 @@ class BaseBackgroundJob(AggregateRoot[str]):
     metadata: dict[str, Any] = Field(default_factory=dict)
     correlation_id: str | None = None
 
+    # -- multitenancy -----------------------------------------------------
+    tenant_id: str | None = None
+
     # -- helpers ----------------------------------------------------------
 
     def _touch(self) -> None:

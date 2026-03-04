@@ -206,7 +206,11 @@ class MongoRetrievalPersistence(
         return self._db()[self.collection_name]
 
     async def retrieve(
-        self, ids: Sequence[T_ID], uow: UnitOfWork | None = None
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Entity]:
         """
         Retrieve aggregates by their IDs.
@@ -215,6 +219,7 @@ class MongoRetrievalPersistence(
             ids: List of entity IDs to retrieve.
             uow: Optional UnitOfWork (session not typically used for reads,
                   but kept for interface consistency).
+            specification: Optional specification for additional filtering.
 
         Returns:
             List of hydrated aggregate instances.
@@ -222,7 +227,11 @@ class MongoRetrievalPersistence(
         coll = self._collection()
         session = _session_from(uow)
 
-        filter_query = {"_id": {"$in": list(ids)}}
+        filter_query: dict[str, Any] = {"_id": {"$in": list(ids)}}
+        if specification is not None:
+            spec_filter = MongoQueryBuilder().build_match(specification)
+            if spec_filter:
+                filter_query = {"$and": [filter_query, spec_filter]}
 
         if session:
             try:
@@ -298,7 +307,11 @@ class MongoQueryPersistence(
         ...
 
     async def fetch(
-        self, ids: Sequence[T_ID], uow: UnitOfWork | None = None
+        self,
+        ids: Sequence[T_ID],
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Result]:
         """
         Fetch result DTOs by their IDs.
@@ -306,6 +319,7 @@ class MongoQueryPersistence(
         Args:
             ids: List of entity IDs to fetch.
             uow: Optional UnitOfWork (session not typically used for reads).
+            specification: Optional specification for additional filtering.
 
         Returns:
             List of DTO instances.
@@ -313,7 +327,11 @@ class MongoQueryPersistence(
         coll = self._collection()
         session = _session_from(uow)
 
-        filter_query = {"_id": {"$in": list(ids)}}
+        filter_query: dict[str, Any] = {"_id": {"$in": list(ids)}}
+        if specification is not None:
+            spec_filter = MongoQueryBuilder().build_match(specification)
+            if spec_filter:
+                filter_query = {"$and": [filter_query, spec_filter]}
 
         if session:
             try:

@@ -61,10 +61,12 @@ class OutboxMessage(Base):
     event_metadata: Mapped[dict[str, Any]] = mapped_column(JSONType, nullable=True)
     correlation_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     causation_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
     __table_args__ = (
         Index("ix_outbox_pending_id", "status", "id"),
         Index("ix_outbox_tracing", "correlation_id", "causation_id"),
+        Index("ix_outbox_tenant_status", "tenant_id", "status"),
     )
 
 
@@ -75,6 +77,9 @@ class StoredEventModel(Base):
 
     The ``position`` column enables cursor-based pagination for efficient
     projection processing without loading all events into memory.
+
+    The ``tenant_id`` column enables multitenant isolation with database-level
+    filtering, supporting B-tree indexes, Row-Level Security, and partitioning.
     """
 
     __tablename__ = "event_store"
@@ -95,5 +100,9 @@ class StoredEventModel(Base):
     position: Mapped[int] = mapped_column(
         Integer, autoincrement=True, unique=True, index=True, nullable=True
     )
+    tenant_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
-    __table_args__ = (Index("ix_event_store_aggregate", "aggregate_id", "version"),)
+    __table_args__ = (
+        Index("ix_event_store_aggregate", "aggregate_id", "version"),
+        Index("ix_event_store_tenant_position", "tenant_id", "position"),
+    )

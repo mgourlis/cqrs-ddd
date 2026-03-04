@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from cqrs_ddd_advanced_core.ports.snapshots import ISnapshotStore
+
+if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 class InMemorySnapshotStore(ISnapshotStore):
@@ -23,6 +26,8 @@ class InMemorySnapshotStore(ISnapshotStore):
         aggregate_id: Any,
         snapshot_data: dict[str, Any],
         version: int,
+        *,
+        specification: ISpecification[Any] | None = None,  # noqa: ARG002
     ) -> None:
         key = (aggregate_type, str(aggregate_id))
         self._store[key] = {
@@ -35,6 +40,8 @@ class InMemorySnapshotStore(ISnapshotStore):
         self,
         aggregate_type: str,
         aggregate_id: Any,
+        *,
+        specification: ISpecification[Any] | None = None,  # noqa: ARG002
     ) -> dict[str, Any] | None:
         key = (aggregate_type, str(aggregate_id))
         return self._store.get(key)
@@ -43,6 +50,8 @@ class InMemorySnapshotStore(ISnapshotStore):
         self,
         aggregate_type: str,
         aggregate_id: Any,
+        *,
+        specification: ISpecification[Any] | None = None,  # noqa: ARG002
     ) -> None:
         key = (aggregate_type, str(aggregate_id))
         self._store.pop(key, None)

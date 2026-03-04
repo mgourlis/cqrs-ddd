@@ -13,9 +13,12 @@ from typing import TYPE_CHECKING, Any, cast
 from cqrs_ddd_core.ports.event_store import IEventStore, StoredEvent
 
 from ..exceptions import MongoPersistenceError
+from ..query_builder import MongoQueryBuilder
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
+    from cqrs_ddd_core.domain.specification import ISpecification
 
     from ..connection import MongoConnectionManager
 
@@ -132,6 +135,7 @@ class MongoEventStore(IEventStore):
             "correlation_id": event.correlation_id,
             "causation_id": event.causation_id,
             "position": event.position,
+            "tenant_id": event.tenant_id,
         }
 
     def _doc_to_stored_event(self, doc: dict[str, Any]) -> StoredEvent:
@@ -149,6 +153,7 @@ class MongoEventStore(IEventStore):
             correlation_id=doc.get("correlation_id"),
             causation_id=doc.get("causation_id"),
             position=doc.get("position"),
+            tenant_id=doc.get("tenant_id"),
         )
 
     async def append(self, stored_event: StoredEvent) -> None:
@@ -174,6 +179,7 @@ class MongoEventStore(IEventStore):
             correlation_id=stored_event.correlation_id,
             causation_id=stored_event.causation_id,
             position=position,
+            tenant_id=stored_event.tenant_id,
         )
 
         doc = self._stored_event_to_doc(event_with_position)
@@ -208,6 +214,7 @@ class MongoEventStore(IEventStore):
                 correlation_id=event.correlation_id,
                 causation_id=event.causation_id,
                 position=position,
+                tenant_id=event.tenant_id,
             )
             events_with_positions.append(event_with_position)
 
@@ -215,11 +222,27 @@ class MongoEventStore(IEventStore):
         coll = self._events_collection()
         await coll.insert_many(docs)
 
+    def _merge_spec(
+        self,
+        base_filter: dict[str, Any],
+        specification: ISpecification[Any] | None,
+    ) -> dict[str, Any]:
+        """Merge a specification into an existing MongoDB filter dict."""
+        if specification is None:
+            return base_filter
+        spec_filter = MongoQueryBuilder().build_match(specification)
+        if not spec_filter:
+            return base_filter
+        if base_filter:
+            return {"$and": [base_filter, spec_filter]}
+        return spec_filter
+
     async def get_events(
         self,
         aggregate_id: str,
         *,
         after_version: int = 0,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return events for an aggregate after a given version.
@@ -232,7 +255,11 @@ class MongoEventStore(IEventStore):
             List of StoredEvent instances.
         """
         coll = self._events_collection()
-        filter_query = {"aggregate_id": aggregate_id, "version": {"$gt": after_version}}
+        filter_query: dict[str, Any] = {
+            "aggregate_id": aggregate_id,
+            "version": {"$gt": after_version},
+        }
+        filter_query = self._merge_spec(filter_query, specification)
 
         cursor = coll.find(filter_query).sort("version", 1)
         events = []
@@ -246,6 +273,8 @@ class MongoEventStore(IEventStore):
         self,
         aggregate_id: str,
         aggregate_type: str | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return all events for an aggregate, optionally filtered by type.
@@ -258,10 +287,12 @@ class MongoEventStore(IEventStore):
             List of StoredEvent instances.
         """
         coll = self._events_collection()
-        filter_query = {"aggregate_id": aggregate_id}
+        filter_query: dict[str, Any] = {"aggregate_id": aggregate_id}
 
         if aggregate_type is not None:
             filter_query["aggregate_type"] = aggregate_type
+
+        filter_query = self._merge_spec(filter_query, specification)
 
         cursor = coll.find(filter_query).sort("version", 1)
         events = []
@@ -271,7 +302,11 @@ class MongoEventStore(IEventStore):
 
         return events
 
-    async def get_all(self) -> list[StoredEvent]:
+    async def get_all(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[StoredEvent]:
         """
         Return every stored event.
 
@@ -282,7 +317,8 @@ class MongoEventStore(IEventStore):
             List of all StoredEvent instances.
         """
         coll = self._events_collection()
-        cursor = coll.find().sort("position", 1)
+        filter_query = self._merge_spec({}, specification)
+        cursor = coll.find(filter_query).sort("position", 1)
         events = []
 
         async for doc in cursor:
@@ -291,7 +327,11 @@ class MongoEventStore(IEventStore):
         return events
 
     async def get_events_after(
-        self, position: int, limit: int = 1000
+        self,
+        position: int,
+        limit: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[StoredEvent]:
         """
         Return events after a given position for cursor-based pagination.
@@ -301,14 +341,14 @@ class MongoEventStore(IEventStore):
         Args:
             position: The position to start from (exclusive).
             limit: Maximum number of events to return.
+            specification: Optional specification for additional filtering.
 
         Returns:
             List of StoredEvent instances.
         """
         coll = self._events_collection()
-        cursor = (
-            coll.find({"position": {"$gt": position}}).sort("position", 1).limit(limit)
-        )
+        filter_query = self._merge_spec({"position": {"$gt": position}}, specification)
+        cursor = coll.find(filter_query).sort("position", 1).limit(limit)
         events = []
 
         async for doc in cursor:
@@ -317,7 +357,10 @@ class MongoEventStore(IEventStore):
         return events
 
     def get_all_streaming(
-        self, batch_size: int = 1000
+        self,
+        batch_size: int = 1000,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[list[StoredEvent]]:
         """
         Stream all events in batches for memory-efficient processing.
@@ -326,6 +369,7 @@ class MongoEventStore(IEventStore):
 
         Args:
             batch_size: Number of events per batch.
+            specification: Optional specification for additional filtering.
 
         Yields:
             Lists of StoredEvent instances.
@@ -333,7 +377,8 @@ class MongoEventStore(IEventStore):
 
         async def _stream() -> AsyncIterator[list[StoredEvent]]:
             coll = self._events_collection()
-            cursor = coll.find().sort("position", 1).batch_size(batch_size)
+            filter_query = self._merge_spec({}, specification)
+            cursor = coll.find(filter_query).sort("position", 1).batch_size(batch_size)
             batch: list[StoredEvent] = []
             async for doc in cursor:
                 batch.append(self._doc_to_stored_event(doc))
@@ -350,6 +395,7 @@ class MongoEventStore(IEventStore):
         position: int,
         *,
         limit: int | None = None,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[StoredEvent]:
         """
         Stream events starting from a given position (exclusive).
@@ -359,7 +405,9 @@ class MongoEventStore(IEventStore):
         batch_size = limit if limit is not None else 1000
         current = position
         while True:
-            batch = await self.get_events_after(current, batch_size)
+            batch = await self.get_events_after(
+                current, batch_size, specification=specification
+            )
             for e in batch:
                 yield e
             if len(batch) < batch_size:
@@ -370,15 +418,20 @@ class MongoEventStore(IEventStore):
                 else current + len(batch)
             )
 
-    async def get_latest_position(self) -> int | None:
+    async def get_latest_position(
+        self,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> int | None:
         """
         Get the highest event position in the store.
 
         Used for catch-up subscription mode.
         """
         coll = self._events_collection()
+        filter_query = self._merge_spec({}, specification)
         doc = await coll.find_one(
-            {},
+            filter_query,
             projection={"position": 1},
             sort=[("position", -1)],
         )

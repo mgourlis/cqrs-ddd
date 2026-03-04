@@ -5,7 +5,7 @@ SQLAlchemy implementation of Saga persistence.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import cast
+from typing import TYPE_CHECKING, Any, cast
 
 from sqlalchemy import select
 
@@ -14,7 +14,11 @@ from cqrs_ddd_advanced_core.sagas.state import SagaState
 from cqrs_ddd_advanced_core.sagas.state import SagaStatus as DomainSagaStatus
 
 from ..core.repository import SQLAlchemyRepository, UnitOfWorkFactory
+from ..specifications.compiler import build_sqla_filter
 from .models import SagaStateModel, SagaStatus
+
+if TYPE_CHECKING:
+    from cqrs_ddd_core.domain.specification import ISpecification
 
 
 class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaRepository):
@@ -51,6 +55,10 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
 
         # Store full state minus the history in the state JSON column
         model.state = entity.model_dump(mode="json", exclude={"step_history"})
+
+        # Map tenant_id from metadata if present
+        if hasattr(entity, "metadata") and isinstance(entity.metadata, dict):
+            model.tenant_id = entity.metadata.get("tenant_id")
 
         return cast("SagaStateModel", model)
 
@@ -94,7 +102,12 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
         model = result.scalars().first()
         return self.from_model(model) if model else None
 
-    async def find_stalled_sagas(self, limit: int = 10) -> list[SagaState]:
+    async def find_stalled_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[SagaState]:
         """Return sagas that are RUNNING but have stalled (beyond update threshold)."""
         active_uow = self._get_active_uow()
         if not active_uow:
@@ -112,10 +125,19 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
             )
             .limit(limit)
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(SagaStateModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
 
-    async def find_suspended_sagas(self, limit: int = 10) -> list[SagaState]:
+    async def find_suspended_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[SagaState]:
         """Return all currently suspended sagas."""
         active_uow = self._get_active_uow()
         if not active_uow:
@@ -129,10 +151,19 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
             )
             .limit(limit)
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(SagaStateModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]
 
-    async def find_expired_suspended_sagas(self, limit: int = 10) -> list[SagaState]:
+    async def find_expired_suspended_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> list[SagaState]:
         """Return suspended sagas whose timeout_at has passed."""
         active_uow = self._get_active_uow()
         if not active_uow:
@@ -148,5 +179,9 @@ class SQLAlchemySagaRepository(SQLAlchemyRepository[SagaState, str], ISagaReposi
             )
             .limit(limit)
         )
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                stmt = stmt.where(build_sqla_filter(SagaStateModel, spec_data))
         result = await active_uow.session.execute(stmt)
         return [self.from_model(m) for m in result.scalars().all()]

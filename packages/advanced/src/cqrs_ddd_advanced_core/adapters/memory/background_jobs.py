@@ -40,25 +40,52 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
         return entity.id
 
     async def get(
-        self, entity_id: str, _uow: UnitOfWork | None = None
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> BaseBackgroundJob | None:
         """Retrieve a job by ID."""
-        return self._jobs.get(entity_id)
+        job = self._jobs.get(entity_id)
+        if (
+            job is not None
+            and specification is not None
+            and not specification.is_satisfied_by(job)
+        ):
+            return None
+        return job
 
-    async def delete(self, entity_id: str, _uow: UnitOfWork | None = None) -> str:
+    async def delete(
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
+    ) -> str:
         """Delete a job by ID."""
+        if specification is not None:
+            job = self._jobs.get(entity_id)
+            if job is not None and not specification.is_satisfied_by(job):
+                return entity_id
         self._jobs.pop(entity_id, None)
         return entity_id
 
     async def list_all(
         self,
         entity_ids: builtins.list[str] | None = None,
-        _uow: UnitOfWork | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> builtins.list[BaseBackgroundJob]:
         """Retrieve all jobs, or filter by IDs."""
         if entity_ids is None:
-            return list(self._jobs.values())
-        return [j for jid, j in self._jobs.items() if jid in entity_ids]
+            candidates = list(self._jobs.values())
+        else:
+            candidates = [j for jid, j in self._jobs.items() if jid in entity_ids]
+        if specification is not None:
+            return [j for j in candidates if specification.is_satisfied_by(j)]
+        return candidates
 
     async def search(
         self,
@@ -81,7 +108,11 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
         return SearchResult(list_fn=_list, stream_fn=_stream)
 
     async def get_stale_jobs(
-        self, timeout_seconds: int | None = None, _uow: UnitOfWork | None = None
+        self,
+        timeout_seconds: int | None = None,
+        _uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> builtins.list[BaseBackgroundJob]:
         """Fetch jobs in RUNNING state that have exceeded timeout."""
         stale = []
@@ -99,6 +130,8 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
             timeout = timeout_seconds if timeout_seconds is not None else 3600
 
             if elapsed > timeout:
+                if specification is not None and not specification.is_satisfied_by(job):
+                    continue
                 stale.append(job)
 
         return stale
@@ -109,6 +142,8 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
         limit: int = 50,
         offset: int = 0,
         _uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> builtins.list[BaseBackgroundJob]:
         """Return jobs matching given statuses, ordered by updated_at desc."""
         status_set = set(statuses)
@@ -118,20 +153,23 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
             ts = j.updated_at
             return ts if ts.tzinfo is not None else ts.replace(tzinfo=timezone.utc)
 
-        matched = sorted(
-            (j for j in self._jobs.values() if j.status in status_set),
-            key=_sort_key,
-            reverse=True,
-        )
+        candidates = (j for j in self._jobs.values() if j.status in status_set)
+        if specification is not None:
+            candidates = (j for j in candidates if specification.is_satisfied_by(j))
+        matched = sorted(candidates, key=_sort_key, reverse=True)
         return matched[offset : offset + limit]
 
     async def count_by_status(
         self,
         _uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> builtins.dict[str, int]:
         """Return a mapping of status value → job count (omits zero-count statuses)."""
         counts: builtins.dict[str, int] = {}
         for job in self._jobs.values():
+            if specification is not None and not specification.is_satisfied_by(job):
+                continue
             key = job.status.value
             counts[key] = counts.get(key, 0) + 1
         return counts
@@ -149,22 +187,27 @@ class InMemoryBackgroundJobRepository(IBackgroundJobRepository):
         self,
         before: datetime,
         _uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[BaseBackgroundJob] | None = None,
     ) -> int:
         """Delete COMPLETED and CANCELLED jobs with updated_at older than before."""
         if before.tzinfo is None:
             before = before.replace(tzinfo=timezone.utc)
 
-        to_delete = [
-            job_id
-            for job_id, job in self._jobs.items()
-            if job.status in _TERMINAL_STATUSES
-            and (
+        to_delete = []
+        for job_id, job in self._jobs.items():
+            if job.status not in _TERMINAL_STATUSES:
+                continue
+            updated = (
                 job.updated_at.replace(tzinfo=timezone.utc)
                 if job.updated_at.tzinfo is None
                 else job.updated_at
             )
-            < before
-        ]
+            if updated >= before:
+                continue
+            if specification is not None and not specification.is_satisfied_by(job):
+                continue
+            to_delete.append(job_id)
         for job_id in to_delete:
             del self._jobs[job_id]
         return len(to_delete)

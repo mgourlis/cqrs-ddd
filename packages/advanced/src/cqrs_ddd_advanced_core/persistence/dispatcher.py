@@ -201,6 +201,8 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         entity_type: type[T_Entity],
         ids: Sequence[T_ID],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Entity]:
         """Fetch domain entities by ID."""
         registry = get_hook_registry()
@@ -213,7 +215,9 @@ class PersistenceDispatcher(IPersistenceDispatcher):
                     "entity.count": len(ids),
                     "correlation_id": get_correlation_id(),
                 },
-                lambda: self._fetch_domain_internal(entity_type, ids, uow),
+                lambda: self._fetch_domain_internal(
+                    entity_type, ids, uow, specification=specification
+                ),
             ),
         )
 
@@ -222,6 +226,8 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         entity_type: type[T_Entity],
         ids: Sequence[T_ID],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Entity]:
         entry = self._registry.get_retrieval_entry(entity_type)
         if not entry:
@@ -233,15 +239,17 @@ class PersistenceDispatcher(IPersistenceDispatcher):
             self._handler_factory(entry.handler_cls),
         )
         if uow:
-            return await handler.retrieve(ids, uow)
+            return await handler.retrieve(ids, uow, specification=specification)
         async with self._get_uow_factory(entry.source)() as uow_ctx:
-            return await handler.retrieve(ids, uow_ctx)
+            return await handler.retrieve(ids, uow_ctx, specification=specification)
 
     async def fetch(
         self,
         result_type: type[T_Result],
         criteria: T_Criteria[Any],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> SearchResult[T_Result]:
         """
         Fetch read models by criteria (IDs, ISpecification, or QueryOptions).
@@ -259,7 +267,9 @@ class PersistenceDispatcher(IPersistenceDispatcher):
                     "criteria.type": type(criteria).__name__,
                     "correlation_id": get_correlation_id(),
                 },
-                lambda: self._fetch_internal(result_type, criteria, uow),
+                lambda: self._fetch_internal(
+                    result_type, criteria, uow, specification=specification
+                ),
             ),
         )
 
@@ -268,6 +278,8 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         result_type: type[T_Result],
         criteria: T_Criteria[Any],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> SearchResult[T_Result]:
         is_spec = isinstance(criteria, ISpecification) or hasattr(
             criteria, "specification"
@@ -280,11 +292,17 @@ class PersistenceDispatcher(IPersistenceDispatcher):
             criteria = [criteria]
 
         async def list_fn() -> list[T_Result]:
-            return await self._fetch_by_ids(result_type, criteria, uow)
+            return await self._fetch_by_ids(
+                result_type, criteria, uow, specification=specification
+            )
 
         async def stream_fn(batch_size: int | None) -> AsyncIterator[T_Result]:
             async for item in self._ids_as_stream(
-                result_type, criteria, uow, batch_size
+                result_type,
+                criteria,
+                uow,
+                batch_size,
+                specification=specification,
             ):
                 yield item
 
@@ -338,18 +356,24 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         ids: Any,
         uow: UnitOfWork | None,
         batch_size: int | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> AsyncIterator[T_Result]:
         """Yield items from an ID-based fetch, respecting batch_size."""
         if batch_size and batch_size > 0 and isinstance(ids, Sequence):
             # Process in batches
             for i in range(0, len(ids), batch_size):
                 batch = ids[i : i + batch_size]
-                items = await self._fetch_by_ids(result_type, batch, uow)
+                items = await self._fetch_by_ids(
+                    result_type, batch, uow, specification=specification
+                )
                 for item in items:
                     yield item
         else:
             # Fetch all at once
-            items = await self._fetch_by_ids(result_type, ids, uow)
+            items = await self._fetch_by_ids(
+                result_type, ids, uow, specification=specification
+            )
             for item in items:
                 yield item
 
@@ -358,6 +382,8 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         result_type: type[T_Result],
         ids: Sequence[Any],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Result]:
         """Fetch read models by IDs."""
         entry = self._registry.get_query_entry(result_type)
@@ -371,7 +397,7 @@ class PersistenceDispatcher(IPersistenceDispatcher):
         )
 
         if uow:
-            return await handler.fetch(ids, uow)
+            return await handler.fetch(ids, uow, specification=specification)
 
         async with self._get_uow_factory(entry.source)() as source_uow:
-            return await handler.fetch(ids, source_uow)
+            return await handler.fetch(ids, source_uow, specification=specification)

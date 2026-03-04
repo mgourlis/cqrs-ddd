@@ -40,23 +40,50 @@ class InMemorySagaRepository(ISagaRepository):
         return entity.id
 
     async def get(
-        self, entity_id: str, _uow: UnitOfWork | None = None
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[SagaState] | None = None,
     ) -> SagaState | None:
         """Retrieve a saga by its ID."""
+        if specification is not None:
+            state = self._sagas.get(entity_id)
+            if state is None or not specification.is_satisfied_by(state):
+                return None
+            return state
         return self._sagas.get(entity_id)
 
-    async def delete(self, entity_id: str, _uow: UnitOfWork | None = None) -> str:
+    async def delete(
+        self,
+        entity_id: str,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[SagaState] | None = None,
+    ) -> str:
         """Delete a saga by its ID."""
+        if specification is not None:
+            state = self._sagas.get(entity_id)
+            if state is not None and not specification.is_satisfied_by(state):
+                return entity_id
         self._sagas.pop(entity_id, None)
         return entity_id
 
     async def list_all(
-        self, entity_ids: list[str] | None = None, _uow: UnitOfWork | None = None
+        self,
+        entity_ids: list[str] | None = None,
+        uow: UnitOfWork | None = None,  # noqa: ARG002
+        *,
+        specification: ISpecification[SagaState] | None = None,
     ) -> builtins.list[SagaState]:
         """Retrieve sagas."""
         if entity_ids is None:
-            return list(self._sagas.values())
-        return [s for s_id, s in self._sagas.items() if s_id in entity_ids]
+            candidates = list(self._sagas.values())
+        else:
+            candidates = [s for s_id, s in self._sagas.items() if s_id in entity_ids]
+        if specification is not None:
+            return [s for s in candidates if specification.is_satisfied_by(s)]
+        return candidates
 
     async def search(
         self,
@@ -83,27 +110,48 @@ class InMemorySagaRepository(ISagaRepository):
                 return state
         return None
 
-    async def find_stalled_sagas(self, limit: int = 10) -> builtins.list[SagaState]:
+    async def find_stalled_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[SagaState] | None = None,
+    ) -> builtins.list[SagaState]:
         """Return RUNNING sagas that still have pending commands."""
         result: list[SagaState] = []
         for state in self._sagas.values():
             if state.status == SagaStatus.RUNNING and state.pending_commands:
+                if specification is not None and not specification.is_satisfied_by(
+                    state
+                ):
+                    continue
                 result.append(state)
                 if len(result) >= limit:
                     break
         return result
 
-    async def find_suspended_sagas(self, limit: int = 10) -> builtins.list[SagaState]:
+    async def find_suspended_sagas(
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[SagaState] | None = None,
+    ) -> builtins.list[SagaState]:
         result: list[SagaState] = []
         for state in self._sagas.values():
             if state.status == SagaStatus.SUSPENDED:
+                if specification is not None and not specification.is_satisfied_by(
+                    state
+                ):
+                    continue
                 result.append(state)
                 if len(result) >= limit:
                     break
         return result
 
     async def find_expired_suspended_sagas(
-        self, limit: int = 10
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[SagaState] | None = None,
     ) -> builtins.list[SagaState]:
         now = datetime.now(timezone.utc)
         result: list[SagaState] = []
@@ -113,18 +161,29 @@ class InMemorySagaRepository(ISagaRepository):
                 and state.timeout_at is not None
                 and state.timeout_at <= now
             ):
+                if specification is not None and not specification.is_satisfied_by(
+                    state
+                ):
+                    continue
                 result.append(state)
                 if len(result) >= limit:
                     break
         return result
 
     async def find_running_sagas_with_tcc_steps(
-        self, limit: int = 10
+        self,
+        limit: int = 10,
+        *,
+        specification: ISpecification[SagaState] | None = None,
     ) -> builtins.list[SagaState]:
         """Return RUNNING sagas that have TCC steps (state.tcc_steps non-empty)."""
         result: list[SagaState] = []
         for state in self._sagas.values():
             if state.status == SagaStatus.RUNNING and state.tcc_steps:
+                if specification is not None and not specification.is_satisfied_by(
+                    state
+                ):
+                    continue
                 result.append(state)
                 if len(result) >= limit:
                     break

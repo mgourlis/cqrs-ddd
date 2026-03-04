@@ -22,6 +22,14 @@ class IRepository(Protocol[T, ID]):
     """
     Generic Repository interface for managing state-stored aggregates.
 
+    All read methods accept an optional ``specification`` parameter that
+    implementations evaluate at the persistence level.  This enables
+    cross-cutting filters (e.g. tenant isolation) to be injected without
+    changing query logic::
+
+        spec = AttributeSpecification("tenant_id", EQ, "t-1")
+        entity = await repo.get(entity_id, specification=spec)
+
     The ``search`` method accepts either an ``ISpecification[T]`` or a
     ``QueryOptions`` instance (which wraps a specification together with
     pagination, ordering, and projection).  It returns a
@@ -40,12 +48,28 @@ class IRepository(Protocol[T, ID]):
 
     async def add(self, entity: T, uow: UnitOfWork | None = None) -> ID: ...
 
-    async def get(self, entity_id: ID, uow: UnitOfWork | None = None) -> T | None: ...
+    async def get(
+        self,
+        entity_id: ID,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> T | None: ...
 
-    async def delete(self, entity_id: ID, uow: UnitOfWork | None = None) -> ID: ...
+    async def delete(
+        self,
+        entity_id: ID,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> ID: ...
 
     async def list_all(
-        self, entity_ids: list[ID] | None = None, uow: UnitOfWork | None = None
+        self,
+        entity_ids: list[ID] | None = None,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T]: ...
 
     async def search(

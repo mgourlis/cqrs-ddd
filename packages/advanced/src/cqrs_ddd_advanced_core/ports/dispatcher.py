@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
     from cqrs_ddd_advanced_core.ports import T_ID, T_Criteria
     from cqrs_ddd_core.domain.events import DomainEvent
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.search_result import SearchResult
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
@@ -24,6 +25,13 @@ class IPersistenceDispatcher(Protocol):
     Interface for persistence dispatchers.
     Allows decorating the dispatcher with cross-cutting concerns
     (Caching, Logging, etc).
+
+    All read methods accept an optional ``specification`` parameter that
+    implementations evaluate at the persistence level.  This enables
+    cross-cutting filters (e.g. tenant isolation) to be injected::
+
+        spec = AttributeSpecification("tenant_id", EQ, "t-1")
+        entities = await dispatcher.fetch_domain(Order, ids, specification=spec)
 
     ``fetch`` returns a :class:`SearchResult` — ``await`` for a list,
     or ``.stream()`` for an ``AsyncIterator``::
@@ -47,8 +55,18 @@ class IPersistenceDispatcher(Protocol):
         entity_type: type[T_Entity],
         ids: Sequence[T_ID],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T_Entity]:
-        """Fetch domain entities by ID."""
+        """Fetch domain entities by ID.
+
+        Args:
+            entity_type: Type of entity to fetch.
+            ids: Sequence of entity IDs.
+            uow: Optional unit of work.
+            specification: Optional specification evaluated at the
+                persistence level (e.g. tenant filter).
+        """
         ...
 
     async def fetch(
@@ -56,6 +74,18 @@ class IPersistenceDispatcher(Protocol):
         result_type: type[T_Result],
         criteria: T_Criteria[Any],
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> SearchResult[T_Result]:
-        """Fetch read models by criteria (IDs, ISpecification, or QueryOptions)."""
+        """Fetch read models by criteria (IDs, ISpecification, or QueryOptions).
+
+        Args:
+            result_type: Type of result DTO.
+            criteria: Query criteria (IDs, ISpecification, or QueryOptions).
+            uow: Optional unit of work.
+            specification: Optional additional specification evaluated at
+                the persistence level (e.g. tenant filter).  When *criteria*
+                is already an ``ISpecification``, the two are composed with
+                AND logic.
+        """
         ...

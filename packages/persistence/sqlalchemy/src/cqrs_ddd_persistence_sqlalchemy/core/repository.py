@@ -105,6 +105,24 @@ class SQLAlchemyRepository(IRepository[T, ID], Generic[T, ID]):
         """Convert SQLAlchemy model → domain entity."""
         return self._mapper.from_model(model)
 
+    # -- specification helper -------------------------------------------------
+
+    def _apply_spec(
+        self,
+        stmt: Any,
+        specification: ISpecification[Any] | None,
+    ) -> Any:
+        """Compile an ``ISpecification`` to a WHERE clause and apply it."""
+        if specification is None:
+            return stmt
+        spec_data = specification.to_dict()
+        if spec_data:
+            where_clause = build_sqla_filter(
+                self.db_model_cls, spec_data, hooks=self._hooks
+            )
+            stmt = stmt.where(where_clause)
+        return stmt
+
     # -- CRUD ---------------------------------------------------------------
 
     async def add(self, entity: T, uow: UnitOfWork | None = None) -> ID:
@@ -132,29 +150,57 @@ class SQLAlchemyRepository(IRepository[T, ID], Generic[T, ID]):
 
         return model.id  # type: ignore[no-any-return]
 
-    async def get(self, entity_id: Any, uow: UnitOfWork | None = None) -> T | None:
+    async def get(
+        self,
+        entity_id: Any,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> T | None:
         active_uow = self._require_uow(uow)
-        model = await active_uow.session.get(self.db_model_cls, entity_id)
+        if specification is not None:
+            # Use a SELECT with WHERE clause so the specification is evaluated
+            stmt = select(self.db_model_cls).where(self.db_model_cls.id == entity_id)
+            stmt = self._apply_spec(stmt, specification)
+            result = await active_uow.session.execute(stmt)
+            model = result.scalars().first()
+        else:
+            model = await active_uow.session.get(self.db_model_cls, entity_id)
         if model is None:
             return None
         return self.from_model(model)
 
-    async def delete(self, entity_id: Any, uow: UnitOfWork | None = None) -> ID:
+    async def delete(
+        self,
+        entity_id: Any,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
+    ) -> ID:
         active_uow = self._require_uow(uow)
-        await active_uow.session.execute(
-            delete(self.db_model_cls).where(self.db_model_cls.id == entity_id)
-        )
+        stmt = delete(self.db_model_cls).where(self.db_model_cls.id == entity_id)
+        if specification is not None:
+            spec_data = specification.to_dict()
+            if spec_data:
+                where_clause = build_sqla_filter(
+                    self.db_model_cls, spec_data, hooks=self._hooks
+                )
+                stmt = stmt.where(where_clause)
+        await active_uow.session.execute(stmt)
         return entity_id  # type: ignore[no-any-return]
 
     async def list_all(
         self,
         entity_ids: list[Any] | None = None,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> list[T]:
         active_uow = self._require_uow(uow)
         query = select(self.db_model_cls)
         if entity_ids is not None:
             query = query.where(self.db_model_cls.id.in_(entity_ids))
+        query = self._apply_spec(query, specification)
         result = await active_uow.session.execute(query)
         return [self.from_model(m) for m in result.scalars().all()]
 

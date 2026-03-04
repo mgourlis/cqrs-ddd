@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from cqrs_ddd_core.ports.repository import IRepository
 
@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     import builtins
     from datetime import datetime
 
+    from cqrs_ddd_core.domain.specification import ISpecification
     from cqrs_ddd_core.ports.unit_of_work import UnitOfWork
 
     from ..background_jobs.entity import BackgroundJobStatus, BaseBackgroundJob
@@ -33,7 +34,11 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
     """
 
     async def get_stale_jobs(
-        self, timeout_seconds: int | None = None, uow: UnitOfWork | None = None
+        self,
+        timeout_seconds: int | None = None,
+        uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> builtins.list[BaseBackgroundJob]:
         """Fetch RUNNING jobs that have exceeded their timeout.
 
@@ -41,6 +46,7 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
             timeout_seconds: Override the default timeout.
                 If None, uses repository default.
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
         """
         ...
 
@@ -50,6 +56,8 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
         limit: int = 50,
         offset: int = 0,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> builtins.list[BaseBackgroundJob]:
         """Return jobs matching any of the given statuses, with pagination.
 
@@ -60,12 +68,15 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
             limit: Maximum number of results to return.
             offset: Number of results to skip (for pagination).
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
         """
         ...
 
     async def count_by_status(
         self,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> builtins.dict[str, int]:
         """Return a mapping of status value → job count across all statuses.
 
@@ -73,6 +84,7 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
 
         Args:
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
         """
         ...
 
@@ -80,12 +92,15 @@ class IBackgroundJobRepository(IRepository["BaseBackgroundJob", str], Protocol):
         self,
         before: datetime,
         uow: UnitOfWork | None = None,
+        *,
+        specification: ISpecification[Any] | None = None,
     ) -> int:
         """Delete COMPLETED and CANCELLED jobs whose ``updated_at`` precedes ``before``.
 
         Args:
             before: UTC datetime threshold; jobs updated before this are deleted.
             uow: Optional UnitOfWork to use.
+            specification: Optional specification for additional filtering.
 
         Returns:
             Number of jobs deleted.
