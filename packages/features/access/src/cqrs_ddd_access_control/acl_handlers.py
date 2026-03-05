@@ -265,14 +265,20 @@ def register_priority_acl_handlers(
         event_store,
     )
 
-    grant_wrapper = lambda event: grant_handler(event)
+    async def grant_wrapper(event: DomainEvent) -> None:
+        await grant_handler(event)  # type: ignore[arg-type]
+
     grant_wrapper._event_store = grant_handler._event_store  # type: ignore
     grant_wrapper._enforce_tenant_isolation = grant_handler._enforce_tenant_isolation  # type: ignore
 
-    revoke_wrapper = lambda event: revoke_handler(event)
+    async def revoke_wrapper(event: DomainEvent) -> None:
+        await revoke_handler(event)  # type: ignore[arg-type]
+
     revoke_wrapper._event_store = revoke_handler._event_store  # type: ignore
 
-    public_wrapper = lambda event: public_handler(event)
+    async def public_wrapper(event: DomainEvent) -> None:
+        await public_handler(event)  # type: ignore[arg-type]
+
     public_wrapper._event_store = public_handler._event_store  # type: ignore
 
     event_dispatcher.register(ACLGrantRequested, grant_wrapper)
