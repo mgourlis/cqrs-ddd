@@ -42,6 +42,14 @@ Authorization layer for CQRS-DDD applications — RBAC, ABAC, ACL, ownership, si
 - [Resource Synchronization](#resource-synchronization)
 - [Permission Caching](#permission-caching)
 - [Elevation (Step-Up Authentication)](#elevation-step-up-authentication)
+  - [verify_elevation()](#verify_elevation)
+  - [Step-Up Flow Overview](#step-up-flow-overview)
+  - [Step-Up Commands](#step-up-commands)
+  - [Step-Up Events](#step-up-events)
+  - [Step-Up Handlers](#step-up-handlers)
+  - [StepUpAuthenticationSaga](#stepupauthenticationsaga)
+  - [serialize_command Utility](#serialize_command-utility)
+  - [End-to-End Example](#end-to-end-example)
 - [Undo / Redo](#undo--redo)
 - [Multi-Tenant Isolation](#multi-tenant-isolation)
 - [Bypass Roles](#bypass-roles)
@@ -1300,7 +1308,14 @@ The PEP checks the cache *before* consulting evaluators and stores the final dec
 
 ## Elevation (Step-Up Authentication)
 
-`verify_elevation()` checks if the current principal has step-up authentication for a sensitive action. Uses the `"elevation"` resource type in the ABAC engine.
+The package provides two complementary tools for step-up authentication:
+
+1. **`verify_elevation()`** — runtime check to confirm the current user holds an active elevation grant.
+2. **Step-up commands, events, handlers, and saga** — a full orchestration layer for requesting, verifying, and automatically revoking temporary elevation grants.
+
+### verify_elevation()
+
+Checks if the current principal has step-up authentication for a sensitive action. Uses the `"elevation"` resource type in the ABAC engine.
 
 ```python
 from cqrs_ddd_access_control import verify_elevation
@@ -1324,6 +1339,332 @@ if not is_elevated:
 ```
 
 **How it works:** Calls `check_access(access_token, resource_type="elevation", action=action)` on the authorization port. The ABAC engine maintains elevation grants that are time-limited and tied to successful step-up authentication (MFA re-verification, etc.).
+
+---
+
+### Step-Up Flow Overview
+
+The step-up flow orchestrates MFA-gated re-authentication before allowing a sensitive operation to proceed. It integrates with the CQRS command pipeline and, optionally, the `StepUpAuthenticationSaga` for full saga-based orchestration.
+
+```
+ ┌─────────────────────────────────────────────────────────────┐
+ │  1. Command handler detects elevation required              │
+ │     → emits SensitiveOperationRequested                     │
+ └────────────────────────┬────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────┐
+ │  2. Identity / auth layer handles SensitiveOperationRequested│
+ │     → sends MFA challenge to user (OTP, TOTP, push …)       │
+ │  [Saga: SUSPENDED — 5-minute timeout]                       │
+ └────────────────────────┬────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────┐
+ │  3. User submits MFA code                                   │
+ │     → identity layer emits MFAChallengeVerified             │
+ │  [Saga: RESUME]                                             │
+ └────────────────────────┬────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────┐
+ │  4. Saga dispatches GrantTemporaryElevation                 │
+ │     → ACLGrantRequested  → ABAC creates time-limited grant  │
+ │     → TemporaryElevationGranted (audit)                     │
+ └────────────────────────┬────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────┐
+ │  5. Saga dispatches ResumeSensitiveOperation                │
+ │     → original command is deserialized and re-dispatched    │
+ │     → SensitiveOperationCompleted                           │
+ └────────────────────────┬────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────┐
+ │  6. Saga dispatches RevokeElevation → cleans up ACL grants  │
+ │     → TemporaryElevationRevoked (audit)                     │
+ │  [Saga: COMPLETED]                                          │
+ └─────────────────────────────────────────────────────────────┘
+```
+
+**Timeout path:** If the user does not verify within 5 minutes, the saga dispatches `RevokeElevation` (removing any partial grants), runs compensation, and marks itself `FAILED`.
+
+---
+
+### Step-Up Commands
+
+All commands are importable from `cqrs_ddd_access_control` directly.
+
+#### `GrantTemporaryElevation`
+
+Grants temporary elevated privileges for a specific action. Typically dispatched by the saga after `MFAChallengeVerified`.
+
+```python
+from cqrs_ddd_access_control import GrantTemporaryElevation
+
+cmd = GrantTemporaryElevation(
+    user_id="user-123",
+    action="delete_tenant",
+    ttl_seconds=300,       # default: 5 minutes
+)
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user_id` | `str` | The user receiving the elevation |
+| `action` | `str` | The ABAC action being elevated |
+| `ttl_seconds` | `int` | TTL in seconds (default `300`) |
+
+#### `RevokeElevation`
+
+Revokes temporary elevated privileges. If `action` is `None`, revokes all elevation ACLs for the session (matched by `correlation_id`).
+
+```python
+from cqrs_ddd_access_control import RevokeElevation
+
+# Revoke all elevations for this session
+cmd = RevokeElevation(
+    user_id="user-123",
+    reason="completed",     # or "timeout", "saga_compensation"
+)
+
+# Revoke a specific action's elevation
+cmd = RevokeElevation(
+    user_id="user-123",
+    action="delete_tenant",
+    reason="completed",
+)
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `user_id` | `str` | The user whose elevation is revoked |
+| `action` | `str \| None` | Specific action (`None` = all for session) |
+| `reason` | `str` | Revocation reason (audit) |
+
+#### `ResumeSensitiveOperation`
+
+Signals that MFA is complete and the suspended operation may proceed. If `original_command_data` is provided, the handler deserializes and re-dispatches the original command automatically.
+
+```python
+from cqrs_ddd_access_control import ResumeSensitiveOperation
+
+cmd = ResumeSensitiveOperation(
+    operation_id="op-abc-123",
+    original_command_data={
+        "module_name": "myapp.application.commands",
+        "type_name": "DeleteTenant",
+        "data": {"tenant_id": "t-42"},
+    },
+)
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `operation_id` | `str` | The operation ID from `SensitiveOperationRequested` |
+| `original_command_data` | `dict \| None` | Serialised original command for auto-replay |
+
+---
+
+### Step-Up Events
+
+| Event | Emitted by | Purpose |
+|-------|-----------|--------|
+| `SensitiveOperationRequested` | Your command handler | Triggers MFA challenge delivery and saga suspension |
+| `MFAChallengeVerified` | Identity / auth layer | Resumes the saga after successful MFA |
+| `SensitiveOperationCompleted` | `ResumeSensitiveOperationHandler` | Signals saga to revoke elevation and complete |
+| `TemporaryElevationGranted` | `GrantTemporaryElevationHandler` | Audit: elevation was granted |
+| `TemporaryElevationRevoked` | `RevokeElevationHandler` | Audit: elevation was revoked |
+
+#### `SensitiveOperationRequested`
+
+```python
+from cqrs_ddd_access_control import SensitiveOperationRequested, serialize_command
+import uuid
+
+event = SensitiveOperationRequested(
+    user_id=command.user_id,
+    operation_id=str(uuid.uuid4()),
+    action="delete_tenant",
+    original_command_data=serialize_command(command),  # for auto-replay
+)
+```
+
+#### `MFAChallengeVerified`
+
+Your identity/auth layer emits this after confirming the user's MFA code:
+
+```python
+from cqrs_ddd_access_control import MFAChallengeVerified
+
+event = MFAChallengeVerified(
+    user_id="user-123",
+    method="totp",   # "email", "sms", "totp", "push", ...
+)
+```
+
+---
+
+### Step-Up Handlers
+
+Register these with your mediator/command bus alongside your other handlers.
+
+#### `GrantTemporaryElevationHandler`
+
+Emits `ACLGrantRequested` (processed by the priority ACL handler to create the `"elevation"` ACL in the ABAC engine) and `TemporaryElevationGranted`.
+
+```python
+from cqrs_ddd_access_control import GrantTemporaryElevationHandler
+
+mediator.register_handler(GrantTemporaryElevation, GrantTemporaryElevationHandler())
+```
+
+#### `RevokeElevationHandler`
+
+Calls the undo service to reverse all ACL grants created during the elevated session, then emits `TemporaryElevationRevoked`.
+
+```python
+from cqrs_ddd_access_control import RevokeElevationHandler
+
+mediator.register_handler(
+    RevokeElevation,
+    RevokeElevationHandler(undo_service=my_undo_service),  # undo_service optional
+)
+```
+
+#### `ResumeSensitiveOperationHandler`
+
+Deserializes and re-dispatches the original command (if `original_command_data` is set), then emits `SensitiveOperationCompleted`.
+
+```python
+from cqrs_ddd_access_control import ResumeSensitiveOperationHandler
+
+mediator.register_handler(
+    ResumeSensitiveOperation,
+    ResumeSensitiveOperationHandler(mediator=mediator),
+)
+```
+
+---
+
+### StepUpAuthenticationSaga
+
+Requires `cqrs-ddd-advanced-core` (`pip install cqrs-ddd-access-control[advanced]`).
+
+```python
+from cqrs_ddd_access_control import StepUpAuthenticationSaga, StepUpState
+```
+
+The saga orchestrates the full step-up flow automatically:
+
+| Trigger | Saga action |
+|---------|------------|
+| `SensitiveOperationRequested` | Saves state, **suspends** with a 5-minute timeout |
+| `MFAChallengeVerified` (matching user) | **Resumes**, dispatches `GrantTemporaryElevation` + `ResumeSensitiveOperation`, registers `RevokeElevation` as compensation |
+| `SensitiveOperationCompleted` | Dispatches `RevokeElevation`, **completes** |
+| Timeout | Dispatches `RevokeElevation`, runs compensation, **fails** |
+
+**Registration:**
+
+```python
+from cqrs_ddd_advanced_core.sagas import SagaRegistry
+from cqrs_ddd_access_control import StepUpAuthenticationSaga, StepUpState
+
+registry = SagaRegistry()
+registry.register(StepUpAuthenticationSaga, state_factory=StepUpState)
+```
+
+**Custom MFA TTL:**
+
+```python
+# Default: 5 minutes (300 s) — override via constructor
+step_up_saga = StepUpAuthenticationSaga(
+    state=StepUpState(),
+    mfa_ttl_seconds=600,  # 10 minutes
+)
+```
+
+**`StepUpState` fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `operation_id` | `str \| None` | ID of the pending operation |
+| `user_id` | `str \| None` | The user being authenticated |
+| `required_action` | `str \| None` | The action the user must be elevated for |
+| `original_command_data` | `dict \| None` | Serialised command for auto-replay |
+
+---
+
+### serialize_command Utility
+
+`serialize_command()` serialises any Pydantic-based `Command` to a JSON-safe dict so it can be stored in `SensitiveOperationRequested.original_command_data` and automatically replayed by `ResumeSensitiveOperationHandler`.
+
+```python
+from cqrs_ddd_access_control import serialize_command
+
+data = serialize_command(my_command)
+# {
+#   "module_name": "myapp.application.commands",
+#   "type_name": "DeleteTenant",
+#   "data": {"tenant_id": "t-42", ...},  # model_dump, excludes IDs
+# }
+```
+
+`command_id` and `correlation_id` are excluded from `data`; they are regenerated when the command is re-dispatched.
+
+---
+
+### End-to-End Example
+
+```python
+import uuid
+from cqrs_ddd_access_control import (
+    SensitiveOperationRequested,
+    MFAChallengeVerified,
+    GrantTemporaryElevationHandler,
+    RevokeElevationHandler,
+    ResumeSensitiveOperationHandler,
+    GrantTemporaryElevation,
+    RevokeElevation,
+    ResumeSensitiveOperation,
+    serialize_command,
+    verify_elevation,
+)
+from cqrs_ddd_access_control import StepUpAuthenticationSaga, StepUpState
+
+# --- 1. Register handlers ---
+mediator.register_handler(GrantTemporaryElevation, GrantTemporaryElevationHandler())
+mediator.register_handler(RevokeElevation, RevokeElevationHandler(undo_service=undo_svc))
+mediator.register_handler(
+    ResumeSensitiveOperation,
+    ResumeSensitiveOperationHandler(mediator=mediator),
+)
+
+# --- 2. Register the saga ---
+from cqrs_ddd_advanced_core.sagas import SagaRegistry
+registry = SagaRegistry()
+registry.register(StepUpAuthenticationSaga, state_factory=StepUpState)
+
+# --- 3. Command handler emits SensitiveOperationRequested ---
+class DeleteTenantHandler(CommandHandler):
+    async def handle(self, command):
+        # Check for elevation; if absent, request step-up
+        is_elevated = await verify_elevation(
+            auth_port, action="delete_tenant", on_fail="return"
+        )
+        if not is_elevated:
+            event = SensitiveOperationRequested(
+                user_id=command.user_id,
+                operation_id=str(uuid.uuid4()),
+                action="delete_tenant",
+                original_command_data=serialize_command(command),
+            )
+            return CommandResponse(result=None, events=[event])
+
+        # Elevation confirmed — proceed with deletion
+        ...
+
+# --- 4. Identity layer: user passes MFA → emit MFAChallengeVerified ---
+event = MFAChallengeVerified(user_id="user-123", method="totp")
+await event_dispatcher.dispatch(event)
+# Saga resumes → grants elevation → re-dispatches DeleteTenant → revokes elevation
+```
 
 ---
 
