@@ -21,7 +21,8 @@ from .events import (
 from .exceptions import ACLError
 
 if TYPE_CHECKING:
-    from cqrs_ddd_core.ports.event_bus import IEventDispatcher
+    from cqrs_ddd_core.domain.events import DomainEvent
+    from cqrs_ddd_core.ports.event_dispatcher import IEventDispatcher
     from cqrs_ddd_core.ports.event_store import IEventStore
 
     from .ports import IAuthorizationAdminPort
@@ -231,7 +232,7 @@ class ResourceTypePublicSetHandler:
 
 
 def register_priority_acl_handlers(
-    event_dispatcher: IEventDispatcher,
+    event_dispatcher: IEventDispatcher[DomainEvent],
     admin_port: IAuthorizationAdminPort,
     event_store: IEventStore | None = None,
     enforce_tenant_isolation: bool = False,
@@ -250,15 +251,29 @@ def register_priority_acl_handlers(
         When True, ``ACLGrantRequestedHandler`` auto-injects a
         ``tenant_id`` condition into ACL conditions.
     """
+    grant_handler = ACLGrantRequestedHandler(
+        admin_port,
+        event_store,
+        enforce_tenant_isolation,
+    )
+    revoke_handler = ACLRevokeRequestedHandler(
+        admin_port,
+        event_store,
+    )
+    public_handler = ResourceTypePublicSetHandler(
+        admin_port,
+        event_store,
+    )
+
     event_dispatcher.register(
         ACLGrantRequested,
-        ACLGrantRequestedHandler(admin_port, event_store, enforce_tenant_isolation),
+        lambda event: grant_handler(event),
     )
     event_dispatcher.register(
         ACLRevokeRequested,
-        ACLRevokeRequestedHandler(admin_port, event_store),
+        lambda event: revoke_handler(event),
     )
     event_dispatcher.register(
         ResourceTypePublicSetRequested,
-        ResourceTypePublicSetHandler(admin_port, event_store),
+        lambda event: public_handler(event),
     )

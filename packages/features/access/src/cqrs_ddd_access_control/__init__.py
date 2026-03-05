@@ -12,6 +12,8 @@ Public API re-exports for convenient usage::
 
 from __future__ import annotations
 
+from contextlib import suppress
+
 # ---------------------------------------------------------------------------
 # Priority Event Handlers
 # ---------------------------------------------------------------------------
@@ -145,7 +147,31 @@ from .ports import (
     IPermissionCache,
     IResourceTypeRegistry,
 )
+
+# ---------------------------------------------------------------------------
+# Step-up Authentication
+# ---------------------------------------------------------------------------
+from .step_up import (
+    GrantTemporaryElevation,
+    GrantTemporaryElevationHandler,
+    GrantTemporaryElevationResult,
+    MFAChallengeVerified,
+    ResumeSensitiveOperation,
+    ResumeSensitiveOperationHandler,
+    ResumeSensitiveOperationResult,
+    RevokeElevation,
+    RevokeElevationHandler,
+    RevokeElevationResult,
+    SensitiveOperationCompleted,
+    SensitiveOperationRequested,
+    TemporaryElevationGranted,
+    TemporaryElevationRevoked,
+    serialize_command,
+)
 from .sync import ResourceSyncService
+
+with suppress(ImportError):
+    from .step_up import StepUpAuthenticationSaga, StepUpState
 
 __all__ = [
     # Exceptions
@@ -230,4 +256,22 @@ __all__ = [
     "get_ownership_requirement",
     "get_authorization_config",
     "verify_elevation",
+    # Step-up Authentication
+    "SensitiveOperationRequested",
+    "MFAChallengeVerified",
+    "SensitiveOperationCompleted",
+    "TemporaryElevationGranted",
+    "TemporaryElevationRevoked",
+    "GrantTemporaryElevation",
+    "RevokeElevation",
+    "ResumeSensitiveOperation",
+    "GrantTemporaryElevationResult",
+    "RevokeElevationResult",
+    "ResumeSensitiveOperationResult",
+    "GrantTemporaryElevationHandler",
+    "RevokeElevationHandler",
+    "ResumeSensitiveOperationHandler",
+    "serialize_command",
+    "StepUpAuthenticationSaga",
+    "StepUpState",
 ]
