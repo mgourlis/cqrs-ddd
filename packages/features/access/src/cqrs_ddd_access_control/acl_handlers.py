@@ -265,15 +265,16 @@ def register_priority_acl_handlers(
         event_store,
     )
 
-    event_dispatcher.register(
-        ACLGrantRequested,
-        lambda event: grant_handler(event),
-    )
-    event_dispatcher.register(
-        ACLRevokeRequested,
-        lambda event: revoke_handler(event),
-    )
-    event_dispatcher.register(
-        ResourceTypePublicSetRequested,
-        lambda event: public_handler(event),
-    )
+    grant_wrapper = lambda event: grant_handler(event)
+    grant_wrapper._event_store = grant_handler._event_store  # type: ignore
+    grant_wrapper._enforce_tenant_isolation = grant_handler._enforce_tenant_isolation  # type: ignore
+
+    revoke_wrapper = lambda event: revoke_handler(event)
+    revoke_wrapper._event_store = revoke_handler._event_store  # type: ignore
+
+    public_wrapper = lambda event: public_handler(event)
+    public_wrapper._event_store = public_handler._event_store  # type: ignore
+
+    event_dispatcher.register(ACLGrantRequested, grant_wrapper)
+    event_dispatcher.register(ACLRevokeRequested, revoke_wrapper)
+    event_dispatcher.register(ResourceTypePublicSetRequested, public_wrapper)
